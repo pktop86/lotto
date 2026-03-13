@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>🎰 로또엔진 로또번호 생성기</title>
+<!-- v1773386923 -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9933896132600937" crossorigin="anonymous"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Black+Han+Sans&display=swap');
@@ -302,7 +306,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   <div class="tab-content on" id="tab-pick">
     <div class="status-bar">
       <div class="s-dot loading" id="s-dot"></div>
-      <span id="s-text">초기화 중...</span>
+      <span id="s-text">준비 중...</span>
       <span id="s-extra"></span>
     </div>
     <div class="stats-row">
@@ -329,12 +333,12 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     </div>
     <div class="section-box">
       <div class="sec-title">번호별 출현 빈도 (1~45)</div>
-      <div class="freq-bars" id="freq-bars"><div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:11px;padding:16px 0">로딩 중...</div></div>
+      <div class="freq-bars" id="freq-bars"></div>
     </div>
     <div class="gen-box">
       <div class="free-counter" id="free-counter">
         <div class="free-pips" id="free-pips"></div>
-        <div class="free-text" id="free-text">로딩 중...</div>
+        <div class="free-text" id="free-text"></div>
       </div>
       <div class="ctrl-section">
         <span class="ctrl-label">생성 수 선택</span>
@@ -352,7 +356,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     </div>
     <div class="section-box">
       <div class="sec-title">번호별 상세 통계</div>
-      <div class="freq-grid" id="freq-grid"><div style="grid-column:1/-1;text-align:center;color:var(--muted);font-size:11px;padding:14px 0">로딩 중...</div></div>
+      <div class="freq-grid" id="freq-grid"></div>
     </div>
     <div class="ad-banner-bottom">
       <ins class="adsbygoogle" style="display:block;width:100%;min-height:90px"
@@ -560,13 +564,18 @@ function startAuth(){
 const PROXIES=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?'];
 async function fetchRound(r,proxy){
   const url=`https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=${r}`;
-  const res=await fetch(proxy+encodeURIComponent(url),{signal:AbortSignal.timeout(2000)});
+  const res=await fetch(proxy+encodeURIComponent(url),{signal:AbortSignal.timeout(1500)});
   const d=await res.json();
   if(!d||d.returnValue!=='success') throw 0;
   return{round:r,nums:[1,2,3,4,5,6].map(i=>d[`drwtNo${i}`]),bonus:d.bnusNo,date:d.drwNoDate};
 }
 async function tryFetch(r){for(const p of PROXIES){try{return await fetchRound(r,p);}catch(e){}}return null;}
 async function fetchNewRounds(){
+  // 전체 8초 타임아웃
+  const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),8000));
+  return Promise.race([_doFetchNewRounds(), timeoutPromise]);
+}
+async function _doFetchNewRounds(){
   let r=latestRound+1,count=0;
   while(true){
     const d=await tryFetch(r);
