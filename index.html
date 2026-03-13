@@ -171,6 +171,8 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .my-item-balls{display:flex;gap:4px;flex-wrap:wrap;flex:1}
 .my-item-prize{font-size:10px;flex-shrink:0}
 .my-item-tags{display:flex;flex-wrap:wrap;gap:3px;padding-top:6px;border-top:1px solid var(--border)}
+.del-btn{background:rgba(255,80,80,.12);border:1px solid rgba(255,80,80,.25);color:var(--red);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;flex-shrink:0;transition:all .2s}
+.del-btn:hover{background:rgba(255,80,80,.25)}
  
 .win-banner{background:linear-gradient(135deg,rgba(240,192,64,.15),rgba(224,92,32,.1));border:1px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:12px;text-align:center}
 .win-banner-icon{font-size:28px;margin-bottom:4px}
@@ -327,9 +329,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <div class="ctrl-section">
         <span class="ctrl-label">생성 수 선택</span>
         <div class="seg">
-          <button class="seg-btn on" data-n="1">1줄</button>
-          <button class="seg-btn" data-n="3">3줄</button>
-          <button class="seg-btn" data-n="5">5줄</button>
+          <button class="seg-btn on" data-n="5">5줄</button>
           <button class="seg-btn" data-n="10">10줄</button>
         </div>
       </div>
@@ -418,6 +418,16 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   </div>
  
 </div><!-- /wrap -->
+<!-- 삭제 확인 모달 -->
+<div class="modal-overlay" id="del-modal">
+  <div class="modal">
+    <div class="modal-icon">🗑️</div>
+    <div class="modal-title" style="color:var(--red)">번호 삭제</div>
+    <div class="modal-desc">정말 삭제하겠습니까?<br><div id="del-modal-nums" style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:12px"></div></div>
+    <button class="modal-btn modal-btn-primary" id="del-confirm-btn" style="background:linear-gradient(135deg,var(--red),#c01010)">✅ 삭제</button>
+    <button class="modal-btn modal-btn-secondary" id="del-cancel-btn" style="margin-top:8px">취소</button>
+  </div>
+</div>
  
 <!-- 광고 모달 -->
 <div class="modal-overlay" id="ad-modal">
@@ -482,7 +492,7 @@ let latestRound=1214;
 let latestWinNums=[];
 let latestBonusNum=0;
 let isReady=false;
-let genCount=1;
+let genCount=5;
 let currentUid=null;
 let viewRound=1214;
 let unsubHistory=null;
@@ -868,11 +878,12 @@ function renderMyNums(docs){
         const h=(d.nums||[]).filter(n=>wn.includes(n)).length;
         if(h>0) tagHtml.push(`<span class="tag info">${h}개 일치</span>`);
       }
-      return `<div class="my-item">
+      return `<div class="my-item" data-id="${d.id}">
         <div class="my-item-top">
           <div class="my-item-idx">${i+1}</div>
           <div class="my-item-balls">${ballsHtml}</div>
           ${showResult&&p>0?`<div class="my-item-prize">${PLABELS[p]}</div>`:''}
+          <button class="del-btn" onclick="confirmDeletePick('${d.id}','${(d.nums||[]).join(',')}')">🗑️</button>
         </div>
         ${tagHtml.length?`<div class="my-item-tags">${tagHtml.join('')}</div>`:''}
       </div>`;
@@ -1056,6 +1067,33 @@ document.querySelectorAll('.seg-btn').forEach(btn=>{
     btn.classList.add('on');
     genCount=parseInt(btn.dataset.n);
   });
+});
+ 
+// ── 삭제 확인 모달 ──
+let pendingDeleteId = null;
+window.confirmDeletePick = function(id, numsStr) {
+  pendingDeleteId = id;
+  const nums = numsStr.split(',').map(Number);
+  const numsEl = document.getElementById('del-modal-nums');
+  numsEl.innerHTML = nums.map(n=>`<div class="ball ${ballCls(n)}" style="width:30px;height:30px;font-size:11px">${n}</div>`).join('');
+  document.getElementById('del-modal').classList.add('show');
+};
+document.getElementById('del-confirm-btn').addEventListener('click', async ()=>{
+  if(!pendingDeleteId||!db) return;
+  try{ await deleteDoc(doc(db,'picks',pendingDeleteId)); }
+  catch(e){ console.error('delete error:',e); }
+  document.getElementById('del-modal').classList.remove('show');
+  pendingDeleteId = null;
+});
+document.getElementById('del-cancel-btn').addEventListener('click', ()=>{
+  document.getElementById('del-modal').classList.remove('show');
+  pendingDeleteId = null;
+});
+document.getElementById('del-modal').addEventListener('click', e=>{
+  if(e.target===document.getElementById('del-modal')){
+    document.getElementById('del-modal').classList.remove('show');
+    pendingDeleteId = null;
+  }
 });
  
 init();
