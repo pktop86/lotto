@@ -826,58 +826,125 @@ function refreshMyNums(){ loadMyNums(); }
  
 function startMyNumsListener(){ loadMyNums(); }
  
-// 현재 화면에 표시된 doc 목록 (삭제 선택용)
+// ── 내 번호 상태 ──
 let currentMyDocs = [];
+let checkedIds = new Set(); // 체크 상태를 별도 관리
  
 function updateSelCount(){
-  const checked = document.querySelectorAll('.my-cb:checked');
-  const count = checked.length;
-  document.getElementById('sel-count').textContent = count > 0 ? `${count}개 선택됨` : '';
+  const count = checkedIds.size;
+  document.getElementById('sel-count').textContent = count > 0 ? count+'개 선택됨' : '';
   document.getElementById('btn-delete-selected').disabled = count === 0;
 }
  
-function renderMyNums(docs){
-  currentMyDocs = docs;
- 
-  // 전체 당첨 기록 카운트 (삭제되지 않은 것만 = 현재 docs 기준)
+function recalcPrizeCounts(){
   const cnt={1:0,2:0,3:0,4:0,5:0};
-  docs.forEach(d=>{
+  currentMyDocs.forEach(d=>{
     const entry=recentHist.find(h=>h.round===d.round);
-    const wn=entry?entry.nums:latestWinNums;
-    const bn=entry?entry.bonus:latestBonusNum;
+    const wn=entry?entry.nums:(d.round===latestRound?latestWinNums:[]);
+    const bn=entry?entry.bonus:(d.round===latestRound?latestBonusNum:0);
     const p=checkPrize(d.nums||[],wn,bn);
     if(p>0) cnt[p]++;
   });
-  for(let i=1;i<=5;i++) document.getElementById(`my-cnt${i}`).textContent=cnt[i];
+  for(let i=1;i<=5;i++){
+    const el=document.getElementById('my-cnt'+i);
+    if(el) el.textContent=cnt[i];
+  }
+}
  
-  const toolbar = document.getElementById('my-toolbar');
+function renderMyNumsItem(d, idx, wn, bn, showResult, hitSet){
+  const item=document.createElement('div');
+  item.className='my-item';
+  item.dataset.id=d.id;
+ 
+  // 체크박스 - DOM 직접 생성으로 상태 보존
+  const cb=document.createElement('input');
+  cb.type='checkbox';
+  cb.className='my-checkbox my-cb';
+  cb.dataset.id=d.id;
+  cb.checked=checkedIds.has(d.id);
+  cb.addEventListener('change',()=>{
+    if(cb.checked) checkedIds.add(d.id);
+    else checkedIds.delete(d.id);
+    updateSelCount();
+  });
+ 
+  const top=document.createElement('div');
+  top.className='my-item-top';
+  top.appendChild(cb);
+ 
+  const idxEl=document.createElement('div');
+  idxEl.className='my-item-idx';
+  idxEl.textContent=idx+1;
+  top.appendChild(idxEl);
+ 
+  const balls=document.createElement('div');
+  balls.className='my-item-balls';
+  (d.nums||[]).forEach(n=>{
+    const b=document.createElement('div');
+    b.className='ball '+ballCls(n)+(hitSet.has(n)?' hit':'');
+    b.style.cssText='width:30px;height:30px;font-size:11px';
+    b.textContent=n;
+    balls.appendChild(b);
+  });
+  top.appendChild(balls);
+ 
+  const p=showResult?checkPrize(d.nums||[],wn,bn):0;
+  if(showResult&&p>0){
+    const prize=document.createElement('div');
+    prize.className='my-item-prize';
+    prize.textContent=PLABELS[p];
+    top.appendChild(prize);
+  }
+ 
+  const delBtn=document.createElement('button');
+  delBtn.className='del-btn';
+  delBtn.textContent='🗑️';
+  delBtn.addEventListener('click',()=>showDelModal([d.id],[d.nums||[]]));
+  top.appendChild(delBtn);
+ 
+  item.appendChild(top);
+ 
+  if(showResult){
+    const tags=document.createElement('div');
+    tags.className='my-item-tags';
+    if(p>0) tags.innerHTML+=`<span class="tag ${PCLS[p]}">${PLABELS[p]}</span>`;
+    else tags.innerHTML+=`<span class="tag warn">미당첨</span>`;
+    const h=(d.nums||[]).filter(n=>wn.includes(n)).length;
+    if(h>0) tags.innerHTML+=`<span class="tag info">${h}개 일치</span>`;
+    item.appendChild(tags);
+  }
+  return item;
+}
+ 
+function renderMyNums(docs){
+  currentMyDocs=docs;
+  // 사라진 id는 checkedIds에서 제거
+  const docIds=new Set(docs.map(d=>d.id));
+  checkedIds.forEach(id=>{ if(!docIds.has(id)) checkedIds.delete(id); });
+ 
+  recalcPrizeCounts();
+ 
+  const toolbar=document.getElementById('my-toolbar');
   const container=document.getElementById('my-nums-container');
  
   if(!docs.length){
     toolbar.style.display='none';
-    container.innerHTML=`<div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>`;
+    checkedIds.clear();
+    updateSelCount();
+    container.innerHTML='<div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>';
     return;
   }
   toolbar.style.display='flex';
  
-  // 컨테이너 이벤트 위임으로 체크박스 처리
-  if(!container._cbDelegated){
-    container._cbDelegated=true;
-    container.addEventListener('change', e=>{
-      if(e.target.classList.contains('my-cb')) updateSelCount();
-    });
-  }
+  const kst=new Date(new Date().getTime()+9*3600000);
+  const day=kst.getDay(), hour=kst.getHours();
+  const resultAvailable=(day===6&&hour>=22)||(day===0&&hour<12)||latestWinNums.length===6;
  
-  // 회차별 그룹핑
   const grouped={};
   docs.forEach(d=>{
     if(!grouped[d.round]) grouped[d.round]=[];
     grouped[d.round].push(d);
   });
- 
-  const kst=new Date(new Date().getTime()+9*3600000);
-  const day=kst.getDay(), hour=kst.getHours();
-  const resultAvailable=(day===6&&hour>=22)||(day===0&&hour<12)||latestWinNums.length===6;
  
   container.innerHTML='';
   Object.keys(grouped).sort((a,b)=>b-a).forEach(round=>{
@@ -887,60 +954,85 @@ function renderMyNums(docs){
     const bn=entry?entry.bonus:0;
     const hitSet=new Set(wn);
     const isLatest=roundNum===latestRound;
+    const showResult=wn.length===6&&resultAvailable;
+    const roundItems=grouped[round];
  
     const sec=document.createElement('div');
     sec.className='my-round-section';
  
-    // 당첨 결과 표시 여부
-    const showResult=wn.length===6&&resultAvailable;
- 
-    // 이번 회차 최고 당첨
-    const roundItems=grouped[round];
+    // 배너
     let bestPrize=0;
     if(showResult) roundItems.forEach(d=>{const p=checkPrize(d.nums||[],wn,bn);if(p>0&&(bestPrize===0||p<bestPrize))bestPrize=p;});
- 
-    let bannerHtml='';
     if(showResult&&bestPrize>0&&bestPrize<=2){
-      bannerHtml=`<div class="win-banner"><div class="win-banner-icon">${bestPrize===1?'🥇':'🥈'}</div><div class="win-banner-text">${PLABELS[bestPrize]} 당첨!</div><div class="win-banner-sub">이번 회차에서 당첨이 발생했습니다</div></div>`;
+      sec.innerHTML+=`<div class="win-banner"><div class="win-banner-icon">${bestPrize===1?'🥇':'🥈'}</div><div class="win-banner-text">${PLABELS[bestPrize]} 당첨!</div><div class="win-banner-sub">이번 회차에서 당첨이 발생했습니다</div></div>`;
     }
  
-    let pendingHtml='';
+    // 타이틀
+    const title=document.createElement('div');
+    title.className='my-round-title';
+    title.innerHTML=roundNum+'회차 '+(isLatest?'<span style="background:var(--accent);color:#000;font-size:9px;padding:2px 7px;border-radius:4px;margin-left:6px">최신</span>':'');
+    sec.appendChild(title);
+ 
+    const sub=document.createElement('div');
+    sub.className='my-round-sub';
+    sub.textContent=(entry&&entry.date?'추첨일: '+entry.date:'')+' · '+roundItems.length+'줄';
+    sec.appendChild(sub);
+ 
+    // 당첨번호 표시
+    if(showResult&&wn.length===6){
+      const winRow=document.createElement('div');
+      winRow.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px';
+      wn.forEach(n=>{
+        const b=document.createElement('div');
+        b.className='ball '+ballCls(n);
+        b.style.cssText='width:28px;height:28px;font-size:10px';
+        b.textContent=n;
+        winRow.appendChild(b);
+      });
+      const bonusLabel=document.createElement('span');
+      bonusLabel.style.cssText='font-size:10px;color:var(--muted);align-self:center';
+      bonusLabel.textContent='+보너스 '+bn;
+      winRow.appendChild(bonusLabel);
+      sec.appendChild(winRow);
+    }
+ 
+    // 대기 중
     if(isLatest&&!showResult){
-      pendingHtml=`<div class="result-pending"><div class="result-pending-icon">⏳</div><div class="result-pending-text">이번 회차 당첨 결과는<br><span class="result-pending-time">토요일 밤 10시 이후</span><br>자동으로 표시됩니다</div></div>`;
+      const pending=document.createElement('div');
+      pending.className='result-pending';
+      pending.innerHTML='<div class="result-pending-icon">⏳</div><div class="result-pending-text">이번 회차 당첨 결과는<br><span class="result-pending-time">토요일 밤 10시 이후</span><br>자동으로 표시됩니다</div>';
+      sec.appendChild(pending);
     }
  
     // 번호 목록
-    const numsHtml=roundItems.map((d,i)=>{
-      const p=showResult?checkPrize(d.nums||[],wn,bn):0;
-      const ballsHtml=(d.nums||[]).map(n=>`<div class="ball ${ballCls(n)}${hitSet.has(n)?' hit':''}" style="width:30px;height:30px;font-size:11px">${n}</div>`).join('');
-      const tagHtml=[];
-      if(showResult){
-        if(p>0) tagHtml.push(`<span class="tag ${PCLS[p]}">${PLABELS[p]}</span>`);
-        else tagHtml.push(`<span class="tag warn">미당첨</span>`);
-        const h=(d.nums||[]).filter(n=>wn.includes(n)).length;
-        if(h>0) tagHtml.push(`<span class="tag info">${h}개 일치</span>`);
-      }
-      return `<div class="my-item" data-id="${d.id}">
-        <div class="my-item-top">
-          <input type="checkbox" class="my-checkbox my-cb" data-id="${d.id}">
-          <div class="my-item-idx">${i+1}</div>
-          <div class="my-item-balls">${ballsHtml}</div>
-          ${showResult&&p>0?`<div class="my-item-prize">${PLABELS[p]}</div>`:''}
-          <button class="del-btn" onclick="confirmDeletePick('${d.id}','${(d.nums||[]).join(',')}')">🗑️</button>
-        </div>
-        ${tagHtml.length?`<div class="my-item-tags">${tagHtml.join('')}</div>`:''}
-      </div>`;
-    }).join('');
+    const list=document.createElement('div');
+    list.className='my-nums-list';
+    roundItems.forEach((d,i)=>list.appendChild(renderMyNumsItem(d,i,wn,bn,showResult,hitSet)));
+    sec.appendChild(list);
  
-    sec.innerHTML=`
-      ${bannerHtml}
-      <div class="my-round-title">${roundNum}회차 ${isLatest?'<span style="background:var(--accent);color:#000;font-size:9px;padding:2px 7px;border-radius:4px;margin-left:6px">최신</span>':''}</div>
-      <div class="my-round-sub">${entry&&entry.date?`추첨일: ${entry.date}`:''} · ${roundItems.length}줄</div>
-      ${showResult&&wn.length===6?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">${wn.map(n=>`<div class="ball ${ballCls(n)}" style="width:28px;height:28px;font-size:10px">${n}</div>`).join('')}<span style="font-size:10px;color:var(--muted);align-self:center">+보너스 ${bn}</span></div>`:''}
-      ${pendingHtml}
-      <div class="my-nums-list">${numsHtml}</div>`;
     container.appendChild(sec);
   });
+  updateSelCount();
+}
+ 
+// 삭제 후 DOM에서 즉시 제거 + currentMyDocs 갱신
+function removeFromView(idsToDelete){
+  currentMyDocs=currentMyDocs.filter(d=>!idsToDelete.includes(d.id));
+  idsToDelete.forEach(id=>{
+    checkedIds.delete(id);
+    const el=document.querySelector('.my-item[data-id="'+id+'"]');
+    if(el) el.remove();
+  });
+  // 빈 섹션 제거
+  document.querySelectorAll('.my-round-section').forEach(sec=>{
+    if(!sec.querySelector('.my-item')) sec.remove();
+  });
+  recalcPrizeCounts();
+  if(!currentMyDocs.length){
+    document.getElementById('my-toolbar').style.display='none';
+    document.getElementById('my-nums-container').innerHTML='<div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>';
+  }
+  updateSelCount();
 }
  
 // ── 당첨현황 잠금 확인 ──
@@ -1115,10 +1207,10 @@ document.querySelectorAll('.seg-btn').forEach(btn=>{
 // ── 삭제 확인 모달 ──
 let pendingDeleteIds = [];
  
-function showDelModal(ids, numsArr) {
+function showDelModal(ids, numsArr){
   pendingDeleteIds = ids;
   const numsEl = document.getElementById('del-modal-nums');
-  if(numsArr.length === 1){
+  if(ids.length === 1){
     numsEl.innerHTML = numsArr[0].map(n=>`<div class="ball ${ballCls(n)}" style="width:30px;height:30px;font-size:11px">${n}</div>`).join('');
   } else {
     numsEl.innerHTML = `<span style="font-size:13px;color:var(--accent);font-weight:700">${ids.length}개의 번호</span>`;
@@ -1126,80 +1218,16 @@ function showDelModal(ids, numsArr) {
   document.getElementById('del-modal').classList.add('show');
 }
  
-// 단일 삭제
-window.confirmDeletePick = function(id, numsStr) {
-  const nums = numsStr.split(',').map(Number);
-  showDelModal([id], [nums]);
-};
- 
-// 선택 삭제
-document.getElementById('btn-delete-selected').addEventListener('click', ()=>{
-  const checked = [...document.querySelectorAll('.my-cb:checked')];
-  if(!checked.length) return;
-  const ids = checked.map(cb=>cb.dataset.id);
-  const numsArr = ids.map(id=>{
-    const d = currentMyDocs.find(d=>d.id===id);
-    return d ? d.nums : [];
-  });
-  showDelModal(ids, numsArr);
-});
- 
-// 전체 삭제
-document.getElementById('btn-delete-all').addEventListener('click', ()=>{
-  if(!currentMyDocs.length) return;
-  const ids = currentMyDocs.map(d=>d.id);
-  showDelModal(ids, currentMyDocs.map(d=>d.nums));
-});
- 
-// 전체 선택
-document.getElementById('btn-select-all').addEventListener('click', ()=>{
-  document.querySelectorAll('.my-cb').forEach(cb=>cb.checked=true);
-  updateSelCount();
-});
- 
-// 선택 해제
-document.getElementById('btn-deselect-all').addEventListener('click', ()=>{
-  document.querySelectorAll('.my-cb').forEach(cb=>cb.checked=false);
-  updateSelCount();
-});
- 
-// 삭제 실행
+// 삭제 실행 - Firebase 삭제 + DOM 즉시 제거
 document.getElementById('del-confirm-btn').addEventListener('click', async ()=>{
   if(!pendingDeleteIds.length||!db) return;
   document.getElementById('del-modal').classList.remove('show');
   const idsToDelete = [...pendingDeleteIds];
   pendingDeleteIds = [];
-  try{
-    // Firebase 삭제
-    await Promise.all(idsToDelete.map(id=>deleteDoc(doc(db,'picks',id))));
-    // currentMyDocs에서 제거
-    currentMyDocs = currentMyDocs.filter(d=>!idsToDelete.includes(d.id));
-    // DOM에서 해당 항목만 제거 (전체 재렌더 없이)
-    idsToDelete.forEach(id=>{
-      const el=document.querySelector(\`.my-item[data-id="${id}"]\`);
-      if(el) el.remove();
-    });
-    // 당첨 카운트 갱신
-    const cnt={1:0,2:0,3:0,4:0,5:0};
-    currentMyDocs.forEach(d=>{
-      const entry=recentHist.find(h=>h.round===d.round);
-      const wn=entry?entry.nums:latestWinNums;
-      const bn=entry?entry.bonus:latestBonusNum;
-      const p=checkPrize(d.nums||[],wn,bn);
-      if(p>0) cnt[p]++;
-    });
-    for(let i=1;i<=5;i++) document.getElementById(`my-cnt${i}`).textContent=cnt[i];
-    // 빈 회차 섹션 제거
-    document.querySelectorAll('.my-round-section').forEach(sec=>{
-      if(!sec.querySelector('.my-item')) sec.remove();
-    });
-    // 전부 삭제됐으면 빈 상태 표시
-    if(!currentMyDocs.length){
-      document.getElementById('my-toolbar').style.display='none';
-      document.getElementById('my-nums-container').innerHTML='<div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>';
-    }
-    updateSelCount();
-  }catch(e){ console.error('delete error:',e); loadMyNums(); }
+  // 1. 화면에서 즉시 제거 (Firebase 응답 기다리지 않음)
+  removeFromView(idsToDelete);
+  // 2. Firebase에서 삭제 (백그라운드)
+  Promise.all(idsToDelete.map(id=>deleteDoc(doc(db,'picks',id)))).catch(e=>console.error('delete error:',e));
 });
  
 document.getElementById('del-cancel-btn').addEventListener('click', ()=>{
@@ -1212,6 +1240,37 @@ document.getElementById('del-modal').addEventListener('click', e=>{
     pendingDeleteIds = [];
   }
 });
+ 
+// 선택 삭제
+document.getElementById('btn-delete-selected').addEventListener('click', ()=>{
+  if(!checkedIds.size) return;
+  const ids=[...checkedIds];
+  const numsArr=ids.map(id=>{ const d=currentMyDocs.find(d=>d.id===id); return d?d.nums:[]; });
+  showDelModal(ids, numsArr);
+});
+ 
+// 전체 삭제
+document.getElementById('btn-delete-all').addEventListener('click', ()=>{
+  if(!currentMyDocs.length) return;
+  showDelModal(currentMyDocs.map(d=>d.id), currentMyDocs.map(d=>d.nums));
+});
+ 
+// 전체 선택
+document.getElementById('btn-select-all').addEventListener('click', ()=>{
+  document.querySelectorAll('.my-cb').forEach(cb=>{
+    cb.checked=true;
+    checkedIds.add(cb.dataset.id);
+  });
+  updateSelCount();
+});
+ 
+// 선택 해제
+document.getElementById('btn-deselect-all').addEventListener('click', ()=>{
+  document.querySelectorAll('.my-cb').forEach(cb=>{ cb.checked=false; });
+  checkedIds.clear();
+  updateSelCount();
+});
+ 
  
 init();
 </script>
