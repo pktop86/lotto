@@ -560,7 +560,7 @@ function startAuth(){
 const PROXIES=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?'];
 async function fetchRound(r,proxy){
   const url=`https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=${r}`;
-  const res=await fetch(proxy+encodeURIComponent(url),{signal:AbortSignal.timeout(3500)});
+  const res=await fetch(proxy+encodeURIComponent(url),{signal:AbortSignal.timeout(2000)});
   const d=await res.json();
   if(!d||d.returnValue!=='success') throw 0;
   return{round:r,nums:[1,2,3,4,5,6].map(i=>d[`drwtNo${i}`]),bonus:d.bnusNo,date:d.drwNoDate};
@@ -583,7 +583,11 @@ async function fetchNewRounds(){
 // ── Init ──
 async function init(){
   try{
-    setStatus('ok',`내장 통계 준비 (261~${latestRound}회)`,`${latestRound-261+1}회차`);
+    // 내장 데이터에서 즉시 당첨번호 세팅
+    if(recentHist.length){
+      const last=recentHist[recentHist.length-1];
+      latestWinNums=last.nums; latestBonusNum=last.bonus||0;
+    }
     isReady=true; genBtn.disabled=false;
     viewRound=latestRound;
     updateStats(); renderFreqBars(); renderFreqGrid();
@@ -592,19 +596,23 @@ async function init(){
     startAuth();
     checkPrizeUnlock();
     startSaturdayChecker();
+    setStatus('ok',`내장 통계 준비 완료 (261~${latestRound}회)`,`${latestRound-261+1}회차`);
  
-    setStatus('loading','최신 회차 확인 중...',`현재 ${latestRound}회`);
-    try{
-      const added=await fetchNewRounds();
-      if(added>0){
-        setStatus('ok',`${added}회차 업데이트 완료`,`최신: ${latestRound}회`);
-        updateStats(); renderFreqBars(); renderFreqGrid();
-        renderPrizeHeader(); loadPrizeTab(latestRound);
-        refreshMyNums();
-      } else {
-        setStatus('ok',`최신 상태 (261~${latestRound}회)`,`${latestRound-261+1}회차`);
-      }
-    }catch(e){ setStatus('ok',`내장 통계 사용 중`,`261~${latestRound}회`); }
+    // 최신 회차 업데이트는 백그라운드로 (UI 블로킹 없이)
+    setTimeout(async()=>{
+      setStatus('loading','최신 회차 확인 중...',`현재 ${latestRound}회`);
+      try{
+        const added=await fetchNewRounds();
+        if(added>0){
+          setStatus('ok',`${added}회차 업데이트 완료`,`최신: ${latestRound}회`);
+          updateStats(); renderFreqBars(); renderFreqGrid();
+          renderPrizeHeader(); loadPrizeTab(latestRound);
+          refreshMyNums();
+        } else {
+          setStatus('ok',`최신 상태 (261~${latestRound}회)`,`${latestRound-261+1}회차`);
+        }
+      }catch(e){ setStatus('ok',`내장 통계 사용 중`,`261~${latestRound}회`); }
+    }, 500);
   }catch(e){
     console.error('Init error:',e);
     setStatus('err','오류 발생 — 새로고침 해주세요','');
