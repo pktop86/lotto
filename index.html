@@ -664,38 +664,46 @@ async function doGenerate(count){
   setTimeout(()=>resultsEl.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
   // Firebase 저장 (auth 준비 후)
   const doSave = async () => {
+    console.log('[doSave] start - authReady=',authReady,'uid=',currentUid,'db=',!!db);
     const ids = await Promise.all(allNums.map(nums => savePick(nums)));
+    console.log('[doSave] saved ids=',ids);
     ids.forEach((id,i)=>{ if(id){const el=document.getElementById('rsaved-'+i);if(el)el.textContent='✓';} });
-    // Firestore 커밋 완료 후 조회
     await new Promise(r=>setTimeout(r,800));
+    console.log('[doSave] calling loadMyNums...');
     await loadMyNums();
+    console.log('[doSave] done');
   };
   if(authReady && currentUid && db){ doSave(); }
-  else { onAuthReady(()=>doSave()); }
+  else { console.log('[doSave] waiting for auth...'); onAuthReady(()=>doSave()); }
 }
  
 // ── Firebase 저장 ──
 async function savePick(nums){
-  if(!currentUid||!db)return null;
+  console.log('[savePick] uid=',currentUid,'round=',latestRound,'nums=',nums);
+  if(!currentUid||!db){console.warn('[savePick] SKIP - no uid or db');return null;}
   try{
     const d=await addDoc(collection(db,'picks'),{uid:currentUid,round:latestRound,nums,prize:checkPrize(nums,latestWinNums,latestBonusNum),createdAt:serverTimestamp()});
+    console.log('[savePick] OK id=',d.id);
     return d.id;
-  }catch(e){return null;}
+  }catch(e){console.error('[savePick] ERROR',e);return null;}
 }
  
 // ── 내 번호 로드 ──
 async function loadMyNums(){
-  if(!currentUid||!db){ return; } // uid 없으면 조용히 대기
+  console.log('[loadMyNums] uid=',currentUid,'latestRound=',latestRound);
+  if(!currentUid||!db){console.warn('[loadMyNums] SKIP - no uid or db');return;}
   try{
     const q=query(collection(db,'picks'),where('uid','==',currentUid),orderBy('createdAt','desc'));
     const snap=await getDocs(q);
     const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+    console.log('[loadMyNums] total docs=',all.length, all.map(d=>({round:d.round,nums:d.nums})));
     const keep=[latestRound,latestRound-1];
+    console.log('[loadMyNums] keeping rounds=',keep);
     const filtered=all.filter(d=>keep.includes(d.round));
+    console.log('[loadMyNums] filtered=',filtered.length);
     renderMyNums(filtered);
-    // 오래된 것 백그라운드 삭제
     all.filter(d=>!keep.includes(d.round)).forEach(d=>deleteDoc(doc(db,'picks',d.id)).catch(()=>{}));
-  }catch(e){ renderMyNums([]); }
+  }catch(e){console.error('[loadMyNums] ERROR',e); renderMyNums([]);}
 }
  
 // ── 내 번호 렌더 ──
@@ -961,3 +969,4 @@ init();
 </script>
 </body>
 </html>
+ 
