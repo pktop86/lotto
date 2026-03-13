@@ -546,10 +546,10 @@ function startAuth(){
   if(!auth){ resolveAuth('g_'+Math.random().toString(36).slice(2)); return; }
   try{
     onAuthStateChanged(auth,u=>{
-      if(u){ resolveAuth(u.uid); startMyNumsListener(); }
+      if(u){ resolveAuth(u.uid); loadMyNums(); }
       else{
         signInAnonymously(auth)
-          .then(r=>{ resolveAuth(r.user.uid); startMyNumsListener(); })
+          .then(r=>{ resolveAuth(r.user.uid); loadMyNums(); })
           .catch(()=>{ resolveAuth('g_'+Math.random().toString(36).slice(2)); });
       }
     });
@@ -805,40 +805,26 @@ async function savePick(nums){
 }
  
 // ── 내 번호 탭 ──
-let unsubMyNums=null;
- 
-function startMyNumsListener(){
-  if(!currentUid||!db) return;
-  // 기존 리스너 완전히 해제 후 새로 연결
-  if(unsubMyNums){ try{unsubMyNums();}catch(e){} unsubMyNums=null; }
+// ── 내 번호: getDocs 방식 (체크박스 상태 보존을 위해 onSnapshot 미사용) ──
+async function loadMyNums(){
+  if(!authReady){ onAuthReady(()=>loadMyNums()); return; }
+  if(!currentUid||!db){ renderMyNums([]); return; }
   try{
     const q=query(collection(db,'picks'),where('uid','==',currentUid),orderBy('createdAt','desc'));
-    unsubMyNums=onSnapshot(q,
-      snap=>{
-        const docs=snap.docs.map(d=>({id:d.id,...d.data()}));
-        const keepRounds=[latestRound, latestRound-1];
-        const filtered=docs.filter(d=>keepRounds.includes(d.round));
-        renderMyNums(filtered);
-        docs.filter(d=>!keepRounds.includes(d.round))
-            .forEach(d=>deleteDoc(doc(db,'picks',d.id)).catch(()=>{}));
-      },
-      err=>{
-        console.error('myNums listener error:',err);
-        unsubMyNums=null;
-        // 3초 후 재연결 시도
-        setTimeout(()=>startMyNumsListener(), 3000);
-      }
-    );
-  }catch(e){ console.error('startMyNumsListener:',e); }
+    const snap=await getDocs(q);
+    const docs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const keepRounds=[latestRound, latestRound-1];
+    const filtered=docs.filter(d=>keepRounds.includes(d.round));
+    renderMyNums(filtered);
+    // 오래된 회차 백그라운드 삭제
+    docs.filter(d=>!keepRounds.includes(d.round))
+        .forEach(d=>deleteDoc(doc(db,'picks',d.id)).catch(()=>{}));
+  }catch(e){ console.error('loadMyNums:',e); renderMyNums([]); }
 }
  
-function loadMyNums(){
-  if(!authReady){ onAuthReady(()=>startMyNumsListener()); return; }
-  if(!currentUid||!db){ renderMyNums([]); return; }
-  startMyNumsListener();
-}
+function refreshMyNums(){ loadMyNums(); }
  
-function refreshMyNums(){ if(currentUid&&db) startMyNumsListener(); }
+function startMyNumsListener(){ loadMyNums(); }
  
 // 현재 화면에 표시된 doc 목록 (삭제 선택용)
 let currentMyDocs = [];
@@ -1181,11 +1167,39 @@ document.getElementById('btn-deselect-all').addEventListener('click', ()=>{
 document.getElementById('del-confirm-btn').addEventListener('click', async ()=>{
   if(!pendingDeleteIds.length||!db) return;
   document.getElementById('del-modal').classList.remove('show');
-  try{
-    await Promise.all(pendingDeleteIds.map(id=>deleteDoc(doc(db,'picks',id))));
-  }catch(e){ console.error('delete error:',e); }
+  const idsToDelete = [...pendingDeleteIds];
   pendingDeleteIds = [];
-  updateSelCount();
+  try{
+    // Firebase 삭제
+    await Promise.all(idsToDelete.map(id=>deleteDoc(doc(db,'picks',id))));
+    // currentMyDocs에서 제거
+    currentMyDocs = currentMyDocs.filter(d=>!idsToDelete.includes(d.id));
+    // DOM에서 해당 항목만 제거 (전체 재렌더 없이)
+    idsToDelete.forEach(id=>{
+      const el=document.querySelector(\`.my-item[data-id="${id}"]\`);
+      if(el) el.remove();
+    });
+    // 당첨 카운트 갱신
+    const cnt={1:0,2:0,3:0,4:0,5:0};
+    currentMyDocs.forEach(d=>{
+      const entry=recentHist.find(h=>h.round===d.round);
+      const wn=entry?entry.nums:latestWinNums;
+      const bn=entry?entry.bonus:latestBonusNum;
+      const p=checkPrize(d.nums||[],wn,bn);
+      if(p>0) cnt[p]++;
+    });
+    for(let i=1;i<=5;i++) document.getElementById(`my-cnt${i}`).textContent=cnt[i];
+    // 빈 회차 섹션 제거
+    document.querySelectorAll('.my-round-section').forEach(sec=>{
+      if(!sec.querySelector('.my-item')) sec.remove();
+    });
+    // 전부 삭제됐으면 빈 상태 표시
+    if(!currentMyDocs.length){
+      document.getElementById('my-toolbar').style.display='none';
+      document.getElementById('my-nums-container').innerHTML='<div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>';
+    }
+    updateSelCount();
+  }catch(e){ console.error('delete error:',e); loadMyNums(); }
 });
  
 document.getElementById('del-cancel-btn').addEventListener('click', ()=>{
