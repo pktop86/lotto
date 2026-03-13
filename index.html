@@ -546,10 +546,10 @@ function startAuth(){
   if(!auth){ resolveAuth('g_'+Math.random().toString(36).slice(2)); return; }
   try{
     onAuthStateChanged(auth,u=>{
-      if(u){ resolveAuth(u.uid); loadMyNums(); }
+      if(u){ resolveAuth(u.uid); startMyNumsListener(); }
       else{
         signInAnonymously(auth)
-          .then(r=>{ resolveAuth(r.user.uid); loadMyNums(); })
+          .then(r=>{ resolveAuth(r.user.uid); startMyNumsListener(); })
           .catch(()=>{ resolveAuth('g_'+Math.random().toString(36).slice(2)); });
       }
     });
@@ -806,10 +806,12 @@ async function savePick(nums){
  
 // ── 내 번호 탭 ──
 let unsubMyNums=null;
-async function loadMyNums(){
-  if(!authReady){ onAuthReady(()=>loadMyNums()); return; }
-  if(!currentUid||!db){ renderMyNums([]); return; }
-  if(unsubMyNums){ unsubMyNums(); unsubMyNums=null; }
+let myNumsListenerActive=false;
+ 
+// 리스너는 최초 1번만 연결 - 삭제/추가 실시간 자동반영
+function startMyNumsListener(){
+  if(myNumsListenerActive||!currentUid||!db) return;
+  myNumsListenerActive=true;
   try{
     const q=query(collection(db,'picks'),where('uid','==',currentUid),orderBy('createdAt','desc'));
     unsubMyNums=onSnapshot(q, snap=>{
@@ -817,13 +819,23 @@ async function loadMyNums(){
       const keepRounds=[latestRound, latestRound-1];
       const filtered=docs.filter(d=>keepRounds.includes(d.round));
       renderMyNums(filtered);
-      const toDelete=docs.filter(d=>!keepRounds.includes(d.round));
-      toDelete.forEach(d=>deleteDoc(doc(db,'picks',d.id)).catch(()=>{}));
+      // 오래된 회차 백그라운드 삭제
+      docs.filter(d=>!keepRounds.includes(d.round))
+          .forEach(d=>deleteDoc(doc(db,'picks',d.id)).catch(()=>{}));
+    }, err=>{
+      console.error('myNums snapshot error:',err);
+      myNumsListenerActive=false;
     });
-  }catch(e){ console.error('loadMyNums:',e); renderMyNums([]); }
+  }catch(e){ console.error('startMyNumsListener:',e); myNumsListenerActive=false; }
 }
  
-function refreshMyNums(){ if(currentUid&&authReady) loadMyNums(); }
+function loadMyNums(){
+  if(!authReady){ onAuthReady(()=>loadMyNums()); return; }
+  if(!currentUid||!db){ renderMyNums([]); return; }
+  startMyNumsListener(); // 이미 연결됐으면 무시
+}
+ 
+function refreshMyNums(){ loadMyNums(); }
  
 // 현재 화면에 표시된 doc 목록 (삭제 선택용)
 let currentMyDocs = [];
