@@ -363,7 +363,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
  
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc }
+import { getFirestore, collection, addDoc, getDocs, getDocsFromServer, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc }
   from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
@@ -664,25 +664,34 @@ async function doGenerate(count){
   setTimeout(()=>resultsEl.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
   // Firebase 저장 (auth 준비 후)
   const doSave = async () => {
-    console.log('[doSave] start - authReady=',authReady,'uid=',currentUid,'db=',!!db);
-    const ids = await Promise.all(allNums.map(nums => savePick(nums)));
+    console.log('[doSave] start uid=',currentUid,'round=',latestRound);
+    // 1. 저장
+    const savedRound = latestRound; // 저장 시점의 회차 고정
+    const ids = await Promise.all(allNums.map(nums => savePick(nums, savedRound)));
     console.log('[doSave] saved ids=',ids);
     ids.forEach((id,i)=>{ if(id){const el=document.getElementById('rsaved-'+i);if(el)el.textContent='✓';} });
-    await new Promise(r=>setTimeout(r,800));
-    console.log('[doSave] calling loadMyNums...');
-    await loadMyNums();
-    console.log('[doSave] done');
+    // 2. 저장 완료된 것만 직접 내 번호에 추가 (Firestore 재조회 없이)
+    const newDocs = ids.map((id,i)=>id?{id,uid:currentUid,round:savedRound,nums:allNums[i],prize:0}:null).filter(Boolean);
+    console.log('[doSave] newDocs=',newDocs.length);
+    if(newDocs.length){
+      // 기존 myDocs에 합쳐서 렌더
+      const merged = [...newDocs, ...myDocs];
+      renderMyNums(merged);
+    }
+    // 3. 서버에서 최신 상태로 재조회 (백그라운드)
+    setTimeout(()=>loadMyNums(), 1500);
   };
   if(authReady && currentUid && db){ doSave(); }
-  else { console.log('[doSave] waiting for auth...'); onAuthReady(()=>doSave()); }
+  else { onAuthReady(()=>doSave()); }
 }
  
 // ── Firebase 저장 ──
-async function savePick(nums){
-  console.log('[savePick] uid=',currentUid,'round=',latestRound,'nums=',nums);
+async function savePick(nums, round){
+  const r = round || latestRound;
+  console.log('[savePick] uid=',currentUid,'round=',r,'nums=',nums);
   if(!currentUid||!db){console.warn('[savePick] SKIP - no uid or db');return null;}
   try{
-    const d=await addDoc(collection(db,'picks'),{uid:currentUid,round:latestRound,nums,prize:checkPrize(nums,latestWinNums,latestBonusNum),createdAt:serverTimestamp()});
+    const d=await addDoc(collection(db,'picks'),{uid:currentUid,round:r,nums,prize:checkPrize(nums,latestWinNums,latestBonusNum),createdAt:serverTimestamp()});
     console.log('[savePick] OK id=',d.id);
     return d.id;
   }catch(e){console.error('[savePick] ERROR',e);return null;}
@@ -693,16 +702,18 @@ async function loadMyNums(){
   console.log('[loadMyNums] uid=',currentUid,'latestRound=',latestRound);
   if(!currentUid||!db){console.warn('[loadMyNums] SKIP - no uid or db');return;}
   try{
-    const q=query(collection(db,'picks'),where('uid','==',currentUid),orderBy('createdAt','desc'));
-    const snap=await getDocs(q);
-    const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const q=query(collection(db,'picks'),where('uid','==',currentUid)); // orderBy 제거 → 인덱스 불필요
+    const snap=await getDocsFromServer(q);
+    const all=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
     console.log('[loadMyNums] total docs=',all.length, all.map(d=>({round:d.round,nums:d.nums})));
     const keep=[latestRound,latestRound-1];
-    console.log('[loadMyNums] keeping rounds=',keep);
+    console.log('[loadMyNums] keeping rounds=',keep,'all rounds=',all.map(d=>d.round));
+    // keep에 없는 것만 삭제, 하지만 filtered는 전체 표시 후 오래된것 제거
+    const toDelete=all.filter(d=>!keep.includes(d.round));
     const filtered=all.filter(d=>keep.includes(d.round));
-    console.log('[loadMyNums] filtered=',filtered.length);
+    console.log('[loadMyNums] filtered=',filtered.length,'toDelete=',toDelete.length);
     renderMyNums(filtered);
-    all.filter(d=>!keep.includes(d.round)).forEach(d=>deleteDoc(doc(db,'picks',d.id)).catch(()=>{}));
+    toDelete.forEach(d=>deleteDoc(doc(db,'picks',d.id)).catch(()=>{}));
   }catch(e){console.error('[loadMyNums] ERROR',e); renderMyNums([]);}
 }
  
@@ -969,4 +980,3 @@ init();
 </script>
 </body>
 </html>
- 
