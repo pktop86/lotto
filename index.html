@@ -173,6 +173,16 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .my-item-tags{display:flex;flex-wrap:wrap;gap:3px;padding-top:6px;border-top:1px solid var(--border)}
 .del-btn{background:rgba(255,80,80,.12);border:1px solid rgba(255,80,80,.25);color:var(--red);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;flex-shrink:0;transition:all .2s}
 .del-btn:hover{background:rgba(255,80,80,.25)}
+.my-checkbox{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);background:transparent;cursor:pointer;flex-shrink:0;appearance:none;-webkit-appearance:none;transition:all .2s;position:relative}
+.my-checkbox:checked{background:var(--accent);border-color:var(--accent)}
+.my-checkbox:checked::after{content:"✓";position:absolute;top:-1px;left:2px;font-size:12px;color:#000;font-weight:900}
+.my-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.my-toolbar-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.my-toolbar-btn:hover{color:var(--text);border-color:var(--accent)}
+.my-toolbar-btn.danger{background:rgba(255,80,80,.1);border-color:rgba(255,80,80,.3);color:var(--red)}
+.my-toolbar-btn.danger:hover{background:rgba(255,80,80,.2)}
+.my-toolbar-btn.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+.my-sel-count{font-size:11px;color:var(--accent);font-weight:700;margin-left:auto}
  
 .win-banner{background:linear-gradient(135deg,rgba(240,192,64,.15),rgba(224,92,32,.1));border:1px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:12px;text-align:center}
 .win-banner-icon{font-size:28px;margin-bottom:4px}
@@ -364,6 +374,14 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <div class="my-sc rank5"><div class="my-sc-val" id="my-cnt5">0</div><div class="my-sc-label">5등</div></div>
     </div>
  
+    <!-- 내 번호 툴바 -->
+    <div class="my-toolbar" id="my-toolbar" style="display:none">
+      <button class="my-toolbar-btn" id="btn-select-all">☑️ 전체선택</button>
+      <button class="my-toolbar-btn" id="btn-deselect-all">⬜ 선택해제</button>
+      <button class="my-toolbar-btn danger" id="btn-delete-selected" disabled>🗑️ 선택삭제</button>
+      <button class="my-toolbar-btn danger" id="btn-delete-all">🗑️ 전체삭제</button>
+      <span class="my-sel-count" id="sel-count"></span>
+    </div>
     <!-- 내 번호 목록 -->
     <div id="my-nums-container">
       <div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>
@@ -807,11 +825,22 @@ async function loadMyNums(){
  
 function refreshMyNums(){ if(currentUid&&authReady) loadMyNums(); }
  
+// 현재 화면에 표시된 doc 목록 (삭제 선택용)
+let currentMyDocs = [];
+ 
+function updateSelCount(){
+  const checked = document.querySelectorAll('.my-cb:checked');
+  const count = checked.length;
+  document.getElementById('sel-count').textContent = count > 0 ? `${count}개 선택됨` : '';
+  document.getElementById('btn-delete-selected').disabled = count === 0;
+}
+ 
 function renderMyNums(docs){
-  // 전체 당첨 기록 카운트
+  currentMyDocs = docs;
+ 
+  // 전체 당첨 기록 카운트 (삭제되지 않은 것만 = 현재 docs 기준)
   const cnt={1:0,2:0,3:0,4:0,5:0};
   docs.forEach(d=>{
-    // 당첨 결과 재계산 (당첨번호 있을 때)
     const entry=recentHist.find(h=>h.round===d.round);
     const wn=entry?entry.nums:latestWinNums;
     const bn=entry?entry.bonus:latestBonusNum;
@@ -820,11 +849,15 @@ function renderMyNums(docs){
   });
   for(let i=1;i<=5;i++) document.getElementById(`my-cnt${i}`).textContent=cnt[i];
  
+  const toolbar = document.getElementById('my-toolbar');
   const container=document.getElementById('my-nums-container');
+ 
   if(!docs.length){
+    toolbar.style.display='none';
     container.innerHTML=`<div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>`;
     return;
   }
+  toolbar.style.display='flex';
  
   // 회차별 그룹핑
   const grouped={};
@@ -880,6 +913,7 @@ function renderMyNums(docs){
       }
       return `<div class="my-item" data-id="${d.id}">
         <div class="my-item-top">
+          <input type="checkbox" class="my-checkbox my-cb" data-id="${d.id}" onchange="updateSelCount()">
           <div class="my-item-idx">${i+1}</div>
           <div class="my-item-balls">${ballsHtml}</div>
           ${showResult&&p>0?`<div class="my-item-prize">${PLABELS[p]}</div>`:''}
@@ -1070,29 +1104,75 @@ document.querySelectorAll('.seg-btn').forEach(btn=>{
 });
  
 // ── 삭제 확인 모달 ──
-let pendingDeleteId = null;
-window.confirmDeletePick = function(id, numsStr) {
-  pendingDeleteId = id;
-  const nums = numsStr.split(',').map(Number);
+let pendingDeleteIds = [];
+ 
+function showDelModal(ids, numsArr) {
+  pendingDeleteIds = ids;
   const numsEl = document.getElementById('del-modal-nums');
-  numsEl.innerHTML = nums.map(n=>`<div class="ball ${ballCls(n)}" style="width:30px;height:30px;font-size:11px">${n}</div>`).join('');
+  if(numsArr.length === 1){
+    numsEl.innerHTML = numsArr[0].map(n=>`<div class="ball ${ballCls(n)}" style="width:30px;height:30px;font-size:11px">${n}</div>`).join('');
+  } else {
+    numsEl.innerHTML = `<span style="font-size:13px;color:var(--accent);font-weight:700">${ids.length}개의 번호</span>`;
+  }
   document.getElementById('del-modal').classList.add('show');
+}
+ 
+// 단일 삭제
+window.confirmDeletePick = function(id, numsStr) {
+  const nums = numsStr.split(',').map(Number);
+  showDelModal([id], [nums]);
 };
-document.getElementById('del-confirm-btn').addEventListener('click', async ()=>{
-  if(!pendingDeleteId||!db) return;
-  try{ await deleteDoc(doc(db,'picks',pendingDeleteId)); }
-  catch(e){ console.error('delete error:',e); }
-  document.getElementById('del-modal').classList.remove('show');
-  pendingDeleteId = null;
+ 
+// 선택 삭제
+document.getElementById('btn-delete-selected').addEventListener('click', ()=>{
+  const checked = [...document.querySelectorAll('.my-cb:checked')];
+  if(!checked.length) return;
+  const ids = checked.map(cb=>cb.dataset.id);
+  const numsArr = ids.map(id=>{
+    const d = currentMyDocs.find(d=>d.id===id);
+    return d ? d.nums : [];
+  });
+  showDelModal(ids, numsArr);
 });
+ 
+// 전체 삭제
+document.getElementById('btn-delete-all').addEventListener('click', ()=>{
+  if(!currentMyDocs.length) return;
+  const ids = currentMyDocs.map(d=>d.id);
+  showDelModal(ids, currentMyDocs.map(d=>d.nums));
+});
+ 
+// 전체 선택
+document.getElementById('btn-select-all').addEventListener('click', ()=>{
+  document.querySelectorAll('.my-cb').forEach(cb=>cb.checked=true);
+  updateSelCount();
+});
+ 
+// 선택 해제
+document.getElementById('btn-deselect-all').addEventListener('click', ()=>{
+  document.querySelectorAll('.my-cb').forEach(cb=>cb.checked=false);
+  updateSelCount();
+});
+ 
+// 삭제 실행
+document.getElementById('del-confirm-btn').addEventListener('click', async ()=>{
+  if(!pendingDeleteIds.length||!db) return;
+  document.getElementById('del-modal').classList.remove('show');
+  try{
+    await Promise.all(pendingDeleteIds.map(id=>deleteDoc(doc(db,'picks',id))));
+  }catch(e){ console.error('delete error:',e); }
+  pendingDeleteIds = [];
+  updateSelCount();
+});
+ 
 document.getElementById('del-cancel-btn').addEventListener('click', ()=>{
   document.getElementById('del-modal').classList.remove('show');
-  pendingDeleteId = null;
+  pendingDeleteIds = [];
 });
 document.getElementById('del-modal').addEventListener('click', e=>{
   if(e.target===document.getElementById('del-modal')){
     document.getElementById('del-modal').classList.remove('show');
-    pendingDeleteId = null;
+    pendingDeleteIds = [];
   }
 });
  
