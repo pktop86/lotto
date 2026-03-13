@@ -1,1 +1,1 @@
-LOTTO
+lotto
