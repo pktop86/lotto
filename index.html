@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9933896132600937"
-     crossorigin="anonymous"></script> //에드센스 추가한거
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -52,10 +50,10 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .rule-title{font-size:9px;font-weight:700;color:var(--accent3);letter-spacing:.8px;margin-bottom:4px;text-transform:uppercase}
 .rule-desc{font-size:10px;color:var(--muted);line-height:1.55}
 .section-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
-.freq-bars{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;align-items:end;height:64px}
-.fb-col{display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end}
-.fb-bar{width:100%;border-radius:2px 2px 0 0;min-height:3px}
-.fb-lbl{font-size:6.5px;color:var(--muted);line-height:1}
+.freq-bars{display:grid;grid-template-columns:repeat(45,1fr);gap:1px;align-items:end;height:72px;overflow:hidden}
+.fb-col{display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end;min-width:0}
+.fb-bar{width:100%;border-radius:2px 2px 0 0;min-height:2px;flex-shrink:0}
+.fb-lbl{font-size:5.5px;color:var(--muted);line-height:1;flex-shrink:0;overflow:hidden;white-space:nowrap}
 .fb-hot .fb-bar{background:var(--accent)}
 .fb-mid .fb-bar{background:var(--accent3);opacity:.6}
 .fb-cold .fb-bar{background:rgba(255,255,255,.1)}
@@ -486,7 +484,7 @@ async function init(){
           setStatus('ok',`${added}회차 업데이트 완료 — 최신: ${latestRound}회`);
           updateStats(); renderFreqBars(); renderFreqGrid();
           renderPrizeHeader(); loadPrizeTab(latestRound);
-          loadMyNums(); // 내 번호도 갱신
+          if(currentUid) loadMyNums(); // 내 번호도 갱신 (auth된 경우만)
         } else {
           setStatus('ok',`최신 상태 (261~${latestRound}회)`);
         }
@@ -643,11 +641,19 @@ async function doGenerate(count){
   genBtn.disabled=false; genBtn.textContent='🎲 번호 추첨하기';
   setTimeout(()=>resultsEl.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
   // Firebase 저장 (auth 준비 후)
-  onAuthReady(async()=>{
-    const ids=await Promise.all(allNums.map((nums,i)=>savePick(nums,i)));
-    ids.forEach((id,i)=>{ if(id){const el=document.getElementById('rsaved-'+i);if(el)el.textContent='✓';} });
-    loadMyNums(); // 저장 후 내 번호 탭 갱신
-  });
+  if(authReady && currentUid && db){
+    (async()=>{
+      const ids=await Promise.all(allNums.map((nums,i)=>savePick(nums,i)));
+      ids.forEach((id,i)=>{ if(id){const el=document.getElementById('rsaved-'+i);if(el)el.textContent='✓';} });
+      await loadMyNums(); // 저장 후 내 번호 탭 갱신
+    })();
+  } else {
+    onAuthReady(async()=>{
+      const ids=await Promise.all(allNums.map((nums,i)=>savePick(nums,i)));
+      ids.forEach((id,i)=>{ if(id){const el=document.getElementById('rsaved-'+i);if(el)el.textContent='✓';} });
+      await loadMyNums();
+    });
+  }
 }
  
 // ── Firebase 저장 ──
@@ -661,7 +667,7 @@ async function savePick(nums,idx){
  
 // ── 내 번호 로드 ──
 async function loadMyNums(){
-  if(!currentUid||!db){ renderMyNums([]); return; }
+  if(!currentUid||!db){ return; } // uid 없으면 조용히 대기
   try{
     const q=query(collection(db,'picks'),where('uid','==',currentUid),orderBy('createdAt','desc'));
     const snap=await getDocs(q);
