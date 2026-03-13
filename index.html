@@ -4,51 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>🎰 로또엔진 로또번호 생성기</title>
-<!-- v1773386923 -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9933896132600937" crossorigin="anonymous"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Black+Han+Sans&display=swap');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-:root{
-  --bg:#07080f;--panel:#0f1020;--card:#161828;
-  --border:rgba(255,255,255,0.08);
-  --accent:#f0c040;--accent2:#e05c20;--accent3:#3ab8ff;
-  --green:#40d080;--red:#ff5050;
-  --text:#dde0f0;--muted:#505870;
-  --glow:rgba(240,192,64,0.22);
-}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:linear-gradient(rgba(255,255,255,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.012) 1px,transparent 1px);
-  background-size:44px 44px}
+:root{--bg:#07080f;--panel:#0f1020;--card:#161828;--border:rgba(255,255,255,0.08);--accent:#f0c040;--accent2:#e05c20;--accent3:#3ab8ff;--green:#40d080;--red:#ff5050;--text:#dde0f0;--muted:#505870;--glow:rgba(240,192,64,0.22)}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.012) 1px,transparent 1px);background-size:44px 44px}
 .wrap{max-width:640px;margin:0 auto;padding:0 14px 80px;position:relative;z-index:1}
- 
-/* 광고 */
 .ad-banner-top{width:100%;margin:12px 0 0;min-height:60px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .ad-banner-bottom{width:100%;margin:16px 0;min-height:90px;display:flex;align-items:center;justify-content:center;overflow:hidden}
- 
-/* 헤더 */
 header{text-align:center;padding:20px 0 16px}
 .badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;font-weight:900;font-size:10px;letter-spacing:1.5px;padding:3px 12px;border-radius:20px;margin-bottom:10px;text-transform:uppercase}
 h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);background:linear-gradient(120deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:4px;line-height:1.15}
 .subtitle{color:var(--muted);font-size:11px;line-height:1.5}
 .credit{color:var(--muted);font-size:10px;margin-top:4px;opacity:.7}
- 
-/* 탭 */
 .tabs{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:3px;margin:14px 0 16px;gap:3px}
-.tab-btn{flex:1;background:transparent;border:none;color:var(--muted);padding:10px 4px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
-.tab-btn.on{background:var(--card);color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,0.4)}
+.tab-btn{flex:1;background:transparent;border:none;color:var(--muted);padding:10px 4px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
+.tab-btn.on{background:var(--card);color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.4)}
 .tab-btn.disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
-.tab-badge{background:var(--accent);color:#000;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px;display:none}
-.tab-badge.show{display:inline-block}
 .tab-content{display:none}
 .tab-content.on{display:block}
- 
-/* 상태바 */
 .status-bar{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px}
 .s-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--muted)}
 .s-dot.loading{background:var(--accent);animation:blink .9s infinite}
@@ -57,57 +34,40 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 #s-text{flex:1;font-size:11px}
 #s-extra{color:var(--muted);font-size:10px;white-space:nowrap}
- 
-/* 통계 */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
 .sc{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 6px;text-align:center}
 .sc-val{font-family:'Black Han Sans',sans-serif;font-size:1.2rem;color:var(--accent);line-height:1;margin-bottom:3px}
 .sc-label{font-size:9px;color:var(--muted)}
- 
-/* 스케줄 */
-.schedule-notice{background:var(--panel);border:1px solid rgba(64,208,128,0.15);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;font-size:11px}
+.schedule-notice{background:var(--panel);border:1px solid rgba(64,208,128,.15);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;gap:10px;font-size:11px}
 .sch-icon{font-size:18px;flex-shrink:0}
 .sch-title{font-weight:700;color:var(--green);font-size:12px;margin-bottom:2px}
 .sch-desc{color:var(--muted);line-height:1.6}
 #next-update{color:var(--accent);font-weight:700}
- 
-/* 알고리즘 */
-.algo-panel{background:var(--panel);border:1px solid rgba(58,184,255,0.14);border-radius:12px;padding:14px;margin-bottom:14px}
+.algo-panel{background:var(--panel);border:1px solid rgba(58,184,255,.14);border-radius:12px;padding:14px;margin-bottom:14px}
 .sec-title{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
 .algo-rules{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .rule-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
 .rule-title{font-size:9px;font-weight:700;color:var(--accent3);letter-spacing:.8px;margin-bottom:4px;text-transform:uppercase}
 .rule-desc{font-size:10px;color:var(--muted);line-height:1.55}
- 
-/* 빈도바 */
-.section-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;overflow:hidden;position:relative;z-index:0}
-.freq-bars{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;align-items:end;height:64px;overflow:hidden;position:relative;z-index:0}
-.fb-col{display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end;overflow:hidden}
-.fb-bar{width:100%;border-radius:2px 2px 0 0;min-height:3px;flex-shrink:0}
-.fb-lbl{font-size:6.5px;color:var(--muted);line-height:1;flex-shrink:0}
+.section-box{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
+.freq-bars{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;align-items:end;height:64px}
+.fb-col{display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end}
+.fb-bar{width:100%;border-radius:2px 2px 0 0;min-height:3px}
+.fb-lbl{font-size:6.5px;color:var(--muted);line-height:1}
 .fb-hot .fb-bar{background:var(--accent)}
 .fb-mid .fb-bar{background:var(--accent3);opacity:.6}
 .fb-cold .fb-bar{background:rgba(255,255,255,.1)}
- 
-/* 생성박스 */
-.gen-box{background:var(--panel);border:1px solid rgba(240,192,64,0.2);border-radius:14px;padding:18px;margin-bottom:14px}
+.gen-box{background:var(--panel);border:1px solid rgba(240,192,64,.2);border-radius:14px;padding:18px;margin-bottom:14px}
 .ctrl-section{margin-bottom:14px}
 .ctrl-label{font-size:11px;color:var(--muted);margin-bottom:8px;display:block}
-.seg{display:flex;background:var(--card);border-radius:8px;padding:3px;gap:2px;border:1px solid var(--border);width:100%}
+.seg{display:flex;background:var(--card);border-radius:8px;padding:3px;gap:2px;border:1px solid var(--border)}
 .seg-btn{flex:1;background:transparent;border:none;color:var(--muted);padding:9px 4px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;text-align:center}
 .seg-btn.on{background:var(--accent);color:#000}
-.seg-btn:hover:not(.on){color:var(--text)}
-.ad-notice{background:rgba(240,192,64,0.06);border:1px solid rgba(240,192,64,0.18);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.7;display:flex;gap:8px;align-items:flex-start}
+.ad-notice{background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.18);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--muted);margin-bottom:14px;display:flex;gap:8px;align-items:flex-start}
 .ad-notice .icon{font-size:16px;flex-shrink:0}
-.ad-notice strong{color:var(--accent)}
-.gen-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border:none;border-radius:11px;padding:16px;font-size:1rem;font-weight:900;font-family:'Black Han Sans',sans-serif;cursor:pointer;letter-spacing:1px;transition:all .25s;margin-bottom:16px;position:relative;overflow:hidden}
-.gen-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),transparent 55%);opacity:0;transition:opacity .2s}
-.gen-btn:hover::after{opacity:1}
+.gen-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border:none;border-radius:11px;padding:16px;font-size:1rem;font-weight:900;font-family:'Black Han Sans',sans-serif;cursor:pointer;letter-spacing:1px;transition:all .25s;margin-bottom:16px}
 .gen-btn:hover{transform:translateY(-2px);box-shadow:0 6px 22px var(--glow)}
-.gen-btn:active{transform:translateY(1px)}
-.gen-btn:disabled{opacity:.38;cursor:not-allowed;transform:none;box-shadow:none}
- 
-/* 결과 */
+.gen-btn:disabled{opacity:.38;cursor:not-allowed;transform:none}
 #results{display:flex;flex-direction:column;gap:10px}
 .r-row{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;animation:fadeUp .3s ease both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
@@ -115,16 +75,15 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .r-num{font-size:10px;font-weight:700;color:var(--muted);width:18px;flex-shrink:0;text-align:center}
 .r-balls{display:flex;gap:5px;flex-wrap:wrap;flex:1}
 .r-saved{font-size:10px;color:var(--green);flex-shrink:0}
-.ball{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;flex-shrink:0;box-shadow:inset 0 -2px 5px rgba(0,0,0,.3),inset 0 2px 3px rgba(255,255,255,.12)}
+.ball{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;flex-shrink:0;box-shadow:inset 0 -2px 5px rgba(0,0,0,.3)}
 .b1{background:radial-gradient(circle at 38% 35%,#ffe060,#c88000);color:#5a2e00}
 .b2{background:radial-gradient(circle at 38% 35%,#60c8ff,#0a60c0);color:#fff}
 .b3{background:radial-gradient(circle at 38% 35%,#ff7a5a,#c01818);color:#fff}
 .b4{background:radial-gradient(circle at 38% 35%,#a0a8b8,#383848);color:#fff}
 .b5{background:radial-gradient(circle at 38% 35%,#70e890,#0a7028);color:#fff}
 .ball.hit{outline:3px solid var(--accent);outline-offset:1px}
-.ball.bonus-hit{outline:3px solid var(--accent3);outline-offset:1px}
 .r-tags{display:flex;flex-wrap:wrap;gap:4px;padding-top:8px;border-top:1px solid var(--border)}
-.tag{font-size:9px;border-radius:4px;padding:2px 7px;font-weight:700;letter-spacing:.2px}
+.tag{font-size:9px;border-radius:4px;padding:2px 7px;font-weight:700}
 .tag.ok{background:rgba(64,208,128,.1);color:var(--green);border:1px solid rgba(64,208,128,.2)}
 .tag.warn{background:rgba(240,192,64,.1);color:var(--accent);border:1px solid rgba(240,192,64,.2)}
 .tag.info{background:rgba(58,184,255,.08);color:var(--accent3);border:1px solid rgba(58,184,255,.18)}
@@ -132,10 +91,8 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .tag.win2{background:rgba(58,184,255,.2);color:var(--accent3);border:1px solid var(--accent3)}
 .tag.win3{background:rgba(64,208,128,.15);color:var(--green);border:1px solid var(--green)}
 .tag.win4,.tag.win5{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
- 
-/* 빈도그리드 */
 .freq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:4px}
-.fi{background:var(--card);border:1px solid transparent;border-radius:7px;padding:5px 2px;text-align:center;position:relative;overflow:hidden;cursor:default}
+.fi{background:var(--card);border:1px solid transparent;border-radius:7px;padding:5px 2px;text-align:center;position:relative;overflow:hidden}
 .fi.hot1{border-color:var(--accent);background:rgba(240,192,64,.09)}
 .fi.hot2{border-color:rgba(240,192,64,.4)}
 .fi.hot3{border-color:rgba(240,192,64,.18)}
@@ -143,16 +100,12 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .fi-n{font-weight:900;font-size:13px;line-height:1.2}
 .fi-c{font-size:8px;color:var(--muted);line-height:1.1}
 .fi-prog{position:absolute;bottom:0;left:0;height:2px;background:var(--accent)}
- 
-/* 무료카운터 */
 .free-counter{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:11px}
 .free-pips{display:flex;gap:4px}
 .pip{width:10px;height:10px;border-radius:50%;background:var(--accent);transition:background .3s}
 .pip.used{background:var(--border)}
 .free-text{flex:1;color:var(--muted)}
-.free-text strong{color:var(--text)}
- 
-/* ══ 내 번호 탭 ══ */
+/* 내 번호 탭 */
 .my-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px}
 .my-sc{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 4px;text-align:center}
 .my-sc.rank1{border-color:var(--accent);background:rgba(240,192,64,.07)}
@@ -163,54 +116,43 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .my-sc.rank3 .my-sc-val{color:var(--green)}
 .my-sc.rank4 .my-sc-val,.my-sc.rank5 .my-sc-val{color:var(--text)}
 .my-sc-label{font-size:9px;color:var(--muted)}
- 
+.my-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.my-toolbar-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.my-toolbar-btn:hover{color:var(--text)}
+.my-toolbar-btn.danger{background:rgba(255,80,80,.1);border-color:rgba(255,80,80,.3);color:var(--red)}
+.my-toolbar-btn.primary{background:var(--accent);color:#000;border-color:var(--accent)}
+.my-sel-count{font-size:11px;color:var(--accent);font-weight:700;margin-left:auto}
 .my-round-section{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
 .my-round-title{font-family:'Black Han Sans',sans-serif;font-size:1rem;color:var(--accent);margin-bottom:4px}
 .my-round-sub{font-size:10px;color:var(--muted);margin-bottom:12px}
 .my-nums-list{display:flex;flex-direction:column;gap:8px}
- 
 .my-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
 .my-item-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .my-item-idx{font-size:10px;color:var(--muted);width:20px;flex-shrink:0;text-align:center}
 .my-item-balls{display:flex;gap:4px;flex-wrap:wrap;flex:1}
 .my-item-prize{font-size:10px;flex-shrink:0}
 .my-item-tags{display:flex;flex-wrap:wrap;gap:3px;padding-top:6px;border-top:1px solid var(--border)}
+.my-checkbox{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);cursor:pointer;flex-shrink:0;accent-color:var(--accent)}
 .del-btn{background:rgba(255,80,80,.12);border:1px solid rgba(255,80,80,.25);color:var(--red);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;flex-shrink:0;transition:all .2s}
 .del-btn:hover{background:rgba(255,80,80,.25)}
-.my-checkbox{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);background:transparent;cursor:pointer;flex-shrink:0;appearance:none;-webkit-appearance:none;transition:all .2s;position:relative}
-.my-checkbox:checked{background:var(--accent);border-color:var(--accent)}
-.my-checkbox:checked::after{content:"✓";position:absolute;top:-1px;left:2px;font-size:12px;color:#000;font-weight:900}
-.my-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.my-toolbar-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
-.my-toolbar-btn:hover{color:var(--text);border-color:var(--accent)}
-.my-toolbar-btn.danger{background:rgba(255,80,80,.1);border-color:rgba(255,80,80,.3);color:var(--red)}
-.my-toolbar-btn.danger:hover{background:rgba(255,80,80,.2)}
-.my-toolbar-btn.primary{background:var(--accent);color:#000;border-color:var(--accent)}
-.my-sel-count{font-size:11px;color:var(--accent);font-weight:700;margin-left:auto}
- 
-.win-banner{background:linear-gradient(135deg,rgba(240,192,64,.15),rgba(224,92,32,.1));border:1px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:12px;text-align:center}
-.win-banner-icon{font-size:28px;margin-bottom:4px}
-.win-banner-text{font-family:'Black Han Sans',sans-serif;font-size:1rem;color:var(--accent)}
-.win-banner-sub{font-size:10px;color:var(--muted);margin-top:3px}
- 
 .result-pending{background:var(--panel);border:1px solid rgba(240,192,64,.15);border-radius:10px;padding:14px;text-align:center;margin-bottom:12px}
 .result-pending-icon{font-size:28px;margin-bottom:6px}
 .result-pending-text{font-size:12px;color:var(--muted);line-height:1.7}
 .result-pending-time{color:var(--accent);font-weight:700}
- 
+.win-banner{background:linear-gradient(135deg,rgba(240,192,64,.15),rgba(224,92,32,.1));border:1px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:12px;text-align:center}
+.win-banner-icon{font-size:28px;margin-bottom:4px}
+.win-banner-text{font-family:'Black Han Sans',sans-serif;font-size:1rem;color:var(--accent)}
+.win-banner-sub{font-size:10px;color:var(--muted);margin-top:3px}
 .empty-state{text-align:center;padding:36px 16px;color:var(--muted);font-size:12px}
 .empty-icon{font-size:36px;margin-bottom:10px;opacity:.35}
- 
-/* ══ 당첨현황 탭 ══ */
+/* 당첨현황 */
 .prize-locked{background:var(--panel);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:36px 20px;text-align:center;margin-bottom:14px}
 .prize-locked-icon{font-size:48px;margin-bottom:14px;opacity:.5}
 .prize-locked-title{font-family:'Black Han Sans',sans-serif;font-size:1.2rem;color:var(--muted);margin-bottom:8px}
 .prize-locked-desc{font-size:11px;color:var(--muted);line-height:1.8;opacity:.7}
- 
 .prize-header{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px;text-align:center}
 .prize-round{font-family:'Black Han Sans',sans-serif;font-size:1.4rem;color:var(--accent);margin-bottom:10px}
 .prize-winning-balls{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:6px}
-.prize-bonus-label{font-size:11px;color:var(--muted);margin-bottom:3px}
 .prize-date{font-size:10px;color:var(--muted)}
 .prize-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:14px}
 .prize-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 6px;text-align:center}
@@ -228,23 +170,16 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .sum-item{text-align:center}
 .sum-val{font-family:'Black Han Sans',sans-serif;font-size:1.1rem;color:var(--accent3)}
 .sum-label{font-size:9px;color:var(--muted);margin-top:2px}
-.round-selector{display:flex;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-.round-select-label{font-size:11px;color:var(--muted);flex-shrink:0}
-.round-chip{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:16px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.round-chip{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:16px;padding:4px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;margin-right:6px;margin-bottom:6px}
 .round-chip.on{background:var(--accent);color:#000;border-color:var(--accent)}
 .history-section{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
 .history-list{display:flex;flex-direction:column;gap:7px;max-height:480px;overflow-y:auto}
-.history-list::-webkit-scrollbar{width:3px}
-.history-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .hist-item{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .hist-round{font-size:10px;color:var(--muted);flex-shrink:0;width:46px;line-height:1.4}
 .hist-balls{display:flex;gap:3px;flex:1;flex-wrap:wrap}
 .hist-ball{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;flex-shrink:0}
 .hist-ball.hit{outline:2px solid var(--accent);outline-offset:1px}
-.hist-ball.bonus-hit{outline:2px solid var(--accent3);outline-offset:1px}
 .hist-time{font-size:9px;color:var(--muted);flex-shrink:0}
-.no-prize{font-size:10px;color:var(--muted)}
- 
 /* 모달 */
 .modal-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.85);align-items:center;justify-content:center;padding:20px}
 .modal-overlay.show{display:flex}
@@ -254,7 +189,6 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .modal-title{font-family:'Black Han Sans',sans-serif;font-size:1.25rem;color:var(--accent);margin-bottom:8px}
 .modal-desc{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:20px}
 .modal-ad-area{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;min-height:100px;margin-bottom:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden}
-.timer-wrap{width:100%;margin-bottom:4px}
 .timer-bar-bg{width:100%;height:4px;background:var(--card);border-radius:2px;overflow:hidden}
 .timer-bar{height:100%;background:var(--accent);border-radius:2px;transition:width .1s linear}
 .timer-text{font-size:11px;color:var(--muted);margin-top:4px;text-align:center}
@@ -262,47 +196,28 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .modal-btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000}
 .modal-btn-primary:disabled{opacity:.4;cursor:not-allowed}
 .modal-btn-secondary{background:var(--card);color:var(--muted);border:1px solid var(--border);margin-top:8px;font-size:12px}
-.modal-btn-secondary:hover{color:var(--text)}
- 
-@media(max-width:400px){
-  .stats-row{grid-template-columns:repeat(2,1fr)}
-  .prize-cards{grid-template-columns:repeat(3,1fr)}
-  .algo-rules{grid-template-columns:1fr}
-  .ball{width:30px;height:30px;font-size:11px}
-  .my-summary{grid-template-columns:repeat(5,1fr)}
-}
+@media(max-width:400px){.stats-row{grid-template-columns:repeat(2,1fr)}.prize-cards{grid-template-columns:repeat(3,1fr)}.algo-rules{grid-template-columns:1fr}.ball{width:30px;height:30px;font-size:11px}}
 </style>
 </head>
 <body>
 <div class="wrap">
- 
-  <!-- 상단 광고 -->
   <div class="ad-banner-top">
-    <ins class="adsbygoogle" style="display:block;width:100%;min-height:60px"
-         data-ad-client="ca-pub-9933896132600937" data-ad-slot="auto"
-         data-ad-format="horizontal" data-full-width-responsive="true"></ins>
+    <ins class="adsbygoogle" style="display:block;width:100%;min-height:60px" data-ad-client="ca-pub-9933896132600937" data-ad-slot="auto" data-ad-format="horizontal" data-full-width-responsive="true"></ins>
     <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
   </div>
- 
-  <!-- 헤더 -->
   <header>
     <div class="badge">📊 261회 ~ 최신회차 실시간 통계</div>
     <h1>로또엔진<br>로또번호 생성기</h1>
     <p class="credit">제작자: Clyde Park (P.K.H)</p>
     <p class="subtitle">실제 당첨 통계 × 스마트 알고리즘 × Firebase 당첨 추적</p>
   </header>
- 
-  <!-- 탭 -->
   <div class="tabs">
     <button class="tab-btn on" data-tab="pick">🎲 번호추첨</button>
     <button class="tab-btn" data-tab="mynums">⭐ 내 번호</button>
-    <button class="tab-btn disabled" data-tab="prize" id="tab-prize-btn">
-      🏆 당첨현황
-      <span class="tab-badge" id="win-badge">0</span>
-    </button>
+    <button class="tab-btn disabled" data-tab="prize" id="tab-prize-btn">🏆 당첨현황</button>
   </div>
  
-  <!-- ══════════════ 번호추첨 탭 ══════════════ -->
+  <!-- 번호추첨 탭 -->
   <div class="tab-content on" id="tab-pick">
     <div class="status-bar">
       <div class="s-dot loading" id="s-dot"></div>
@@ -325,7 +240,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     <div class="algo-panel">
       <div class="sec-title">스마트 알고리즘 4가지</div>
       <div class="algo-rules">
-        <div class="rule-card"><div class="rule-title">① 고저·홀짝 균형</div><div class="rule-desc">1~22(저):23~45(고) 3:3 또는 2:4 강제. 홀짝 균형. 전체 당첨의 ~80% 패턴.</div></div>
+        <div class="rule-card"><div class="rule-title">① 고저·홀짝 균형</div><div class="rule-desc">1~22(저):23~45(고) 균형. 홀짝 균형. 전체 당첨의 ~80% 패턴.</div></div>
         <div class="rule-card"><div class="rule-title">② 연번·끝수 분석</div><div class="rule-desc">연속번호 1쌍 이상 포함. 끝자리 합계 20~35 범위 최적화.</div></div>
         <div class="rule-card"><div class="rule-title">③ 미출현수 포함</div><div class="rule-desc">최근 8회차 미출현 번호 1~2개 포함. 통계적 균형 복귀 반영.</div></div>
         <div class="rule-card"><div class="rule-title">④ 이월수 전략</div><div class="rule-desc">직전 당첨번호 재출현 ~10~15%. 이월수 포함/배제 확률적 결정.</div></div>
@@ -347,10 +262,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
           <button class="seg-btn" data-n="10">10줄</button>
         </div>
       </div>
-      <div class="ad-notice">
-        <span class="icon">💡</span>
-        <div><strong>무료 5줄</strong> 이후 또는 <strong>10줄</strong> 선택 시 짧은 광고 시청 후 번호가 출력됩니다.</div>
-      </div>
+      <div class="ad-notice"><span class="icon">💡</span><div><strong>무료 5줄</strong> 이후 또는 <strong>10줄</strong> 선택 시 짧은 광고 시청 후 번호가 출력됩니다.</div></div>
       <button class="gen-btn" id="gen-btn" disabled>🎲 번호 추첨하기</button>
       <div id="results"></div>
     </div>
@@ -359,17 +271,13 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <div class="freq-grid" id="freq-grid"></div>
     </div>
     <div class="ad-banner-bottom">
-      <ins class="adsbygoogle" style="display:block;width:100%;min-height:90px"
-           data-ad-client="ca-pub-9933896132600937" data-ad-slot="auto"
-           data-ad-format="rectangle" data-full-width-responsive="true"></ins>
+      <ins class="adsbygoogle" style="display:block;width:100%;min-height:90px" data-ad-client="ca-pub-9933896132600937" data-ad-slot="auto" data-ad-format="rectangle" data-full-width-responsive="true"></ins>
       <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
     </div>
   </div>
  
-  <!-- ══════════════ 내 번호 탭 ══════════════ -->
+  <!-- 내 번호 탭 -->
   <div class="tab-content" id="tab-mynums">
- 
-    <!-- 내 당첨 기록 요약 -->
     <div class="my-summary">
       <div class="my-sc rank1"><div class="my-sc-val" id="my-cnt1">0</div><div class="my-sc-label">🥇 1등</div></div>
       <div class="my-sc rank2"><div class="my-sc-val" id="my-cnt2">0</div><div class="my-sc-label">🥈 2등</div></div>
@@ -377,8 +285,6 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <div class="my-sc rank4"><div class="my-sc-val" id="my-cnt4">0</div><div class="my-sc-label">4등</div></div>
       <div class="my-sc rank5"><div class="my-sc-val" id="my-cnt5">0</div><div class="my-sc-label">5등</div></div>
     </div>
- 
-    <!-- 내 번호 툴바 -->
     <div class="my-toolbar" id="my-toolbar" style="display:none">
       <button class="my-toolbar-btn" id="btn-select-all">☑️ 전체선택</button>
       <button class="my-toolbar-btn" id="btn-deselect-all">⬜ 선택해제</button>
@@ -386,31 +292,23 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <button class="my-toolbar-btn danger" id="btn-delete-all">🗑️ 전체삭제</button>
       <span class="my-sel-count" id="sel-count"></span>
     </div>
-    <!-- 내 번호 목록 -->
     <div id="my-nums-container">
       <div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>
     </div>
   </div>
  
-  <!-- ══════════════ 당첨현황 탭 ══════════════ -->
+  <!-- 당첨현황 탭 -->
   <div class="tab-content" id="tab-prize">
-    <!-- 잠금 상태 -->
     <div class="prize-locked" id="prize-locked">
       <div class="prize-locked-icon">🔒</div>
       <div class="prize-locked-title">당첨현황 잠금 중</div>
-      <div class="prize-locked-desc">
-        앱 이용자 중 누군가<br>
-        <strong style="color:var(--accent)">1등 또는 2등</strong>에 당첨되는 순간<br>
-        이 탭이 활성화됩니다!<br><br>
-        첫 번째 행운의 주인공을 기다리는 중... 🍀
-      </div>
+      <div class="prize-locked-desc">앱 이용자 중 누군가<br><strong style="color:var(--accent)">1등 또는 2등</strong>에 당첨되는 순간<br>이 탭이 활성화됩니다!<br><br>첫 번째 행운의 주인공을 기다리는 중... 🍀</div>
     </div>
-    <!-- 당첨현황 내용 (잠금 해제 후 표시) -->
     <div id="prize-content" style="display:none">
       <div class="prize-header">
         <div class="prize-round" id="ph-round">— 회차 당첨번호</div>
-        <div class="prize-winning-balls" id="ph-balls"><span style="color:var(--muted);font-size:12px">로딩 중...</span></div>
-        <div class="prize-bonus-label" id="ph-bonus"></div>
+        <div class="prize-winning-balls" id="ph-balls"></div>
+        <div id="ph-bonus" style="font-size:11px;color:var(--muted)"></div>
         <div class="prize-date" id="ph-date"></div>
       </div>
       <div class="prize-cards">
@@ -426,20 +324,32 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
         <div class="sum-item"><div class="sum-val" id="sum-winners">0</div><div class="sum-label">당첨자</div></div>
         <div class="sum-item"><div class="sum-val" id="sum-rate">0%</div><div class="sum-label">당첨률</div></div>
       </div>
-      <div class="round-selector">
-        <span class="round-select-label">회차:</span>
-        <div class="round-btns" id="round-chips"></div>
-      </div>
+      <div style="margin-bottom:12px" id="round-chips"></div>
       <div class="history-section">
         <div class="sec-title">전체 추첨 기록</div>
-        <div class="history-list" id="history-list">
-          <div class="empty-state"><div class="empty-icon">🎯</div>아직 추첨 기록이 없습니다.</div>
-        </div>
+        <div class="history-list" id="history-list"></div>
       </div>
     </div>
   </div>
+</div>
  
-</div><!-- /wrap -->
+<!-- 광고 모달 -->
+<div class="modal-overlay" id="ad-modal">
+  <div class="modal">
+    <div class="modal-icon">📺</div>
+    <div class="modal-title">광고 시청 후 번호 받기</div>
+    <div class="modal-desc" id="modal-desc"></div>
+    <div class="modal-ad-area">
+      <ins class="adsbygoogle" style="display:block;width:100%;min-height:100px" data-ad-client="ca-pub-9933896132600937" data-ad-slot="auto" data-ad-format="rectangle" data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+    </div>
+    <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
+    <div class="timer-text" id="timer-text">5초 후 활성화...</div>
+    <button class="modal-btn modal-btn-primary" id="modal-confirm-btn" disabled style="margin-top:12px">✅ 광고 시청 완료 — 번호 받기</button>
+    <button class="modal-btn modal-btn-secondary" id="modal-cancel-btn">취소</button>
+  </div>
+</div>
+ 
 <!-- 삭제 확인 모달 -->
 <div class="modal-overlay" id="del-modal">
   <div class="modal">
@@ -451,27 +361,6 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   </div>
 </div>
  
-<!-- 광고 모달 -->
-<div class="modal-overlay" id="ad-modal">
-  <div class="modal">
-    <div class="modal-icon">📺</div>
-    <div class="modal-title">광고 시청 후 번호 받기</div>
-    <div class="modal-desc" id="modal-desc">무료 사용 횟수를 모두 사용했습니다.<br>광고를 시청하면 번호를 받을 수 있습니다.</div>
-    <div class="modal-ad-area">
-      <ins class="adsbygoogle" style="display:block;width:100%;min-height:100px"
-           data-ad-client="ca-pub-9933896132600937" data-ad-slot="auto"
-           data-ad-format="rectangle" data-full-width-responsive="true"></ins>
-      <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
-    </div>
-    <div class="timer-wrap">
-      <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
-      <div class="timer-text" id="timer-text">5초 후 버튼 활성화...</div>
-    </div>
-    <button class="modal-btn modal-btn-primary" id="modal-confirm-btn" disabled>✅ 광고 시청 완료 — 번호 받기</button>
-    <button class="modal-btn modal-btn-secondary" id="modal-cancel-btn">취소</button>
-  </div>
-</div>
- 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc }
@@ -479,27 +368,13 @@ import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, onSna
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
  
-const firebaseConfig = {
-  apiKey:"AIzaSyD7LyDgH-xpKuukSkpMTjq9WypHkWjmH68",
-  authDomain:"lotto-tracker-8cfa6.firebaseapp.com",
-  projectId:"lotto-tracker-8cfa6",
-  storageBucket:"lotto-tracker-8cfa6.firebasestorage.app",
-  messagingSenderId:"13399452873",
-  appId:"1:13399452873:web:80582e30a72f6b676af118"
-};
- 
+// ── Firebase ──
+const FB = { apiKey:"AIzaSyD7LyDgH-xpKuukSkpMTjq9WypHkWjmH68", authDomain:"lotto-tracker-8cfa6.firebaseapp.com", projectId:"lotto-tracker-8cfa6", storageBucket:"lotto-tracker-8cfa6.firebasestorage.app", messagingSenderId:"13399452873", appId:"1:13399452873:web:80582e30a72f6b676af118" };
 let db, auth;
-try { const app=initializeApp(firebaseConfig); db=getFirestore(app); auth=getAuth(app); }
-catch(e){ console.warn('Firebase 초기화 실패:', e); }
+try { const app=initializeApp(FB); db=getFirestore(app); auth=getAuth(app); } catch(e){}
  
 // ── 내장 데이터 ──
-const BASE_FREQ = {
-   1:123,2:128,3:120,4:125,5:128,6:119,7:133,8:124,9:129,10:122,
-  11:130,12:139,13:137,14:127,15:129,16:127,17:130,18:135,19:121,20:127,
-  21:127,22:123,23:133,24:130,25:130,26:122,27:141,28:128,29:134,30:127,
-  31:127,32:131,33:136,34:142,35:130,36:131,37:126,38:132,39:128,40:127,
-  41:127,42:127,43:128,44:132,45:127
-};
+const BASE_FREQ = {1:123,2:128,3:120,4:125,5:128,6:119,7:133,8:124,9:129,10:122,11:130,12:139,13:137,14:127,15:129,16:127,17:130,18:135,19:121,20:127,21:127,22:123,23:133,24:130,25:130,26:122,27:141,28:128,29:134,30:127,31:127,32:131,33:136,34:142,35:130,36:131,37:126,38:132,39:128,40:127,41:127,42:127,43:128,44:132,45:127};
 const SEED_HISTORY = [
   {round:1210,nums:[3,14,18,27,32,42],bonus:7},
   {round:1211,nums:[4,8,19,25,36,44],bonus:11},
@@ -508,140 +383,120 @@ const SEED_HISTORY = [
   {round:1214,nums:[1,9,22,31,38,43],bonus:5},
 ];
  
-let freqData={...BASE_FREQ};
-let recentHist=[...SEED_HISTORY];
-let latestRound=1214;
-let latestWinNums=[];
-let latestBonusNum=0;
-let isReady=false;
-let genCount=5;
-let currentUid=null;
-let viewRound=1214;
-let unsubHistory=null;
-let unsubPrize=null;
-let prizeUnlocked=false;
+// ── 전역 상태 ──
+let freqData = {...BASE_FREQ};
+let recentHist = [...SEED_HISTORY];
+let latestRound = 1214;
+let latestWinNums = [1,9,22,31,38,43];
+let latestBonusNum = 5;
+let isReady = false;
+let genCount = 5;
+let currentUid = null;
+let authReady = false;
+let authCallbacks = [];
+let viewRound = 1214;
+let prizeUnlocked = false;
+let unsubPrize = null;
+let unsubHistory = null;
+const MAX_FREE = 5;
+let usedFree = 0;
+let pendingCount = 0;
+let adTimer = null;
  
-const MAX_FREE_LINES=5;
-let usedFreeLines=0;
-let pendingGenCount=0;
-let adTimerInterval=null;
+// ── 내 번호 상태 ──
+let myDocs = [];       // 현재 로드된 내 번호
+let checkedIds = new Set(); // 체크된 id
  
-const sDot=document.getElementById('s-dot');
-const sText=document.getElementById('s-text');
-const sExtra=document.getElementById('s-extra');
-const genBtn=document.getElementById('gen-btn');
-const resultsEl=document.getElementById('results');
-const adModal=document.getElementById('ad-modal');
-const confirmBtn=document.getElementById('modal-confirm-btn');
-const cancelBtn=document.getElementById('modal-cancel-btn');
+// ── DOM ──
+const sDot = document.getElementById('s-dot');
+const sText = document.getElementById('s-text');
+const sExtra = document.getElementById('s-extra');
+const genBtn = document.getElementById('gen-btn');
+const resultsEl = document.getElementById('results');
+const adModal = document.getElementById('ad-modal');
+const confirmBtn = document.getElementById('modal-confirm-btn');
+const cancelBtn = document.getElementById('modal-cancel-btn');
  
-const pad=n=>String(n).padStart(2,'0');
-function setStatus(t,txt,extra=''){sDot.className=`s-dot ${t}`;sText.textContent=txt;sExtra.textContent=extra;}
+// ── 유틸 ──
+const pad = n => String(n).padStart(2,'0');
+function setStatus(t,txt,extra=''){sDot.className='s-dot '+t;sText.textContent=txt;sExtra.textContent=extra;}
 function ballCls(n){return n<=9?'b1':n<=19?'b2':n<=29?'b3':n<=39?'b4':'b5';}
-function numColor(n){return n<=9?'#6a3800':n<=19?'#003880':n<=29?'#801010':n<=39?'#303040':'#084820';}
  
 // ── Auth ──
-let authReady=false;
-let authReadyCallbacks=[];
-function onAuthReady(cb){ if(authReady) cb(); else authReadyCallbacks.push(cb); }
-function resolveAuth(uid){ currentUid=uid; authReady=true; authReadyCallbacks.forEach(cb=>cb()); authReadyCallbacks=[]; }
- 
+function onAuthReady(cb){ if(authReady) cb(); else authCallbacks.push(cb); }
+function resolveAuth(uid){ currentUid=uid; authReady=true; authCallbacks.forEach(cb=>cb()); authCallbacks=[]; }
 function startAuth(){
   if(!auth){ resolveAuth('g_'+Math.random().toString(36).slice(2)); return; }
   try{
-    onAuthStateChanged(auth,u=>{
-      if(u){ resolveAuth(u.uid); loadMyNums(); }
-      else{
-        signInAnonymously(auth)
-          .then(r=>{ resolveAuth(r.user.uid); loadMyNums(); })
-          .catch(()=>{ resolveAuth('g_'+Math.random().toString(36).slice(2)); });
-      }
+    onAuthStateChanged(auth, u=>{
+      if(u){ resolveAuth(u.uid); }
+      else { signInAnonymously(auth).then(r=>resolveAuth(r.user.uid)).catch(()=>resolveAuth('g_'+Math.random().toString(36).slice(2))); }
     });
   }catch(e){ resolveAuth('g_'+Math.random().toString(36).slice(2)); }
 }
  
 // ── API ──
-const PROXIES=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?'];
+const PROXIES = ['https://api.allorigins.win/raw?url=','https://corsproxy.io/?'];
 async function fetchRound(r,proxy){
   const url=`https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=${r}`;
-  const res=await fetch(proxy+encodeURIComponent(url),{signal:AbortSignal.timeout(1500)});
+  const res=await fetch(proxy+encodeURIComponent(url),{signal:AbortSignal.timeout(2000)});
   const d=await res.json();
   if(!d||d.returnValue!=='success') throw 0;
-  return{round:r,nums:[1,2,3,4,5,6].map(i=>d[`drwtNo${i}`]),bonus:d.bnusNo,date:d.drwNoDate};
+  return{round:r,nums:[1,2,3,4,5,6].map(i=>d['drwtNo'+i]),bonus:d.bnusNo,date:d.drwNoDate};
 }
-async function tryFetch(r){for(const p of PROXIES){try{return await fetchRound(r,p);}catch(e){}}return null;}
+async function tryFetch(r){ for(const p of PROXIES){try{return await fetchRound(r,p);}catch(e){}} return null; }
 async function fetchNewRounds(){
-  // 전체 8초 타임아웃
-  const timeoutPromise = new Promise((_,reject)=>setTimeout(()=>reject(new Error('timeout')),8000));
-  return Promise.race([_doFetchNewRounds(), timeoutPromise]);
-}
-async function _doFetchNewRounds(){
-  let r=latestRound+1,count=0;
-  while(true){
+  const deadline = Date.now()+8000;
+  let r=latestRound+1, count=0;
+  while(Date.now()<deadline){
     const d=await tryFetch(r);
     if(!d) break;
     d.nums.forEach(n=>{freqData[n]=(freqData[n]||0)+1;});
-    recentHist.push(d);
-    if(recentHist.length>15) recentHist.shift();
-    latestRound=r; count++; r++;
+    recentHist.push(d); if(recentHist.length>15) recentHist.shift();
+    latestRound=r; latestWinNums=d.nums; latestBonusNum=d.bonus||0;
+    count++; r++;
   }
-  if(recentHist.length){const last=recentHist[recentHist.length-1];latestWinNums=last.nums;latestBonusNum=last.bonus||0;}
   return count;
 }
  
-// ── Init ──
+// ── 초기화 ──
 async function init(){
   try{
-    // 내장 데이터에서 즉시 당첨번호 세팅
-    if(recentHist.length){
-      const last=recentHist[recentHist.length-1];
-      latestWinNums=last.nums; latestBonusNum=last.bonus||0;
-    }
-    isReady=true; genBtn.disabled=false;
-    viewRound=latestRound;
-    updateStats(); renderFreqBars(); renderFreqGrid();
-    updateFreeCounter(); scheduleAutoUpdate();
-    renderPrizeHeader(); loadPrizeTab(latestRound);
-    startAuth();
-    checkPrizeUnlock();
-    startSaturdayChecker();
-    setStatus('ok',`내장 통계 준비 완료 (261~${latestRound}회)`,`${latestRound-261+1}회차`);
+    // 즉시 준비
+    isReady=true; genBtn.disabled=false; viewRound=latestRound;
+    updateStats(); renderFreqBars(); renderFreqGrid(); updateFreeCounter();
+    renderPrizeHeader(); scheduleAutoUpdate(); startSaturdayChecker();
+    setStatus('ok',`내장 통계 준비 완료 (261~${latestRound}회)`);
  
-    // 최신 회차 업데이트는 백그라운드로 (UI 블로킹 없이)
+    // Auth → 내 번호 로드
+    startAuth();
+    onAuthReady(()=>loadMyNums());
+ 
+    // 당첨현황 잠금 확인
+    checkPrizeUnlock();
+ 
+    // 최신 회차 백그라운드 업데이트
     setTimeout(async()=>{
-      setStatus('loading','최신 회차 확인 중...',`현재 ${latestRound}회`);
+      setStatus('loading','최신 회차 확인 중...');
       try{
         const added=await fetchNewRounds();
         if(added>0){
-          setStatus('ok',`${added}회차 업데이트 완료`,`최신: ${latestRound}회`);
+          setStatus('ok',`${added}회차 업데이트 완료 — 최신: ${latestRound}회`);
           updateStats(); renderFreqBars(); renderFreqGrid();
           renderPrizeHeader(); loadPrizeTab(latestRound);
-          refreshMyNums();
+          loadMyNums(); // 내 번호도 갱신
         } else {
-          setStatus('ok',`최신 상태 (261~${latestRound}회)`,`${latestRound-261+1}회차`);
+          setStatus('ok',`최신 상태 (261~${latestRound}회)`);
         }
-      }catch(e){ setStatus('ok',`내장 통계 사용 중`,`261~${latestRound}회`); }
-    }, 500);
+      }catch(e){ setStatus('ok',`내장 통계 사용 중`); }
+    }, 300);
   }catch(e){
-    console.error('Init error:',e);
-    setStatus('err','오류 발생 — 새로고침 해주세요','');
+    setStatus('err','오류 발생 — 새로고침 해주세요');
     genBtn.disabled=false; isReady=true;
   }
 }
  
-// ── 토요일 밤 10시 이후 당첨 체크 자동 트리거 ──
-function startSaturdayChecker(){
-  setInterval(()=>{
-    const now=new Date();
-    const kst=new Date(now.getTime()+9*3600000);
-    // 토요일(6) 22시 이후 또는 일요일(0) 새벽이면 당첨 결과 갱신
-    const day=kst.getDay(), hour=kst.getHours();
-    if((day===6&&hour>=22)||(day===0&&hour<3)){
-      refreshMyNums();
-    }
-  }, 60*1000); // 1분마다 체크
-}
- 
+// ── 자동업데이트 스케줄 ──
 function scheduleAutoUpdate(){
   try{
     const now=new Date(), kst=new Date(now.getTime()+9*3600000);
@@ -649,20 +504,19 @@ function scheduleAutoUpdate(){
     let ahead=day===0&&kst.getHours()<1?0:(7-day)%7||7;
     const nxt=new Date(kst); nxt.setDate(nxt.getDate()+ahead); nxt.setHours(1,0,0,0);
     const el=document.getElementById('next-update');
-    if(el){const days=['일','월','화','수','목','금','토'];el.textContent=`${nxt.getFullYear()}.${pad(nxt.getMonth()+1)}.${pad(nxt.getDate())} (${days[nxt.getDay()]}) 새벽 1시`;}
+    if(el){const D=['일','월','화','수','목','금','토'];el.textContent=`${nxt.getFullYear()}.${pad(nxt.getMonth()+1)}.${pad(nxt.getDate())} (${D[nxt.getDay()]}) 새벽 1시`;}
     const ms=new Date(nxt.getTime()-9*3600000).getTime()-now.getTime();
-    setTimeout(async()=>{
-      setStatus('loading','자동 업데이트 중...');
-      await fetchNewRounds();
-      setStatus('ok',`자동 업데이트 완료 — 최신: ${latestRound}회`);
-      updateStats(); renderFreqBars(); renderFreqGrid();
-      renderPrizeHeader(); loadPrizeTab(latestRound);
-      refreshMyNums();
-      scheduleAutoUpdate();
-    },ms);
-  }catch(e){console.warn('scheduleAutoUpdate error:',e);}
+    setTimeout(async()=>{ await fetchNewRounds(); updateStats(); renderFreqBars(); renderFreqGrid(); loadMyNums(); scheduleAutoUpdate(); },ms);
+  }catch(e){}
+}
+function startSaturdayChecker(){
+  setInterval(()=>{
+    const kst=new Date(new Date().getTime()+9*3600000);
+    if((kst.getDay()===6&&kst.getHours()>=22)||(kst.getDay()===0&&kst.getHours()<3)) loadMyNums();
+  },60000);
 }
  
+// ── 통계 ──
 function updateStats(){
   document.getElementById('sv-rounds').textContent=latestRound-261+1;
   document.getElementById('sv-latest').textContent=latestRound+'회';
@@ -670,624 +524,412 @@ function updateStats(){
   document.getElementById('sv-top').textContent=s[0][0]+'번';
   document.getElementById('sv-cold').textContent=s[s.length-1][0]+'번';
 }
- 
-// ── 무료 카운터 ──
 function updateFreeCounter(){
-  const remaining=Math.max(0,MAX_FREE_LINES-usedFreeLines);
-  const pipsEl=document.getElementById('free-pips');
-  const textEl=document.getElementById('free-text');
-  pipsEl.innerHTML=Array.from({length:MAX_FREE_LINES},(_,i)=>`<div class="pip${i<usedFreeLines?' used':''}"></div>`).join('');
-  if(remaining>0) textEl.innerHTML=`무료 <strong>${remaining}줄</strong> 남음 (오늘 세션)`;
-  else textEl.innerHTML=`<span style="color:var(--accent)">무료 소진 — 광고 시청 후 이용</span>`;
-}
- 
-function needsAd(count){ return count>=10||(usedFreeLines+count>MAX_FREE_LINES); }
- 
-function showAdModal(count){
-  pendingGenCount=count;
-  document.getElementById('modal-desc').innerHTML=count>=10
-    ?`<strong>10줄</strong>은 광고 시청 후 받을 수 있습니다.`
-    :`무료 사용 횟수(<strong>${MAX_FREE_LINES}줄</strong>)를 모두 사용했습니다.<br>광고를 시청하면 번호를 받을 수 있습니다.`;
-  adModal.classList.add('show'); startAdTimer();
-}
-function hideAdModal(){ adModal.classList.remove('show'); clearInterval(adTimerInterval); confirmBtn.disabled=true; }
-function startAdTimer(){
-  const SEC=5; let elapsed=0;
-  confirmBtn.disabled=true;
-  document.getElementById('timer-bar').style.width='100%';
-  document.getElementById('timer-bar').style.background='var(--accent)';
-  document.getElementById('timer-text').textContent=`${SEC}초 후 버튼 활성화...`;
-  clearInterval(adTimerInterval);
-  adTimerInterval=setInterval(()=>{
-    elapsed++;
-    const pct=Math.max(0,((SEC-elapsed)/SEC)*100);
-    document.getElementById('timer-bar').style.width=pct+'%';
-    const left=SEC-elapsed;
-    if(left<=0){ clearInterval(adTimerInterval); confirmBtn.disabled=false; document.getElementById('timer-text').textContent='✅ 준비 완료!'; document.getElementById('timer-bar').style.background='var(--green)'; }
-    else document.getElementById('timer-text').textContent=`${left}초 후 버튼 활성화...`;
-  },1000);
-}
- 
-confirmBtn.addEventListener('click',()=>{
-  hideAdModal();
-  if(pendingGenCount>=10){ doGenerate(pendingGenCount); }
-  else { usedFreeLines=0; updateFreeCounter(); doGenerate(pendingGenCount); }
-});
-cancelBtn.addEventListener('click',hideAdModal);
-adModal.addEventListener('click',e=>{if(e.target===adModal)hideAdModal();});
- 
-genBtn.addEventListener('click',()=>{
-  if(!isReady) return;
-  if(needsAd(genCount)) showAdModal(genCount);
-  else doGenerate(genCount);
-});
- 
-async function doGenerate(count){
-  resultsEl.innerHTML='';
-  genBtn.disabled=true; genBtn.textContent='⏳ 추첨 중...';
-  const allNums=[];
-  for(let i=0;i<count;i++) allNums.push(generateSmart());
-  allNums.forEach((nums,i)=>resultsEl.appendChild(renderResult(nums,i,null)));
-  if(count<10){ usedFreeLines+=count; updateFreeCounter(); }
-  const ids=await Promise.all(allNums.map(nums=>savePick(nums)));
-  ids.forEach((id,i)=>{
-    const row=resultsEl.children[i];
-    if(row&&id){const s=row.querySelector('.r-saved');if(s)s.textContent='✓';}
-  });
-  genBtn.disabled=false; genBtn.textContent='🎲 번호 추첨하기';
-  updateWinBadge();
-  setTimeout(()=>resultsEl.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
-  // 내 번호 탭 갱신
-  setTimeout(()=>loadMyNums(),1000);
-}
- 
-// ── 알고리즘 ──
-function wp(arr,w){const t=w.reduce((a,b)=>a+b,0);let r=Math.random()*t;for(let i=0;i<arr.length;i++){r-=w[i];if(r<=0)return i;}return arr.length-1;}
-const getHL=nums=>({lo:nums.filter(n=>n<=22).length,hi:nums.filter(n=>n>=23).length});
-const getOE=nums=>({odd:nums.filter(n=>n%2).length,even:nums.filter(n=>!(n%2)).length});
-const lds=nums=>nums.reduce((s,n)=>s+n%10,0);
-function hasConsec(nums){const s=[...nums].sort((a,b)=>a-b);for(let i=0;i<s.length-1;i++)if(s[i+1]-s[i]===1)return true;return false;}
-function getAbsent(lb=8){const seen=new Set();recentHist.slice(-lb).forEach(h=>h.nums.forEach(n=>seen.add(n)));return Array.from({length:45},(_,i)=>i+1).filter(n=>!seen.has(n));}
-const getPrev=()=>recentHist.length?recentHist[recentHist.length-1].nums:[];
-function scoreC(nums){
-  let s=0;
-  const{lo,hi}=getHL(nums);s+=Math.abs(lo-hi)===0?30:Math.abs(lo-hi)<=2?20:-20;
-  const{odd}=getOE(nums);s+=Math.abs(odd-3)===0?30:Math.abs(odd-3)<=1?20:-20;
-  if(hasConsec(nums))s+=15;
-  const l=lds(nums);s+=(l>=20&&l<=35)?20:(l>=15&&l<=40)?8:-10;
-  const abs=getAbsent(8),ac=nums.filter(n=>abs.includes(n)).length;
-  s+=(ac>=1&&ac<=2)?15:ac===0?-5:0;
-  const cc=nums.filter(n=>getPrev().includes(n)).length;
-  s+=cc===1?10:cc===0?5:-10;
-  return s;
-}
-function genCand(){const pool=Array.from({length:45},(_,i)=>i+1),w=pool.map(n=>freqData[n]||1);const rem=[...pool],rw=[...w],nums=[];while(nums.length<6){const i=wp(rem,rw);nums.push(rem[i]);rem.splice(i,1);rw.splice(i,1);}return nums.sort((a,b)=>a-b);}
-function generateSmart(){let b=null,bs=-Infinity;for(let i=0;i<200;i++){const c=genCand(),s=scoreC(c);if(s>bs){b=c;bs=s;}}return b;}
- 
-function checkPrize(nums,win,bonus){
-  if(!win||win.length<6) return 0;
-  const h=nums.filter(n=>win.includes(n)).length,bh=nums.includes(bonus);
-  if(h===6)return 1;if(h===5&&bh)return 2;if(h===5)return 3;if(h===4)return 4;if(h===3)return 5;return 0;
-}
-const PLABELS=['','🥇 1등','🥈 2등','🥉 3등','4등','5등'];
-const PCLS=['','win1','win2','win3','win4','win5'];
- 
-function makeTags(nums){
-  const t=[];
-  const{lo,hi}=getHL(nums);t.push({cls:Math.abs(lo-hi)<=2?'ok':'warn',text:`고저 ${lo}:${hi}`});
-  const{odd,even}=getOE(nums);t.push({cls:Math.abs(odd-even)<=2?'ok':'warn',text:`홀짝 ${odd}:${even}`});
-  if(hasConsec(nums))t.push({cls:'info',text:'연번 포함'});
-  const l=lds(nums);t.push({cls:(l>=20&&l<=35)?'ok':'warn',text:`끝수합 ${l}`});
-  const ac=nums.filter(n=>getAbsent(8).includes(n)).length;
-  if(ac>0)t.push({cls:'info',text:`미출현 ${ac}개`});
-  const cc=nums.filter(n=>getPrev().includes(n)).length;
-  if(cc>0)t.push({cls:'info',text:`이월수 ${cc}개`});
-  if(latestWinNums.length===6){const p=checkPrize(nums,latestWinNums,latestBonusNum);if(p>0)t.push({cls:PCLS[p],text:PLABELS[p]+' 당첨!'});}
-  return t;
-}
- 
-function renderResult(nums,idx,docId){
-  const tags=makeTags(nums);
-  const hitSet=new Set(latestWinNums);
-  const div=document.createElement('div');
-  div.className='r-row'; div.style.animationDelay=`${idx*60}ms`;
-  div.innerHTML=`
-    <div class="r-top">
-      <div class="r-num">${idx+1}</div>
-      <div class="r-balls">${nums.map(n=>`<div class="ball ${ballCls(n)}${hitSet.has(n)?' hit':''}">${n}</div>`).join('')}</div>
-      <div class="r-saved">${docId?'✓':''}</div>
-    </div>
-    <div class="r-tags">${tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join('')}</div>`;
-  return div;
-}
- 
-// ── Firebase 저장 ──
-async function savePick(nums){
-  if(!db) return null;
-  if(!authReady){
-    await new Promise(resolve=>{
-      const t=setTimeout(()=>resolve(),5000);
-      onAuthReady(()=>{ clearTimeout(t); resolve(); });
-    });
-  }
-  if(!currentUid) return null;
-  try{
-    const d=await addDoc(collection(db,'picks'),{
-      uid:currentUid, round:latestRound, nums,
-      prize:checkPrize(nums,latestWinNums,latestBonusNum),
-      createdAt:serverTimestamp()
-    });
-    return d.id;
-  }catch(e){ console.error('savePick error:',e); return null; }
-}
- 
-// ── 내 번호 탭 ──
-// ── 내 번호: getDocs 방식 (체크박스 상태 보존을 위해 onSnapshot 미사용) ──
-async function loadMyNums(){
-  if(!authReady){ onAuthReady(()=>loadMyNums()); return; }
-  if(!currentUid||!db){ renderMyNums([]); return; }
-  try{
-    const q=query(collection(db,'picks'),where('uid','==',currentUid),orderBy('createdAt','desc'));
-    const snap=await getDocs(q);
-    const docs=snap.docs.map(d=>({id:d.id,...d.data()}));
-    const keepRounds=[latestRound, latestRound-1];
-    const filtered=docs.filter(d=>keepRounds.includes(d.round));
-    renderMyNums(filtered);
-    // 오래된 회차 백그라운드 삭제
-    docs.filter(d=>!keepRounds.includes(d.round))
-        .forEach(d=>deleteDoc(doc(db,'picks',d.id)).catch(()=>{}));
-  }catch(e){ console.error('loadMyNums:',e); renderMyNums([]); }
-}
- 
-function refreshMyNums(){ loadMyNums(); }
- 
-function startMyNumsListener(){ loadMyNums(); }
- 
-// ── 내 번호 상태 ──
-let currentMyDocs = [];
-let checkedIds = new Set(); // 체크 상태를 별도 관리
- 
-function updateSelCount(){
-  const count = checkedIds.size;
-  document.getElementById('sel-count').textContent = count > 0 ? count+'개 선택됨' : '';
-  document.getElementById('btn-delete-selected').disabled = count === 0;
-}
- 
-function recalcPrizeCounts(){
-  const cnt={1:0,2:0,3:0,4:0,5:0};
-  currentMyDocs.forEach(d=>{
-    const entry=recentHist.find(h=>h.round===d.round);
-    const wn=entry?entry.nums:(d.round===latestRound?latestWinNums:[]);
-    const bn=entry?entry.bonus:(d.round===latestRound?latestBonusNum:0);
-    const p=checkPrize(d.nums||[],wn,bn);
-    if(p>0) cnt[p]++;
-  });
-  for(let i=1;i<=5;i++){
-    const el=document.getElementById('my-cnt'+i);
-    if(el) el.textContent=cnt[i];
-  }
-}
- 
-function renderMyNumsItem(d, idx, wn, bn, showResult, hitSet){
-  const item=document.createElement('div');
-  item.className='my-item';
-  item.dataset.id=d.id;
- 
-  // 체크박스 - DOM 직접 생성으로 상태 보존
-  const cb=document.createElement('input');
-  cb.type='checkbox';
-  cb.className='my-checkbox my-cb';
-  cb.dataset.id=d.id;
-  cb.checked=checkedIds.has(d.id);
-  cb.addEventListener('change',()=>{
-    if(cb.checked) checkedIds.add(d.id);
-    else checkedIds.delete(d.id);
-    updateSelCount();
-  });
- 
-  const top=document.createElement('div');
-  top.className='my-item-top';
-  top.appendChild(cb);
- 
-  const idxEl=document.createElement('div');
-  idxEl.className='my-item-idx';
-  idxEl.textContent=idx+1;
-  top.appendChild(idxEl);
- 
-  const balls=document.createElement('div');
-  balls.className='my-item-balls';
-  (d.nums||[]).forEach(n=>{
-    const b=document.createElement('div');
-    b.className='ball '+ballCls(n)+(hitSet.has(n)?' hit':'');
-    b.style.cssText='width:30px;height:30px;font-size:11px';
-    b.textContent=n;
-    balls.appendChild(b);
-  });
-  top.appendChild(balls);
- 
-  const p=showResult?checkPrize(d.nums||[],wn,bn):0;
-  if(showResult&&p>0){
-    const prize=document.createElement('div');
-    prize.className='my-item-prize';
-    prize.textContent=PLABELS[p];
-    top.appendChild(prize);
-  }
- 
-  const delBtn=document.createElement('button');
-  delBtn.className='del-btn';
-  delBtn.textContent='🗑️';
-  delBtn.addEventListener('click',()=>showDelModal([d.id],[d.nums||[]]));
-  top.appendChild(delBtn);
- 
-  item.appendChild(top);
- 
-  if(showResult){
-    const tags=document.createElement('div');
-    tags.className='my-item-tags';
-    if(p>0) tags.innerHTML+=`<span class="tag ${PCLS[p]}">${PLABELS[p]}</span>`;
-    else tags.innerHTML+=`<span class="tag warn">미당첨</span>`;
-    const h=(d.nums||[]).filter(n=>wn.includes(n)).length;
-    if(h>0) tags.innerHTML+=`<span class="tag info">${h}개 일치</span>`;
-    item.appendChild(tags);
-  }
-  return item;
-}
- 
-function renderMyNums(docs){
-  currentMyDocs=docs;
-  // 사라진 id는 checkedIds에서 제거
-  const docIds=new Set(docs.map(d=>d.id));
-  checkedIds.forEach(id=>{ if(!docIds.has(id)) checkedIds.delete(id); });
- 
-  recalcPrizeCounts();
- 
-  const toolbar=document.getElementById('my-toolbar');
-  const container=document.getElementById('my-nums-container');
- 
-  if(!docs.length){
-    toolbar.style.display='none';
-    checkedIds.clear();
-    updateSelCount();
-    container.innerHTML='<div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>';
-    return;
-  }
-  toolbar.style.display='flex';
- 
-  const kst=new Date(new Date().getTime()+9*3600000);
-  const day=kst.getDay(), hour=kst.getHours();
-  const resultAvailable=(day===6&&hour>=22)||(day===0&&hour<12)||latestWinNums.length===6;
- 
-  const grouped={};
-  docs.forEach(d=>{
-    if(!grouped[d.round]) grouped[d.round]=[];
-    grouped[d.round].push(d);
-  });
- 
-  container.innerHTML='';
-  Object.keys(grouped).sort((a,b)=>b-a).forEach(round=>{
-    const roundNum=parseInt(round);
-    const entry=recentHist.find(h=>h.round===roundNum);
-    const wn=entry?entry.nums:[];
-    const bn=entry?entry.bonus:0;
-    const hitSet=new Set(wn);
-    const isLatest=roundNum===latestRound;
-    const showResult=wn.length===6&&resultAvailable;
-    const roundItems=grouped[round];
- 
-    const sec=document.createElement('div');
-    sec.className='my-round-section';
- 
-    // 배너
-    let bestPrize=0;
-    if(showResult) roundItems.forEach(d=>{const p=checkPrize(d.nums||[],wn,bn);if(p>0&&(bestPrize===0||p<bestPrize))bestPrize=p;});
-    if(showResult&&bestPrize>0&&bestPrize<=2){
-      sec.innerHTML+=`<div class="win-banner"><div class="win-banner-icon">${bestPrize===1?'🥇':'🥈'}</div><div class="win-banner-text">${PLABELS[bestPrize]} 당첨!</div><div class="win-banner-sub">이번 회차에서 당첨이 발생했습니다</div></div>`;
-    }
- 
-    // 타이틀
-    const title=document.createElement('div');
-    title.className='my-round-title';
-    title.innerHTML=roundNum+'회차 '+(isLatest?'<span style="background:var(--accent);color:#000;font-size:9px;padding:2px 7px;border-radius:4px;margin-left:6px">최신</span>':'');
-    sec.appendChild(title);
- 
-    const sub=document.createElement('div');
-    sub.className='my-round-sub';
-    sub.textContent=(entry&&entry.date?'추첨일: '+entry.date:'')+' · '+roundItems.length+'줄';
-    sec.appendChild(sub);
- 
-    // 당첨번호 표시
-    if(showResult&&wn.length===6){
-      const winRow=document.createElement('div');
-      winRow.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px';
-      wn.forEach(n=>{
-        const b=document.createElement('div');
-        b.className='ball '+ballCls(n);
-        b.style.cssText='width:28px;height:28px;font-size:10px';
-        b.textContent=n;
-        winRow.appendChild(b);
-      });
-      const bonusLabel=document.createElement('span');
-      bonusLabel.style.cssText='font-size:10px;color:var(--muted);align-self:center';
-      bonusLabel.textContent='+보너스 '+bn;
-      winRow.appendChild(bonusLabel);
-      sec.appendChild(winRow);
-    }
- 
-    // 대기 중
-    if(isLatest&&!showResult){
-      const pending=document.createElement('div');
-      pending.className='result-pending';
-      pending.innerHTML='<div class="result-pending-icon">⏳</div><div class="result-pending-text">이번 회차 당첨 결과는<br><span class="result-pending-time">토요일 밤 10시 이후</span><br>자동으로 표시됩니다</div>';
-      sec.appendChild(pending);
-    }
- 
-    // 번호 목록
-    const list=document.createElement('div');
-    list.className='my-nums-list';
-    roundItems.forEach((d,i)=>list.appendChild(renderMyNumsItem(d,i,wn,bn,showResult,hitSet)));
-    sec.appendChild(list);
- 
-    container.appendChild(sec);
-  });
-  updateSelCount();
-}
- 
-// 삭제 후 DOM에서 즉시 제거 + currentMyDocs 갱신
-function removeFromView(idsToDelete){
-  currentMyDocs=currentMyDocs.filter(d=>!idsToDelete.includes(d.id));
-  idsToDelete.forEach(id=>{
-    checkedIds.delete(id);
-    const el=document.querySelector('.my-item[data-id="'+id+'"]');
-    if(el) el.remove();
-  });
-  // 빈 섹션 제거
-  document.querySelectorAll('.my-round-section').forEach(sec=>{
-    if(!sec.querySelector('.my-item')) sec.remove();
-  });
-  recalcPrizeCounts();
-  if(!currentMyDocs.length){
-    document.getElementById('my-toolbar').style.display='none';
-    document.getElementById('my-nums-container').innerHTML='<div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>';
-  }
-  updateSelCount();
-}
- 
-// ── 당첨현황 잠금 확인 ──
-async function checkPrizeUnlock(){
-  if(!db){ return; }
-  // Firestore에서 1등 또는 2등이 있는지 실시간 감지
-  try{
-    const q=query(collection(db,'picks'),where('prize','<=',2));
-    if(unsubPrize) unsubPrize();
-    unsubPrize=onSnapshot(q,snap=>{
-      const has12=snap.docs.some(d=>{const p=d.data().prize;return p===1||p===2;});
-      if(has12&&!prizeUnlocked){
-        prizeUnlocked=true;
-        unlockPrizeTab();
-      }
-    });
-  }catch(e){}
-}
- 
-function unlockPrizeTab(){
-  const btn=document.getElementById('tab-prize-btn');
-  btn.classList.remove('disabled');
-  document.getElementById('prize-locked').style.display='none';
-  document.getElementById('prize-content').style.display='block';
+  const rem=Math.max(0,MAX_FREE-usedFree);
+  document.getElementById('free-pips').innerHTML=Array.from({length:MAX_FREE},(_,i)=>`<div class="pip${i<usedFree?' used':''}"></div>`).join('');
+  document.getElementById('free-text').innerHTML=rem>0?`무료 <strong>${rem}줄</strong> 남음`:`<span style="color:var(--accent)">무료 소진 — 광고 시청 후 이용</span>`;
 }
  
 // ── 빈도 렌더 ──
 function renderFreqBars(){
   const el=document.getElementById('freq-bars'); el.innerHTML='';
-  const mx=Math.max(...Object.values(freqData));
-  const mn=Math.min(...Object.values(freqData));
-  const range=mx-mn||1;
-  const bf=Object.entries(freqData).sort((a,b)=>b[1]-a[1]);
-  const hot=new Set(bf.slice(0,9).map(e=>e[0])),cold=new Set(bf.slice(-9).map(e=>e[0]));
+  const vals=Object.values(freqData); const mx=Math.max(...vals); const mn=Math.min(...vals); const range=mx-mn||1;
+  const sorted=Object.entries(freqData).sort((a,b)=>b[1]-a[1]);
+  const hot=new Set(sorted.slice(0,9).map(e=>e[0])), cold=new Set(sorted.slice(-9).map(e=>e[0]));
   for(let n=1;n<=45;n++){
-    const c=freqData[n]||0;
-    const h=Math.round(4+((c-mn)/range)*42);
+    const c=freqData[n]||0; const h=Math.round(4+((c-mn)/range)*42);
     const cls=hot.has(String(n))?'fb-hot':cold.has(String(n))?'fb-cold':'fb-mid';
-    const col=document.createElement('div');
-    col.className=`fb-col ${cls}`;
-    col.innerHTML=`<div class="fb-bar" style="height:${h}px;flex-shrink:0"></div><div class="fb-lbl">${n}</div>`;
+    const col=document.createElement('div'); col.className='fb-col '+cls;
+    col.innerHTML=`<div class="fb-bar" style="height:${h}px"></div><div class="fb-lbl">${n}</div>`;
     el.appendChild(col);
   }
 }
 function renderFreqGrid(){
   const g=document.getElementById('freq-grid'); g.innerHTML='';
   const mx=Math.max(...Object.values(freqData));
-  const bf=Object.entries(freqData).sort((a,b)=>b[1]-a[1]);
+  const sorted=Object.entries(freqData).sort((a,b)=>b[1]-a[1]);
   const rm={};
-  bf.forEach(([n],i)=>{if(i<5)rm[n]='hot1';else if(i<15)rm[n]='hot2';else if(i<22)rm[n]='hot3';else if(i>=38)rm[n]='cold';});
+  sorted.forEach(([n],i)=>{if(i<5)rm[n]='hot1';else if(i<15)rm[n]='hot2';else if(i<22)rm[n]='hot3';else if(i>=38)rm[n]='cold';});
   for(let n=1;n<=45;n++){
-    const c=freqData[n]||0,pct=(c/mx*100).toFixed(0);
-    const el=document.createElement('div');
-    el.className=`fi ${rm[String(n)]||''}`;
-    el.title=`${n}번: ${c}회`;
-    el.innerHTML=`<div class="fi-n ${ballCls(n)}" style="color:${numColor(n)}">${n}</div><div class="fi-c">${c}회</div><div class="fi-prog" style="width:${pct}%"></div>`;
+    const c=freqData[n]||0, pct=(c/mx*100).toFixed(0);
+    const el=document.createElement('div'); el.className='fi '+(rm[String(n)]||'');
+    el.innerHTML=`<div class="fi-n ${ballCls(n)}">${n}</div><div class="fi-c">${c}회</div><div class="fi-prog" style="width:${pct}%"></div>`;
     g.appendChild(el);
   }
 }
  
+// ── 광고 모달 ──
+function needsAd(n){ return n>=10||(usedFree+n>MAX_FREE); }
+function showAdModal(n){
+  pendingCount=n;
+  document.getElementById('modal-desc').innerHTML=n>=10?`<strong>10줄</strong>은 광고 시청 후 받을 수 있습니다.`:`무료 사용 횟수(<strong>${MAX_FREE}줄</strong>)를 모두 사용했습니다.`;
+  adModal.classList.add('show'); startAdTimer();
+}
+function hideAdModal(){ adModal.classList.remove('show'); clearInterval(adTimer); confirmBtn.disabled=true; }
+function startAdTimer(){
+  const SEC=5; let e=0; confirmBtn.disabled=true;
+  document.getElementById('timer-bar').style.width='100%';
+  document.getElementById('timer-text').textContent=SEC+'초 후 활성화...';
+  clearInterval(adTimer);
+  adTimer=setInterval(()=>{
+    e++;
+    document.getElementById('timer-bar').style.width=Math.max(0,((SEC-e)/SEC*100))+'%';
+    if(e>=SEC){ clearInterval(adTimer); confirmBtn.disabled=false; document.getElementById('timer-text').textContent='✅ 준비 완료!'; }
+    else document.getElementById('timer-text').textContent=(SEC-e)+'초 후 활성화...';
+  },1000);
+}
+confirmBtn.addEventListener('click',()=>{ hideAdModal(); if(pendingCount<10){usedFree=0;updateFreeCounter();} doGenerate(pendingCount); });
+cancelBtn.addEventListener('click',hideAdModal);
+adModal.addEventListener('click',e=>{if(e.target===adModal)hideAdModal();});
+ 
+genBtn.addEventListener('click',()=>{ if(!isReady)return; if(needsAd(genCount))showAdModal(genCount); else doGenerate(genCount); });
+ 
+// ── 알고리즘 ──
+function wp(arr,w){const t=w.reduce((a,b)=>a+b,0);let r=Math.random()*t;for(let i=0;i<arr.length;i++){r-=w[i];if(r<=0)return i;}return arr.length-1;}
+const getHL=ns=>({lo:ns.filter(n=>n<=22).length,hi:ns.filter(n=>n>=23).length});
+const getOE=ns=>({odd:ns.filter(n=>n%2).length,even:ns.filter(n=>!(n%2)).length});
+const lds=ns=>ns.reduce((s,n)=>s+n%10,0);
+function hasConsec(ns){const s=[...ns].sort((a,b)=>a-b);for(let i=0;i<s.length-1;i++)if(s[i+1]-s[i]===1)return true;return false;}
+function getAbsent(){const seen=new Set();recentHist.slice(-8).forEach(h=>h.nums.forEach(n=>seen.add(n)));return Array.from({length:45},(_,i)=>i+1).filter(n=>!seen.has(n));}
+const getPrev=()=>recentHist.length?recentHist[recentHist.length-1].nums:[];
+function scoreC(ns){
+  let s=0;
+  const{lo,hi}=getHL(ns); s+=Math.abs(lo-hi)<=2?20:-20;
+  const{odd}=getOE(ns); s+=Math.abs(odd-3)<=1?20:-20;
+  if(hasConsec(ns))s+=15;
+  const l=lds(ns); s+=(l>=20&&l<=35)?20:-10;
+  const ac=ns.filter(n=>getAbsent().includes(n)).length; s+=(ac>=1&&ac<=2)?15:0;
+  const cc=ns.filter(n=>getPrev().includes(n)).length; s+=cc===1?10:0;
+  return s;
+}
+function genCand(){const pool=Array.from({length:45},(_,i)=>i+1),w=pool.map(n=>freqData[n]||1);const rem=[...pool],rw=[...w],ns=[];while(ns.length<6){const i=wp(rem,rw);ns.push(rem[i]);rem.splice(i,1);rw.splice(i,1);}return ns.sort((a,b)=>a-b);}
+function generateSmart(){let b=null,bs=-Infinity;for(let i=0;i<200;i++){const c=genCand(),s=scoreC(c);if(s>bs){b=c;bs=s;}}return b;}
+ 
+function checkPrize(nums,win,bonus){
+  if(!win||win.length<6)return 0;
+  const h=nums.filter(n=>win.includes(n)).length, bh=nums.includes(bonus);
+  if(h===6)return 1; if(h===5&&bh)return 2; if(h===5)return 3; if(h===4)return 4; if(h===3)return 5; return 0;
+}
+const PLABELS=['','🥇 1등','🥈 2등','🥉 3등','4등','5등'];
+const PCLS=['','win1','win2','win3','win4','win5'];
+ 
+function makeTags(nums){
+  const t=[];
+  const{lo,hi}=getHL(nums); t.push({cls:Math.abs(lo-hi)<=2?'ok':'warn',text:`고저 ${lo}:${hi}`});
+  const{odd,even}=getOE(nums); t.push({cls:Math.abs(odd-even)<=2?'ok':'warn',text:`홀짝 ${odd}:${even}`});
+  if(hasConsec(nums))t.push({cls:'info',text:'연번 포함'});
+  t.push({cls:(lds(nums)>=20&&lds(nums)<=35)?'ok':'warn',text:`끝수합 ${lds(nums)}`});
+  const ac=nums.filter(n=>getAbsent().includes(n)).length; if(ac>0)t.push({cls:'info',text:`미출현 ${ac}개`});
+  const cc=nums.filter(n=>getPrev().includes(n)).length; if(cc>0)t.push({cls:'info',text:`이월수 ${cc}개`});
+  if(latestWinNums.length===6){const p=checkPrize(nums,latestWinNums,latestBonusNum);if(p>0)t.push({cls:PCLS[p],text:PLABELS[p]+' 당첨!'});}
+  return t;
+}
+ 
+function renderResult(nums,idx){
+  const tags=makeTags(nums); const hitSet=new Set(latestWinNums);
+  const div=document.createElement('div'); div.className='r-row'; div.style.animationDelay=(idx*60)+'ms';
+  div.innerHTML=`<div class="r-top"><div class="r-num">${idx+1}</div><div class="r-balls">${nums.map(n=>`<div class="ball ${ballCls(n)}${hitSet.has(n)?' hit':''}">${n}</div>`).join('')}</div><div class="r-saved" id="rsaved-${idx}"></div></div><div class="r-tags">${tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join('')}</div>`;
+  return div;
+}
+ 
+// ── 번호 생성 ──
+async function doGenerate(count){
+  resultsEl.innerHTML=''; genBtn.disabled=true; genBtn.textContent='⏳ 추첨 중...';
+  const allNums=Array.from({length:count},()=>generateSmart());
+  allNums.forEach((nums,i)=>resultsEl.appendChild(renderResult(nums,i)));
+  if(count<10){usedFree+=count; updateFreeCounter();}
+  genBtn.disabled=false; genBtn.textContent='🎲 번호 추첨하기';
+  setTimeout(()=>resultsEl.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+  // Firebase 저장 (auth 준비 후)
+  onAuthReady(async()=>{
+    const ids=await Promise.all(allNums.map((nums,i)=>savePick(nums,i)));
+    ids.forEach((id,i)=>{ if(id){const el=document.getElementById('rsaved-'+i);if(el)el.textContent='✓';} });
+    loadMyNums(); // 저장 후 내 번호 탭 갱신
+  });
+}
+ 
+// ── Firebase 저장 ──
+async function savePick(nums,idx){
+  if(!currentUid||!db)return null;
+  try{
+    const d=await addDoc(collection(db,'picks'),{uid:currentUid,round:latestRound,nums,prize:checkPrize(nums,latestWinNums,latestBonusNum),createdAt:serverTimestamp()});
+    return d.id;
+  }catch(e){return null;}
+}
+ 
+// ── 내 번호 로드 ──
+async function loadMyNums(){
+  if(!currentUid||!db){ renderMyNums([]); return; }
+  try{
+    const q=query(collection(db,'picks'),where('uid','==',currentUid),orderBy('createdAt','desc'));
+    const snap=await getDocs(q);
+    const all=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const keep=[latestRound,latestRound-1];
+    const filtered=all.filter(d=>keep.includes(d.round));
+    renderMyNums(filtered);
+    // 오래된 것 백그라운드 삭제
+    all.filter(d=>!keep.includes(d.round)).forEach(d=>deleteDoc(doc(db,'picks',d.id)).catch(()=>{}));
+  }catch(e){ renderMyNums([]); }
+}
+ 
+// ── 내 번호 렌더 ──
+function updateSelCount(){
+  const n=checkedIds.size;
+  document.getElementById('sel-count').textContent=n>0?n+'개 선택됨':'';
+  document.getElementById('btn-delete-selected').disabled=n===0;
+}
+function recalcCounts(){
+  const cnt={1:0,2:0,3:0,4:0,5:0};
+  myDocs.forEach(d=>{
+    const entry=recentHist.find(h=>h.round===d.round);
+    const wn=entry?entry.nums:(d.round===latestRound?latestWinNums:[]);
+    const bn=entry?entry.bonus:(d.round===latestRound?latestBonusNum:0);
+    const p=checkPrize(d.nums||[],wn,bn);
+    if(p>0)cnt[p]++;
+  });
+  for(let i=1;i<=5;i++){const el=document.getElementById('my-cnt'+i);if(el)el.textContent=cnt[i];}
+}
+ 
+function renderMyNums(docs){
+  myDocs=docs;
+  // 사라진 id 체크 해제
+  const ids=new Set(docs.map(d=>d.id));
+  [...checkedIds].forEach(id=>{if(!ids.has(id))checkedIds.delete(id);});
+  recalcCounts();
+ 
+  const toolbar=document.getElementById('my-toolbar');
+  const container=document.getElementById('my-nums-container');
+  if(!docs.length){
+    toolbar.style.display='none'; container.innerHTML='<div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>';
+    checkedIds.clear(); updateSelCount(); return;
+  }
+  toolbar.style.display='flex'; container.innerHTML='';
+ 
+  const kst=new Date(new Date().getTime()+9*3600000);
+  const resultAvailable=(kst.getDay()===6&&kst.getHours()>=22)||(kst.getDay()===0&&kst.getHours()<12)||latestWinNums.length===6;
+ 
+  // 회차별 그룹핑
+  const grouped={};
+  docs.forEach(d=>{if(!grouped[d.round])grouped[d.round]=[];grouped[d.round].push(d);});
+ 
+  Object.keys(grouped).sort((a,b)=>b-a).forEach(round=>{
+    const rn=parseInt(round);
+    const entry=recentHist.find(h=>h.round===rn);
+    const wn=entry?entry.nums:[];
+    const bn=entry?entry.bonus:0;
+    const hitSet=new Set(wn);
+    const isLatest=rn===latestRound;
+    const showResult=wn.length===6&&resultAvailable;
+    const items=grouped[round];
+ 
+    const sec=document.createElement('div'); sec.className='my-round-section';
+ 
+    // 배너
+    if(showResult){
+      let best=0; items.forEach(d=>{const p=checkPrize(d.nums||[],wn,bn);if(p>0&&(best===0||p<best))best=p;});
+      if(best>0&&best<=2){
+        const b=document.createElement('div'); b.className='win-banner';
+        b.innerHTML=`<div class="win-banner-icon">${best===1?'🥇':'🥈'}</div><div class="win-banner-text">${PLABELS[best]} 당첨!</div><div class="win-banner-sub">이번 회차에서 당첨이 발생했습니다</div>`;
+        sec.appendChild(b);
+      }
+    }
+ 
+    const title=document.createElement('div'); title.className='my-round-title';
+    title.innerHTML=rn+'회차'+(isLatest?' <span style="background:var(--accent);color:#000;font-size:9px;padding:2px 7px;border-radius:4px">최신</span>':'');
+    sec.appendChild(title);
+ 
+    const sub=document.createElement('div'); sub.className='my-round-sub';
+    sub.textContent=(entry&&entry.date?'추첨일: '+entry.date:'')+' · '+items.length+'줄';
+    sec.appendChild(sub);
+ 
+    if(showResult&&wn.length===6){
+      const wr=document.createElement('div'); wr.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px';
+      wn.forEach(n=>{const b=document.createElement('div');b.className='ball '+ballCls(n);b.style.cssText='width:28px;height:28px;font-size:10px';b.textContent=n;wr.appendChild(b);});
+      const bl=document.createElement('span');bl.style.cssText='font-size:10px;color:var(--muted);align-self:center';bl.textContent='+보너스 '+bn;wr.appendChild(bl);
+      sec.appendChild(wr);
+    }
+ 
+    if(isLatest&&!showResult){
+      const p=document.createElement('div'); p.className='result-pending';
+      p.innerHTML='<div class="result-pending-icon">⏳</div><div class="result-pending-text">이번 회차 당첨 결과는<br><span class="result-pending-time">토요일 밤 10시 이후</span><br>자동으로 표시됩니다</div>';
+      sec.appendChild(p);
+    }
+ 
+    const list=document.createElement('div'); list.className='my-nums-list';
+    items.forEach((d,i)=>{
+      const p=showResult?checkPrize(d.nums||[],wn,bn):0;
+      const item=document.createElement('div'); item.className='my-item'; item.dataset.id=d.id;
+      const top=document.createElement('div'); top.className='my-item-top';
+      // 체크박스 - DOM 직접 생성
+      const cb=document.createElement('input'); cb.type='checkbox'; cb.className='my-checkbox';
+      cb.checked=checkedIds.has(d.id);
+      cb.addEventListener('change',()=>{ if(cb.checked)checkedIds.add(d.id); else checkedIds.delete(d.id); updateSelCount(); });
+      top.appendChild(cb);
+      const idx=document.createElement('div'); idx.className='my-item-idx'; idx.textContent=i+1; top.appendChild(idx);
+      const balls=document.createElement('div'); balls.className='my-item-balls';
+      (d.nums||[]).forEach(n=>{const b=document.createElement('div');b.className='ball '+ballCls(n)+(hitSet.has(n)?' hit':'');b.style.cssText='width:30px;height:30px;font-size:11px';b.textContent=n;balls.appendChild(b);});
+      top.appendChild(balls);
+      if(showResult&&p>0){const pr=document.createElement('div');pr.className='my-item-prize';pr.textContent=PLABELS[p];top.appendChild(pr);}
+      const db2=document.createElement('button'); db2.className='del-btn'; db2.textContent='🗑️';
+      db2.addEventListener('click',()=>showDelModal([d.id],[d.nums||[]]));
+      top.appendChild(db2);
+      item.appendChild(top);
+      if(showResult){
+        const tags=document.createElement('div'); tags.className='my-item-tags';
+        if(p>0)tags.innerHTML+=`<span class="tag ${PCLS[p]}">${PLABELS[p]}</span>`;
+        else tags.innerHTML+='<span class="tag warn">미당첨</span>';
+        const hc=(d.nums||[]).filter(n=>wn.includes(n)).length;
+        if(hc>0)tags.innerHTML+=`<span class="tag info">${hc}개 일치</span>`;
+        item.appendChild(tags);
+      }
+      list.appendChild(item);
+    });
+    sec.appendChild(list); container.appendChild(sec);
+  });
+  updateSelCount();
+}
+ 
+// ── 삭제 ──
+let pendingDelIds=[];
+function showDelModal(ids,numsArr){
+  pendingDelIds=ids;
+  const el=document.getElementById('del-modal-nums');
+  if(ids.length===1) el.innerHTML=numsArr[0].map(n=>`<div class="ball ${ballCls(n)}" style="width:30px;height:30px;font-size:11px">${n}</div>`).join('');
+  else el.innerHTML=`<span style="font-size:13px;color:var(--accent);font-weight:700">${ids.length}개의 번호</span>`;
+  document.getElementById('del-modal').classList.add('show');
+}
+function hideDelModal(){ document.getElementById('del-modal').classList.remove('show'); pendingDelIds=[]; }
+ 
+document.getElementById('del-confirm-btn').addEventListener('click',async()=>{
+  if(!pendingDelIds.length||!db)return;
+  const ids=[...pendingDelIds]; hideDelModal();
+  // 즉시 DOM에서 제거
+  myDocs=myDocs.filter(d=>!ids.includes(d.id));
+  ids.forEach(id=>{
+    checkedIds.delete(id);
+    const el=document.querySelector('.my-item[data-id="'+id+'"]');
+    if(el)el.remove();
+  });
+  document.querySelectorAll('.my-round-section').forEach(s=>{if(!s.querySelector('.my-item'))s.remove();});
+  if(!myDocs.length){
+    document.getElementById('my-toolbar').style.display='none';
+    document.getElementById('my-nums-container').innerHTML='<div class="empty-state"><div class="empty-icon">⭐</div>아직 생성한 번호가 없습니다.<br>번호 추첨 탭에서 번호를 생성하세요!</div>';
+  }
+  recalcCounts(); updateSelCount();
+  // Firebase 백그라운드 삭제
+  ids.forEach(id=>deleteDoc(doc(db,'picks',id)).catch(()=>{}));
+});
+document.getElementById('del-cancel-btn').addEventListener('click',hideDelModal);
+document.getElementById('del-modal').addEventListener('click',e=>{if(e.target===document.getElementById('del-modal'))hideDelModal();});
+ 
+// 선택/전체 삭제 버튼
+document.getElementById('btn-delete-selected').addEventListener('click',()=>{
+  if(!checkedIds.size)return;
+  const ids=[...checkedIds];
+  showDelModal(ids,ids.map(id=>{const d=myDocs.find(d=>d.id===id);return d?d.nums:[];}));
+});
+document.getElementById('btn-delete-all').addEventListener('click',()=>{
+  if(!myDocs.length)return;
+  showDelModal(myDocs.map(d=>d.id),myDocs.map(d=>d.nums));
+});
+document.getElementById('btn-select-all').addEventListener('click',()=>{
+  document.querySelectorAll('.my-item .my-checkbox').forEach(cb=>{cb.checked=true;checkedIds.add(cb.closest('.my-item').dataset.id);});
+  updateSelCount();
+});
+document.getElementById('btn-deselect-all').addEventListener('click',()=>{
+  document.querySelectorAll('.my-item .my-checkbox').forEach(cb=>{cb.checked=false;});
+  checkedIds.clear(); updateSelCount();
+});
+ 
 // ── 당첨현황 ──
 function renderPrizeHeader(){
   const last=recentHist.length?recentHist[recentHist.length-1]:null;
-  document.getElementById('ph-round').textContent=`${last?last.round:latestRound}회차 당첨번호`;
-  const bEl=document.getElementById('ph-balls');
-  if(last&&last.nums.length===6) bEl.innerHTML=last.nums.map(n=>`<div class="ball ${ballCls(n)}">${n}</div>`).join('');
-  if(last&&last.bonus) document.getElementById('ph-bonus').textContent=`보너스 +${last.bonus}`;
-  if(last&&last.date) document.getElementById('ph-date').textContent=`추첨일: ${last.date}`;
+  document.getElementById('ph-round').textContent=(last?last.round:latestRound)+'회차 당첨번호';
+  const bEl=document.getElementById('ph-balls'); bEl.innerHTML='';
+  if(last&&last.nums.length===6) last.nums.forEach(n=>{const b=document.createElement('div');b.className='ball '+ballCls(n);b.textContent=n;bEl.appendChild(b);});
+  if(last&&last.bonus)document.getElementById('ph-bonus').textContent='보너스 +'+last.bonus;
+  if(last&&last.date)document.getElementById('ph-date').textContent='추첨일: '+last.date;
 }
- 
 async function loadPrizeTab(round){
   viewRound=round;
   if(unsubHistory){unsubHistory();unsubHistory=null;}
-  const winEntry=recentHist.find(h=>h.round===round);
-  const winNums=winEntry?winEntry.nums:latestWinNums;
-  const bonus=winEntry?winEntry.bonus:latestBonusNum;
-  if(!db){renderHistory([],winNums,bonus);renderPrizeCounts([],winNums,bonus);renderRoundChips(round);return;}
+  const we=recentHist.find(h=>h.round===round);
+  const wn=we?we.nums:latestWinNums, bn=we?we.bonus:latestBonusNum;
+  if(!db){renderHistory([],wn,bn);renderRoundChips(round);return;}
   try{
     const q=query(collection(db,'picks'),where('round','==',round),orderBy('createdAt','desc'));
     unsubHistory=onSnapshot(q,snap=>{
       const docs=snap.docs.map(d=>({id:d.id,...d.data()}));
-      renderHistory(docs,winNums,bonus);
-      renderPrizeCounts(docs,winNums,bonus);
-      renderRoundChips(round);
-      updateWinBadge();
+      renderHistory(docs,wn,bn); renderPrizeCounts(docs,wn,bn); renderRoundChips(round);
     });
-  }catch(e){renderHistory([],winNums,bonus);renderRoundChips(round);}
+  }catch(e){}
 }
- 
-function renderHistory(docs,winNums,bonus){
-  const list=document.getElementById('history-list');
-  if(!docs.length){list.innerHTML=`<div class="empty-state"><div class="empty-icon">🎯</div>이번 회차 추첨 기록 없음</div>`;return;}
-  const hitSet=new Set(winNums||[]);
-  list.innerHTML='';
+function renderHistory(docs,wn,bn){
+  const list=document.getElementById('history-list'); list.innerHTML='';
+  if(!docs.length){list.innerHTML='<div class="empty-state"><div class="empty-icon">🎯</div>이번 회차 추첨 기록 없음</div>';return;}
+  const hitSet=new Set(wn||[]);
   docs.forEach(d=>{
-    const nums=d.nums||[];
-    const prize=checkPrize(nums,winNums,bonus);
-    const ts=d.createdAt?.toDate?.();
-    const t=ts?`${pad(ts.getHours())}:${pad(ts.getMinutes())}`:'';
-    const mine=d.uid===currentUid;
-    const el=document.createElement('div');
-    el.className='hist-item';
-    el.innerHTML=`
-      <div class="hist-round">${viewRound}회${mine?'<br><span style="color:var(--accent);font-size:8px">내번호</span>':''}</div>
-      <div class="hist-balls">${nums.map(n=>`<div class="hist-ball ${ballCls(n)}${hitSet.has(n)?' hit':''}">${n}</div>`).join('')}</div>
-      ${prize>0?`<span class="tag ${PCLS[prize]}">${PLABELS[prize]}</span>`:'<div class="no-prize">—</div>'}
-      <div class="hist-time">${t}</div>`;
+    const nums=d.nums||[], prize=checkPrize(nums,wn,bn);
+    const ts=d.createdAt?.toDate?.(); const t=ts?pad(ts.getHours())+':'+pad(ts.getMinutes()):'';
+    const el=document.createElement('div'); el.className='hist-item';
+    el.innerHTML=`<div class="hist-round">${viewRound}회${d.uid===currentUid?'<br><span style="color:var(--accent);font-size:8px">내번호</span>':''}</div><div class="hist-balls">${nums.map(n=>`<div class="hist-ball ${ballCls(n)}${hitSet.has(n)?' hit':''}">${n}</div>`).join('')}</div>${prize>0?`<span class="tag ${PCLS[prize]}">${PLABELS[prize]}</span>`:'<div style="font-size:10px;color:var(--muted)">—</div>'}<div class="hist-time">${t}</div>`;
     list.appendChild(el);
   });
 }
- 
-function renderPrizeCounts(docs,winNums,bonus){
-  const cnt={1:0,2:0,3:0,4:0,5:0};
-  const uids=new Set(); let winners=0;
-  docs.forEach(d=>{
-    const p=checkPrize(d.nums||[],winNums,bonus);
-    if(p>0){cnt[p]++;winners++;}
-    if(d.uid) uids.add(d.uid);
-  });
-  for(let i=1;i<=5;i++) document.getElementById(`pc${i}`).textContent=cnt[i];
+function renderPrizeCounts(docs,wn,bn){
+  const cnt={1:0,2:0,3:0,4:0,5:0}; const uids=new Set(); let winners=0;
+  docs.forEach(d=>{const p=checkPrize(d.nums||[],wn,bn);if(p>0){cnt[p]++;winners++;}if(d.uid)uids.add(d.uid);});
+  for(let i=1;i<=5;i++)document.getElementById('pc'+i).textContent=cnt[i];
   document.getElementById('sum-total').textContent=docs.length;
   document.getElementById('sum-users').textContent=uids.size;
   document.getElementById('sum-winners').textContent=winners;
-  document.getElementById('sum-rate').textContent=docs.length?((winners/docs.length*100).toFixed(1)+'%'):'0%';
+  document.getElementById('sum-rate').textContent=docs.length?(winners/docs.length*100).toFixed(1)+'%':'0%';
 }
- 
 function renderRoundChips(active){
   const el=document.getElementById('round-chips'); el.innerHTML='';
   for(let r=latestRound;r>=Math.max(latestRound-4,261);r--){
-    const b=document.createElement('button');
-    b.className=`round-chip${r===active?' on':''}`;
-    b.textContent=`${r}회`;
+    const b=document.createElement('button'); b.className='round-chip'+(r===active?' on':''); b.textContent=r+'회';
     b.addEventListener('click',()=>{renderPrizeHeader();loadPrizeTab(r);});
     el.appendChild(b);
   }
 }
- 
-async function updateWinBadge(){
-  if(!currentUid||!db) return;
+function checkPrizeUnlock(){
+  if(!db)return;
   try{
-    const q=query(collection(db,'picks'),where('uid','==',currentUid),where('round','==',latestRound));
-    const snap=await getDocs(q);
-    let w=0; snap.docs.forEach(d=>{if((d.data().prize||0)>0)w++;});
-    const b=document.getElementById('win-badge');
-    b.textContent=w; b.classList.toggle('show',w>0);
+    const q=query(collection(db,'picks'),where('prize','<=',2));
+    if(unsubPrize)unsubPrize();
+    unsubPrize=onSnapshot(q,snap=>{
+      if(snap.docs.some(d=>{const p=d.data().prize;return p===1||p===2;})&&!prizeUnlocked){
+        prizeUnlocked=true;
+        document.getElementById('tab-prize-btn').classList.remove('disabled');
+        document.getElementById('prize-locked').style.display='none';
+        document.getElementById('prize-content').style.display='block';
+      }
+    });
   }catch(e){}
 }
  
 // ── 탭 전환 ──
 document.querySelectorAll('.tab-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
-    if(btn.classList.contains('disabled')) return;
+    if(btn.classList.contains('disabled'))return;
     const tab=btn.dataset.tab;
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
     document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('on'));
     btn.classList.add('on');
-    document.getElementById(`tab-${tab}`).classList.add('on');
+    document.getElementById('tab-'+tab).classList.add('on');
     if(tab==='prize'){renderPrizeHeader();loadPrizeTab(latestRound);}
     if(tab==='mynums'){loadMyNums();}
   });
 });
  
-// ── 줄 수 선택 ──
+// 줄 수 선택
 document.querySelectorAll('.seg-btn').forEach(btn=>{
   btn.addEventListener('click',()=>{
     document.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('on'));
-    btn.classList.add('on');
-    genCount=parseInt(btn.dataset.n);
+    btn.classList.add('on'); genCount=parseInt(btn.dataset.n);
   });
 });
- 
-// ── 삭제 확인 모달 ──
-let pendingDeleteIds = [];
- 
-function showDelModal(ids, numsArr){
-  pendingDeleteIds = ids;
-  const numsEl = document.getElementById('del-modal-nums');
-  if(ids.length === 1){
-    numsEl.innerHTML = numsArr[0].map(n=>`<div class="ball ${ballCls(n)}" style="width:30px;height:30px;font-size:11px">${n}</div>`).join('');
-  } else {
-    numsEl.innerHTML = `<span style="font-size:13px;color:var(--accent);font-weight:700">${ids.length}개의 번호</span>`;
-  }
-  document.getElementById('del-modal').classList.add('show');
-}
- 
-// 삭제 실행 - Firebase 삭제 + DOM 즉시 제거
-document.getElementById('del-confirm-btn').addEventListener('click', async ()=>{
-  if(!pendingDeleteIds.length||!db) return;
-  document.getElementById('del-modal').classList.remove('show');
-  const idsToDelete = [...pendingDeleteIds];
-  pendingDeleteIds = [];
-  // 1. 화면에서 즉시 제거 (Firebase 응답 기다리지 않음)
-  removeFromView(idsToDelete);
-  // 2. Firebase에서 삭제 (백그라운드)
-  Promise.all(idsToDelete.map(id=>deleteDoc(doc(db,'picks',id)))).catch(e=>console.error('delete error:',e));
-});
- 
-document.getElementById('del-cancel-btn').addEventListener('click', ()=>{
-  document.getElementById('del-modal').classList.remove('show');
-  pendingDeleteIds = [];
-});
-document.getElementById('del-modal').addEventListener('click', e=>{
-  if(e.target===document.getElementById('del-modal')){
-    document.getElementById('del-modal').classList.remove('show');
-    pendingDeleteIds = [];
-  }
-});
- 
-// 선택 삭제
-document.getElementById('btn-delete-selected').addEventListener('click', ()=>{
-  if(!checkedIds.size) return;
-  const ids=[...checkedIds];
-  const numsArr=ids.map(id=>{ const d=currentMyDocs.find(d=>d.id===id); return d?d.nums:[]; });
-  showDelModal(ids, numsArr);
-});
- 
-// 전체 삭제
-document.getElementById('btn-delete-all').addEventListener('click', ()=>{
-  if(!currentMyDocs.length) return;
-  showDelModal(currentMyDocs.map(d=>d.id), currentMyDocs.map(d=>d.nums));
-});
- 
-// 전체 선택
-document.getElementById('btn-select-all').addEventListener('click', ()=>{
-  document.querySelectorAll('.my-cb').forEach(cb=>{
-    cb.checked=true;
-    checkedIds.add(cb.dataset.id);
-  });
-  updateSelCount();
-});
- 
-// 선택 해제
-document.getElementById('btn-deselect-all').addEventListener('click', ()=>{
-  document.querySelectorAll('.my-cb').forEach(cb=>{ cb.checked=false; });
-  checkedIds.clear();
-  updateSelCount();
-});
- 
  
 init();
 </script>
