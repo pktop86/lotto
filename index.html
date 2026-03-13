@@ -777,29 +777,25 @@ async function savePick(nums){
 }
  
 // ── 내 번호 탭 ──
+let unsubMyNums=null;
 async function loadMyNums(){
+  if(!authReady){ onAuthReady(()=>loadMyNums()); return; }
   if(!currentUid||!db){ renderMyNums([]); return; }
+  if(unsubMyNums){ unsubMyNums(); unsubMyNums=null; }
   try{
-    // 최신 회차 + 직전 회차만
-    const keepRounds=[latestRound, latestRound-1];
-    // 오래된 것 삭제
-    const allQ=query(collection(db,'picks'),where('uid','==',currentUid));
-    const allSnap=await getDocs(allQ);
-    const toDelete=[];
-    allSnap.docs.forEach(d=>{
-      if(!keepRounds.includes(d.data().round)) toDelete.push(d.id);
-    });
-    await Promise.all(toDelete.map(id=>deleteDoc(doc(db,'picks',id)).catch(()=>{})));
- 
-    // 남은 것 불러오기
     const q=query(collection(db,'picks'),where('uid','==',currentUid),orderBy('createdAt','desc'));
-    const snap=await getDocs(q);
-    const docs=snap.docs.map(d=>({id:d.id,...d.data()}));
-    renderMyNums(docs);
-  }catch(e){ renderMyNums([]); }
+    unsubMyNums=onSnapshot(q, snap=>{
+      const docs=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const keepRounds=[latestRound, latestRound-1];
+      const filtered=docs.filter(d=>keepRounds.includes(d.round));
+      renderMyNums(filtered);
+      const toDelete=docs.filter(d=>!keepRounds.includes(d.round));
+      toDelete.forEach(d=>deleteDoc(doc(db,'picks',d.id)).catch(()=>{}));
+    });
+  }catch(e){ console.error('loadMyNums:',e); renderMyNums([]); }
 }
  
-function refreshMyNums(){ if(currentUid) loadMyNums(); }
+function refreshMyNums(){ if(currentUid&&authReady) loadMyNums(); }
  
 function renderMyNums(docs){
   // 전체 당첨 기록 카운트
