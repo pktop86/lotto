@@ -399,7 +399,29 @@ let prizeUnlocked = false;
 let unsubPrize = null;
 let unsubHistory = null;
 const MAX_FREE = 5;
-let usedFree = 0;
+const FREE_KEY = 'lotto_usedFree';
+const FREE_DATE_KEY = 'lotto_freeDate';
+ 
+function getTodayKST(){
+  const kst=new Date(new Date().getTime()+9*3600000);
+  return kst.toISOString().slice(0,10); // YYYY-MM-DD
+}
+function loadUsedFree(){
+  try{
+    const saved=localStorage.getItem(FREE_KEY);
+    const savedDate=localStorage.getItem(FREE_DATE_KEY);
+    const today=getTodayKST();
+    if(savedDate===today && saved!==null) return parseInt(saved)||0;
+    // 날짜 바뀌면 자동 초기화
+    localStorage.setItem(FREE_KEY,'0');
+    localStorage.setItem(FREE_DATE_KEY,today);
+    return 0;
+  }catch(e){return 0;}
+}
+function saveUsedFree(n){
+  try{ localStorage.setItem(FREE_KEY,String(n)); localStorage.setItem(FREE_DATE_KEY,getTodayKST()); }catch(e){}
+}
+let usedFree = loadUsedFree();
 let pendingCount = 0;
 let adTimer = null;
  
@@ -578,7 +600,7 @@ function startAdTimer(){
     else document.getElementById('timer-text').textContent=(SEC-e)+'초 후 활성화...';
   },1000);
 }
-confirmBtn.addEventListener('click',()=>{ hideAdModal(); if(pendingCount<10){usedFree=0;updateFreeCounter();} doGenerate(pendingCount); });
+confirmBtn.addEventListener('click',()=>{ hideAdModal(); if(pendingCount<10){usedFree=0;saveUsedFree(0);updateFreeCounter();} doGenerate(pendingCount); });
 cancelBtn.addEventListener('click',hideAdModal);
 adModal.addEventListener('click',e=>{if(e.target===adModal)hideAdModal();});
  
@@ -637,27 +659,23 @@ async function doGenerate(count){
   resultsEl.innerHTML=''; genBtn.disabled=true; genBtn.textContent='⏳ 추첨 중...';
   const allNums=Array.from({length:count},()=>generateSmart());
   allNums.forEach((nums,i)=>resultsEl.appendChild(renderResult(nums,i)));
-  if(count<10){usedFree+=count; updateFreeCounter();}
+  if(count<10){usedFree+=count; saveUsedFree(usedFree); updateFreeCounter();}
   genBtn.disabled=false; genBtn.textContent='🎲 번호 추첨하기';
   setTimeout(()=>resultsEl.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
   // Firebase 저장 (auth 준비 후)
-  if(authReady && currentUid && db){
-    (async()=>{
-      const ids=await Promise.all(allNums.map((nums,i)=>savePick(nums,i)));
-      ids.forEach((id,i)=>{ if(id){const el=document.getElementById('rsaved-'+i);if(el)el.textContent='✓';} });
-      await loadMyNums(); // 저장 후 내 번호 탭 갱신
-    })();
-  } else {
-    onAuthReady(async()=>{
-      const ids=await Promise.all(allNums.map((nums,i)=>savePick(nums,i)));
-      ids.forEach((id,i)=>{ if(id){const el=document.getElementById('rsaved-'+i);if(el)el.textContent='✓';} });
-      await loadMyNums();
-    });
-  }
+  const doSave = async () => {
+    const ids = await Promise.all(allNums.map(nums => savePick(nums)));
+    ids.forEach((id,i)=>{ if(id){const el=document.getElementById('rsaved-'+i);if(el)el.textContent='✓';} });
+    // Firestore 커밋 완료 후 조회
+    await new Promise(r=>setTimeout(r,800));
+    await loadMyNums();
+  };
+  if(authReady && currentUid && db){ doSave(); }
+  else { onAuthReady(()=>doSave()); }
 }
  
 // ── Firebase 저장 ──
-async function savePick(nums,idx){
+async function savePick(nums){
   if(!currentUid||!db)return null;
   try{
     const d=await addDoc(collection(db,'picks'),{uid:currentUid,round:latestRound,nums,prize:checkPrize(nums,latestWinNums,latestBonusNum),createdAt:serverTimestamp()});
