@@ -1090,7 +1090,7 @@ async function fetchKakaoStores(){
     let allStores = [];
     for(const kw of keywords){
       const url=`https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(kw)}&x=${myLng}&y=${myLat}&radius=${nearRadius}&sort=distance&size=15`;
-      const res=await fetch(url,{headers:{'Authorization':'KakaoAK 9166a281cd9ae54c6c2b58fc66271e0a'}});
+      const res=await fetch(url,{headers:{'Authorization':'KakaoAK 7dbae8e1490f231590025423e15c5e07'}});
       if(!res.ok) continue;
       const data=await res.json();
       const stores=(data.documents||[]).map(p=>({
