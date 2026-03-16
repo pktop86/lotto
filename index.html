@@ -1019,7 +1019,8 @@ document.querySelectorAll('.seg-btn').forEach(btn=>{
 });
  
 // ── 내주변 판매점 ──
-let nearMap=null, nearMarkers=[], nearRadius=500, myLat=0, myLng=0, leafletLoaded=false;
+let nearMap=null, nearMarkers=[], nearRadius=500, myLat=0, myLng=0;
+const KAKAO_JS_KEY = '발급필요'; // 카카오 JS 앱키 (developers.kakao.com)
  
 function initNearTab(){
   if(nearMap){ setTimeout(()=>nearMap.invalidateSize(),100); }
@@ -1041,17 +1042,17 @@ function startNearSearch(){
   }, err=>{
     btn.disabled=false;
     btn.innerHTML='📍 내 위치로 주변 판매점 찾기';
-    alert('위치 권한을 허용해주세요.');
-  },{enableHighAccuracy:true,timeout:10000});
+    if(err.code===1) alert('위치 권한이 거부됐습니다.\n브라우저 주소창 왼쪽 🔒 아이콘 → 위치 → 허용으로 바꿔주세요.');
+    else if(err.code===2) alert('위치를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.');
+    else alert('위치 요청 시간이 초과됐습니다.');
+  },{enableHighAccuracy:true, timeout:15000, maximumAge:0});
 }
  
 function loadLeaflet(){
   if(window.L){ initLeafletMap(); return; }
-  // Leaflet CSS
   const lc=document.createElement('link');
   lc.rel='stylesheet'; lc.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
   document.head.appendChild(lc);
-  // Leaflet JS
   const ls=document.createElement('script');
   ls.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
   ls.onload=initLeafletMap;
@@ -1060,101 +1061,108 @@ function loadLeaflet(){
  
 function initLeafletMap(){
   const el=document.getElementById('map');
-  nearMap=L.map(el).setView([myLat,myLng],15);
+  nearMap=L.map(el,{zoomControl:true}).setView([myLat,myLng],15);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap',maxZoom:19
+    attribution:'© OpenStreetMap contributors',maxZoom:19
   }).addTo(nearMap);
   // 내 위치 마커
-  const myIcon=L.divIcon({html:'<div style="background:#f0c040;width:16px;height:16px;border-radius:50%;border:3px solid #000;box-shadow:0 0 8px rgba(240,192,64,.8)"></div>',iconSize:[16,16],iconAnchor:[8,8],className:''});
-  L.marker([myLat,myLng],{icon:myIcon}).addTo(nearMap).bindPopup('📍 내 위치').openPopup();
-  searchStoresOverpass();
+  const myIcon=L.divIcon({
+    html:'<div style="background:#f0c040;width:18px;height:18px;border-radius:50%;border:3px solid #000;box-shadow:0 0 10px rgba(240,192,64,.9)"></div>',
+    iconSize:[18,18],iconAnchor:[9,9],className:''
+  });
+  L.marker([myLat,myLng],{icon:myIcon}).addTo(nearMap)
+    .bindPopup('<b>📍 내 위치</b>').openPopup();
+  searchStores();
 }
  
-async function searchStoresOverpass(){
+async function searchStores(){
   document.getElementById('near-count').textContent='판매점 검색 중...';
-  document.getElementById('near-list').innerHTML='';
-  // 기존 마커 제거
+  document.getElementById('near-list').innerHTML='<div class="near-empty" style="padding:20px">🔍 주변 판매점을 검색하고 있습니다...</div>';
   nearMarkers.forEach(m=>nearMap.removeLayer(m)); nearMarkers=[];
-  
-  try{
-    // Overpass API로 복권/로또 판매점 검색
-    const r=nearRadius;
-    const query=`[out:json][timeout:15];(node["shop"="lottery"](around:${r},${myLat},${myLng});node["name"~"로또|복권"](around:${r},${myLat},${myLng}););out body;`;
-    const res=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:query});
-    const data=await res.json();
-    let stores=data.elements.map(e=>({
-      name:e.tags.name||'로또 판매점',
-      addr:e.tags['addr:full']||e.tags['addr:road']||'',
-      lat:e.lat, lng:e.lon,
-      dist:Math.round(getDistM(myLat,myLng,e.lat,e.lon)),
-      phone:e.tags.phone||e.tags['contact:phone']||''
-    })).filter(s=>s.dist<=r).sort((a,b)=>a.dist-b.dist);
- 
-    // Overpass 결과 없으면 카카오 로컬 API 시도 (CORS 우회)
-    if(stores.length===0){
-      stores=await searchKakaoLocal();
-    }
-    renderStores(stores);
-  }catch(e){
-    // fallback: 카카오 로컬
-    const stores=await searchKakaoLocal();
-    renderStores(stores);
-  }
+  const stores = await fetchKakaoStores();
+  renderStores(stores);
 }
  
-async function searchKakaoLocal(){
+async function fetchKakaoStores(){
   try{
-    const url=`https://dapi.kakao.com/v2/local/search/keyword.json?query=로또판매점&x=${myLng}&y=${myLat}&radius=${nearRadius}&sort=distance`;
-    const res=await fetch(url,{headers:{'Authorization':'KakaoAK 발급필요'}});
-    if(!res.ok) return [];
-    const data=await res.json();
-    return (data.documents||[]).map(p=>({
-      name:p.place_name, addr:p.road_address_name||p.address_name,
-      lat:parseFloat(p.y), lng:parseFloat(p.x),
-      dist:parseInt(p.distance)||Math.round(getDistM(myLat,myLng,parseFloat(p.y),parseFloat(p.x))),
-      phone:p.phone||''
-    }));
-  }catch(e){ return []; }
+    // 카카오 로컬 키워드 검색 API
+    const keywords = ['로또판매점','복권판매점','동행복권'];
+    let allStores = [];
+    for(const kw of keywords){
+      const url=`https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(kw)}&x=${myLng}&y=${myLat}&radius=${nearRadius}&sort=distance&size=15`;
+      const res=await fetch(url,{headers:{'Authorization':'KakaoAK 9166a281cd9ae54c6c2b58fc66271e0a'}});
+      if(!res.ok) continue;
+      const data=await res.json();
+      const stores=(data.documents||[]).map(p=>({
+        name:p.place_name,
+        addr:p.road_address_name||p.address_name,
+        lat:parseFloat(p.y), lng:parseFloat(p.x),
+        dist:parseInt(p.distance)||Math.round(getDistM(myLat,myLng,parseFloat(p.y),parseFloat(p.x))),
+        phone:p.phone||'',
+        url:p.place_url||''
+      }));
+      allStores=[...allStores,...stores];
+    }
+    // 중복 제거 (place_name+addr 기준)
+    const seen=new Set();
+    const unique=allStores.filter(s=>{
+      const key=s.name+s.addr;
+      if(seen.has(key)) return false;
+      seen.add(key); return true;
+    }).filter(s=>s.dist<=nearRadius).sort((a,b)=>a.dist-b.dist);
+    return unique;
+  }catch(e){
+    console.warn('카카오 API 오류:', e);
+    return [];
+  }
 }
  
 function renderStores(stores){
   const rLabel=nearRadius>=1000?nearRadius/1000+'km':nearRadius+'m';
+  
+  if(!stores.length){
+    document.getElementById('near-count').textContent=`반경 ${rLabel} 내 판매점 검색 완료`;
+    document.getElementById('near-list').innerHTML=`
+      <div class="near-empty">
+        <div style="font-size:32px;margin-bottom:12px">🗺️</div>
+        <div style="margin-bottom:8px">지도 데이터에 등록된 판매점이 없습니다.</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.8">
+          👉 <a href="https://m.map.kakao.com/actions/searchView?q=로또판매점" target="_blank" style="color:var(--accent3)">카카오맵에서 검색하기</a><br>
+          👉 <a href="https://naver.me/FcfWN2xw" target="_blank" style="color:var(--accent3)">네이버지도에서 검색하기</a>
+        </div>
+      </div>`;
+    return;
+  }
+  
   document.getElementById('near-count').textContent=`반경 ${rLabel} 내 판매점 ${stores.length}개`;
   
-  // 지도 마커
   stores.slice(0,30).forEach((s,i)=>{
+    const color=i===0?'#f0c040':i<3?'#e05c20':'#3ab8ff';
     const ic=L.divIcon({
-      html:`<div style="background:${i===0?'#f0c040':i<3?'#e05c20':'#3ab8ff'};color:#000;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;border:2px solid rgba(0,0,0,.3);box-shadow:0 2px 6px rgba(0,0,0,.4)">${i+1}</div>`,
-      iconSize:[22,22],iconAnchor:[11,11],className:''
+      html:`<div style="background:${color};color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;border:2px solid rgba(0,0,0,.4);box-shadow:0 2px 6px rgba(0,0,0,.5)">${i+1}</div>`,
+      iconSize:[24,24],iconAnchor:[12,12],className:''
     });
     const m=L.marker([s.lat,s.lng],{icon:ic}).addTo(nearMap)
-      .bindPopup(`<b>${s.place_name||s.name}</b><br>${s.addr||''}<br><span style="color:#e05c20;font-weight:700">${s.dist}m</span>`);
+      .bindPopup(`<b>${s.name}</b><br>${s.addr||''}<br><span style="color:#e05c20;font-weight:700">${s.dist}m</span>`);
     nearMarkers.push(m);
   });
   
-  // 지도 범위
-  if(stores.length>0){
-    const pts=[[myLat,myLng],...stores.slice(0,10).map(s=>[s.lat,s.lng])];
-    nearMap.fitBounds(pts,{padding:[20,20]});
-  }
+  const pts=[[myLat,myLng],...stores.slice(0,8).map(s=>[s.lat,s.lng])];
+  nearMap.fitBounds(pts,{padding:[30,30]});
   
-  // 테이블
-  if(!stores.length){
-    document.getElementById('near-list').innerHTML='<div class="near-empty">반경 내 판매점이 없습니다.<br>거리를 늘려보세요 👆</div>';
-    return;
-  }
-  let html=`<div style="overflow-x:auto"><table class="near-table"><thead><tr><th>#</th><th>판매점명 / 주소</th><th>거리</th></tr></thead><tbody>`;
+  let html=`<div style="overflow-x:auto"><table class="near-table">
+    <thead><tr><th>#</th><th>판매점명 / 주소</th><th>거리</th></tr></thead><tbody>`;
   stores.forEach((s,i)=>{
     const rankCls=i===0?'':i===1?' r2':i===2?' r3':'';
-    const distStr=s.dist<1000?s.dist+'m':(s.dist/1000).toFixed(1)+'km';
+    const dist=s.dist<1000?s.dist+'m':(s.dist/1000).toFixed(1)+'km';
     html+=`<tr>
       <td><div class="near-rank${rankCls}">${i+1}</div></td>
       <td>
-        <div class="near-name">${s.place_name||s.name}</div>
-        <div class="near-addr">${s.addr||''}</div>
+        <div class="near-name">${s.url?`<a href="${s.url}" target="_blank" style="color:var(--text);text-decoration:none">${s.name} 🔗</a>`:s.name}</div>
+        ${s.addr?`<div class="near-addr">${s.addr}</div>`:''}
         ${s.phone?`<div class="near-tel">📞 ${s.phone}</div>`:''}
       </td>
-      <td><div class="near-dist">${distStr}</div></td>
+      <td><div class="near-dist">${dist}</div></td>
     </tr>`;
   });
   html+=`</tbody></table></div>`;
@@ -1165,7 +1173,7 @@ function filterDist(el,r){
   nearRadius=r;
   document.querySelectorAll('.near-chip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
-  if(nearMap&&myLat) searchStoresOverpass();
+  if(nearMap&&myLat) searchStores();
 }
  
 function getDistM(lat1,lng1,lat2,lng2){
@@ -1173,10 +1181,8 @@ function getDistM(lat1,lng1,lat2,lng2){
   const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
-// module 스크립트에서 전역 접근 가능하도록 등록
-window.startNearSearch = startNearSearch;
-window.filterDist = filterDist;
- 
+window.startNearSearch=startNearSearch;
+window.filterDist=filterDist;
 // 판매점 버튼 이벤트
 document.getElementById('loc-btn').addEventListener('click', startNearSearch);
 document.querySelectorAll('.near-chip').forEach(btn=>{
@@ -1191,4 +1197,3 @@ init();
 </script>
 </body>
 </html>
- 
