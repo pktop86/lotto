@@ -21,7 +21,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .subtitle{color:var(--muted);font-size:11px;line-height:1.5}
 .credit{color:var(--muted);font-size:10px;margin-top:4px;opacity:.7}
 .tabs{display:flex;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:3px;margin:14px 0 16px;gap:3px}
-.tab-btn{flex:1;background:transparent;border:none;color:var(--muted);padding:10px 4px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
+.tab-btn{flex:1;background:transparent;border:none;color:var(--muted);padding:8px 2px;border-radius:9px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}
 .tab-btn.on{background:var(--card);color:var(--text);box-shadow:0 2px 6px rgba(0,0,0,.4)}
 .tab-btn.disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
 .tab-content{display:none}
@@ -145,6 +145,31 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .win-banner-sub{font-size:10px;color:var(--muted);margin-top:3px}
 .empty-state{text-align:center;padding:36px 16px;color:var(--muted);font-size:12px}
 .empty-icon{font-size:36px;margin-bottom:10px;opacity:.35}
+/* 내주변 판매점 */
+#map-container{width:100%;height:360px;border-radius:12px;overflow:hidden;margin-bottom:16px;background:var(--panel);border:1px solid var(--border);position:relative}
+#map{width:100%;height:100%}
+.map-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--panel);color:var(--muted);font-size:13px}
+.map-loading-icon{font-size:36px;animation:spin 2s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.near-filter{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.near-chip{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:20px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+.near-chip.on{background:var(--accent);color:#000;border-color:var(--accent)}
+.near-table{width:100%;border-collapse:collapse;font-size:12px}
+.near-table th{background:var(--panel);color:var(--muted);font-weight:700;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);font-size:11px}
+.near-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle}
+.near-table tr:hover td{background:rgba(255,255,255,0.03)}
+.near-table tr:last-child td{border-bottom:none}
+.near-name{font-weight:700;color:var(--text);margin-bottom:2px}
+.near-addr{font-size:10px;color:var(--muted)}
+.near-dist{color:var(--accent);font-weight:700;font-size:12px;white-space:nowrap}
+.near-tel{font-size:10px;color:var(--accent3)}
+.near-rank{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#000;font-weight:900;font-size:11px;display:flex;align-items:center;justify-content:center}
+.near-rank.r2{background:var(--muted)}
+.near-rank.r3{background:#c88000}
+.loc-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border:none;border-radius:10px;padding:12px 20px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;width:100%;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.loc-btn:disabled{opacity:.5;cursor:not-allowed}
+.near-empty{text-align:center;padding:32px;color:var(--muted);font-size:13px}
+.near-count{font-size:11px;color:var(--muted);margin-bottom:10px}
 /* 당첨현황 */
 .prize-locked{background:var(--panel);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:36px 20px;text-align:center;margin-bottom:14px}
 .prize-locked-icon{font-size:48px;margin-bottom:14px;opacity:.5}
@@ -215,6 +240,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     <button class="tab-btn on" data-tab="pick">🎲 번호추첨</button>
     <button class="tab-btn" data-tab="mynums">⭐ 내 번호</button>
     <button class="tab-btn disabled" data-tab="prize" id="tab-prize-btn">🏆 당첨현황</button>
+    <button class="tab-btn" data-tab="near">📍 내주변 판매점</button>
   </div>
  
   <!-- 번호추첨 탭 -->
@@ -336,6 +362,28 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     &nbsp;·&nbsp; © 2026 로또엔진 (Clyde Park)
   </footer>
 </div>
+ 
+  <!-- 내주변 판매점 탭 -->
+  <div class="tab-content" id="tab-near">
+    <button class="loc-btn" id="loc-btn" onclick="startNearSearch()">
+      📍 내 위치로 주변 판매점 찾기
+    </button>
+    <div class="near-filter" id="near-filter" style="display:none">
+      <button class="near-chip on" data-r="500" onclick="filterDist(this,500)">500m</button>
+      <button class="near-chip" data-r="1000" onclick="filterDist(this,1000)">1km</button>
+      <button class="near-chip" data-r="2000" onclick="filterDist(this,2000)">2km</button>
+      <button class="near-chip" data-r="5000" onclick="filterDist(this,5000)">5km</button>
+    </div>
+    <div id="map-container">
+      <div class="map-loading" id="map-loading">
+        <div class="map-loading-icon">📍</div>
+        <div>버튼을 눌러 내 위치를 찾아주세요</div>
+      </div>
+      <div id="map"></div>
+    </div>
+    <div class="near-count" id="near-count"></div>
+    <div id="near-list"></div>
+  </div>
  
 <!-- 광고 모달 -->
 <div class="modal-overlay" id="ad-modal">
@@ -958,6 +1006,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     document.getElementById('tab-'+tab).classList.add('on');
     if(tab==='prize'){renderPrizeHeader();loadPrizeTab(latestRound);}
     if(tab==='mynums'){loadMyNums();}
+    if(tab==='near'){initNearTab();}
   });
 });
  
@@ -969,8 +1018,135 @@ document.querySelectorAll('.seg-btn').forEach(btn=>{
   });
 });
  
+// ── 내주변 판매점 ──
+let nearMap=null, nearMarkers=[], nearInst=[], nearRadius=500, myLat=0, myLng=0, nearInited=false;
+ 
+function initNearTab(){
+  if(nearInited&&nearMap){
+    // 이미 초기화됨 - 지도 크기 재계산만
+    setTimeout(()=>{ if(nearMap) nearMap.relayout(); },100);
+  }
+}
+ 
+function startNearSearch(){
+  const btn=document.getElementById('loc-btn');
+  btn.disabled=true; btn.textContent='📡 위치 확인 중...';
+  if(!navigator.geolocation){ alert('위치 서비스를 지원하지 않는 브라우저입니다.'); btn.disabled=false; return; }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    myLat=pos.coords.latitude; myLng=pos.coords.longitude;
+    btn.style.display='none';
+    document.getElementById('near-filter').style.display='flex';
+    document.getElementById('map-loading').style.display='none';
+    loadKakaoMap();
+  }, err=>{
+    btn.disabled=false; btn.textContent='📍 내 위치로 주변 판매점 찾기';
+    alert('위치 권한을 허용해주세요.');
+  },{enableHighAccuracy:true,timeout:10000});
+}
+ 
+function loadKakaoMap(){
+  if(window.kakao&&window.kakao.maps){ initKakaoMap(); return; }
+  const s=document.createElement('script');
+  s.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey=발급필요&libraries=services&autoload=false';
+  s.onload=()=>kakao.maps.load(initKakaoMap);
+  document.head.appendChild(s);
+}
+ 
+function initKakaoMap(){
+  nearInited=true;
+  const el=document.getElementById('map');
+  const opts={center:new kakao.maps.LatLng(myLat,myLng),level:4};
+  nearMap=new kakao.maps.Map(el,opts);
+  // 내 위치 마커
+  const myMarker=new kakao.maps.Marker({
+    position:new kakao.maps.LatLng(myLat,myLng),
+    map:nearMap,
+    title:'내 위치',
+    image:new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',new kakao.maps.Size(24,35))
+  });
+  searchNearStores();
+}
+ 
+function searchNearStores(){
+  if(!window.kakao||!nearMap) return;
+  // 기존 마커 제거
+  nearMarkers.forEach(m=>m.setMap(null)); nearMarkers=[];
+  document.getElementById('near-count').textContent='검색 중...';
+  document.getElementById('near-list').innerHTML='';
+ 
+  const ps=new kakao.maps.services.Places();
+  ps.keywordSearch('로또 판매점', (data,status)=>{
+    if(status===kakao.maps.services.Status.OK){
+      // 거리 계산 후 필터
+      const withDist=data.map(p=>({
+        ...p,
+        dist:Math.round(getDistM(myLat,myLng,parseFloat(p.y),parseFloat(p.x)))
+      })).filter(p=>p.dist<=nearRadius).sort((a,b)=>a.dist-b.dist);
+      renderNearStores(withDist);
+    } else {
+      document.getElementById('near-count').textContent='검색 결과가 없습니다.';
+      document.getElementById('near-list').innerHTML='<div class="near-empty">주변에 판매점을 찾을 수 없습니다.</div>';
+    }
+  },{
+    location:new kakao.maps.LatLng(myLat,myLng),
+    radius:nearRadius,
+    sort:kakao.maps.services.SortBy.DISTANCE
+  });
+}
+ 
+function renderNearStores(stores){
+  document.getElementById('near-count').textContent=`반경 ${nearRadius>=1000?nearRadius/1000+'km':nearRadius+'m'} 내 판매점 ${stores.length}개`;
+  // 마커 추가
+  stores.slice(0,20).forEach((s,i)=>{
+    const marker=new kakao.maps.Marker({
+      position:new kakao.maps.LatLng(parseFloat(s.y),parseFloat(s.x)),
+      map:nearMap,
+      title:s.place_name
+    });
+    // 인포윈도우
+    const iw=new kakao.maps.InfoWindow({content:`<div style="padding:6px 10px;font-size:12px;white-space:nowrap;font-weight:700">${s.place_name}<br><span style="font-size:10px;color:#666">${s.dist}m</span></div>`});
+    kakao.maps.event.addListener(marker,'click',()=>iw.open(nearMap,marker));
+    nearMarkers.push(marker);
+  });
+  // 지도 범위 조정
+  if(stores.length>0){
+    const bounds=new kakao.maps.LatLngBounds();
+    bounds.extend(new kakao.maps.LatLng(myLat,myLng));
+    stores.slice(0,10).forEach(s=>bounds.extend(new kakao.maps.LatLng(parseFloat(s.y),parseFloat(s.x))));
+    nearMap.setBounds(bounds);
+  }
+  // 테이블 렌더
+  if(!stores.length){
+    document.getElementById('near-list').innerHTML='<div class="near-empty">반경 내 판매점이 없습니다.<br>거리를 늘려보세요.</div>';
+    return;
+  }
+  let html=`<table class="near-table"><thead><tr><th>#</th><th>판매점</th><th>거리</th></tr></thead><tbody>`;
+  stores.forEach((s,i)=>{
+    const rankCls=i===0?'':i===1?' r2':i===2?' r3':'';
+    html+=`<tr>
+      <td><div class="near-rank${rankCls}">${i+1}</div></td>
+      <td><div class="near-name">${s.place_name}</div><div class="near-addr">${s.road_address_name||s.address_name}</div>${s.phone?`<div class="near-tel">📞 ${s.phone}</div>`:''}</td>
+      <td><div class="near-dist">${s.dist<1000?s.dist+'m':(s.dist/1000).toFixed(1)+'km'}</div></td>
+    </tr>`;
+  });
+  html+=`</tbody></table>`;
+  document.getElementById('near-list').innerHTML=html;
+}
+ 
+function filterDist(el,r){
+  nearRadius=r;
+  document.querySelectorAll('.near-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  if(nearMap) searchNearStores();
+}
+ 
+function getDistM(lat1,lng1,lat2,lng2){
+  const R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+ 
 init();
 </script>
 </body>
 </html>
- 
