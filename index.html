@@ -239,8 +239,8 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   <div class="tabs">
     <button class="tab-btn on" data-tab="pick">🎲 번호추첨</button>
     <button class="tab-btn" data-tab="mynums">⭐ 내 번호</button>
-    <button class="tab-btn disabled" data-tab="prize" id="tab-prize-btn">🏆 당첨현황</button>
     <button class="tab-btn" data-tab="near">📍 내주변 판매점</button>
+    <button class="tab-btn disabled" data-tab="prize" id="tab-prize-btn">🏆 당첨현황</button>
   </div>
  
   <!-- 번호추첨 탭 -->
@@ -359,14 +359,14 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   </div>
   <!-- 내주변 판매점 탭 -->
   <div class="tab-content" id="tab-near">
-    <button class="loc-btn" id="loc-btn" onclick="startNearSearch()">
+    <button class="loc-btn" id="loc-btn">
       📍 내 위치로 주변 판매점 찾기
     </button>
     <div class="near-filter" id="near-filter" style="display:none">
-      <button class="near-chip on" data-r="500" onclick="filterDist(this,500)">500m</button>
-      <button class="near-chip" data-r="1000" onclick="filterDist(this,1000)">1km</button>
-      <button class="near-chip" data-r="2000" onclick="filterDist(this,2000)">2km</button>
-      <button class="near-chip" data-r="5000" onclick="filterDist(this,5000)">5km</button>
+      <button class="near-chip on" data-r="500">500m</button>
+      <button class="near-chip" data-r="1000">1km</button>
+      <button class="near-chip" data-r="2000">2km</button>
+      <button class="near-chip" data-r="5000">5km</button>
     </div>
     <div id="map-container">
       <div class="map-loading" id="map-loading">
@@ -1173,9 +1173,22 @@ function getDistM(lat1,lng1,lat2,lng2){
   const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
+// module 스크립트에서 전역 접근 가능하도록 등록
+window.startNearSearch = startNearSearch;
+window.filterDist = filterDist;
+ 
+// 판매점 버튼 이벤트
+document.getElementById('loc-btn').addEventListener('click', startNearSearch);
+document.querySelectorAll('.near-chip').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const r = parseInt(btn.dataset.r);
+    filterDist(btn, r);
+  });
+});
  
  
 init();
 </script>
 </body>
 </html>
+ 
