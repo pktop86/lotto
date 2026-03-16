@@ -2,18 +2,15 @@ name: 로또 최신 회차 자동 업데이트
  
 on:
   schedule:
-    # 매주 토요일 밤 11시 (KST) = UTC 14:00
     - cron: '0 14 * * 6'
-    # 매주 일요일 새벽 1시 (KST) = UTC 16:00 (재시도)
     - cron: '0 16 * * 0'
-  workflow_dispatch:  # 수동 실행 가능
+  workflow_dispatch:
  
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
- 
     steps:
       - name: 저장소 체크아웃
         uses: actions/checkout@v4
@@ -23,6 +20,9 @@ jobs:
         with:
           python-version: '3.11'
  
+      - name: requests 설치
+        run: pip install requests
+ 
       - name: 최신 로또 회차 업데이트
         run: python update_lotto.py
  
@@ -31,3 +31,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
           git diff --quiet || (git add index.html && git commit -m "🎰 로또 자동 업데이트 $(date +'%Y-%m-%d')" && git push)
+ 
