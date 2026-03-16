@@ -9,36 +9,21 @@ def fetch_lotto_naver(drwNo):
     }
     try:
         res = requests.get(url, headers=headers, timeout=10)
-        print(f"  네이버 응답: {res.status_code}, {len(res.text)}자")
         soup = BeautifulSoup(res.text, 'html.parser')
  
-        # 네이버 로또 볼 추출
-        balls = soup.select('.ball_645')
-        print(f"  .ball_645 개수: {len(balls)}")
+        # win_ball 클래스로 번호 추출
+        win_ball = soup.select_one('.win_ball')
+        if win_ball:
+            numbers = [int(n) for n in win_ball.text.split()]
+            print(f"  win_ball 텍스트: {win_ball.text.strip()}")
+            if len(numbers) >= 7:
+                nums = numbers[:6]
+                bonus = numbers[6]
+                print(f"  ✅ 성공: {nums} 보너스:{bonus}")
+                return {'round': drwNo, 'nums': nums, 'bonus': bonus, 'date': ''}
  
-        if len(balls) >= 7:
-            nums = [int(b.text.strip()) for b in balls[:6]]
-            bonus = int(balls[6].text.strip())
-            print(f"  ✅ 성공: {nums} 보너스:{bonus}")
-            return {'round': drwNo, 'nums': nums, 'bonus': bonus, 'date': ''}
- 
-        # 클래스명이 다를 수 있으므로 다른 패턴도 시도
-        balls2 = soup.select('[class*="ball"]')
-        print(f"  ball 포함 클래스 개수: {len(balls2)}")
-        if balls2:
-            for b in balls2[:10]:
-                print(f"    클래스:{b.get('class')} 텍스트:{b.text.strip()}")
- 
-        # 숫자 직접 파싱
-        lotto_section = soup.find('div', class_=re.compile('lotto|lottery|winning', re.I))
-        if lotto_section:
-            print(f"  로또섹션: {lotto_section.get('class')}")
-            nums_text = re.findall(r'\b([1-9]|[1-3][0-9]|4[0-5])\b', lotto_section.text)
-            print(f"  섹션 숫자: {nums_text[:10]}")
- 
-        print(f"  [경고] 번호 파싱 실패")
+        print(f"  [경고] win_ball 없음")
         return None
- 
     except Exception as e:
         print(f"  [오류] {type(e).__name__}: {e}")
         return None
@@ -60,7 +45,6 @@ def main():
             print(f"  {r}회차 없음 - 종료")
             break
         new_rounds.append(d)
-        print(f"  ✅ {r}회차 확보!")
         r += 1
         time.sleep(1)
  
@@ -88,7 +72,7 @@ def main():
  
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(content)
-    print(f"\n✅ 완료! latestRound: {latest['round']}, nums: {latest['nums']}")
+    print(f"\n✅ 완료! latestRound:{latest['round']} nums:{latest['nums']} bonus:{latest['bonus']}")
  
 if __name__ == '__main__':
     main()
