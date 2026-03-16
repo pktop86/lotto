@@ -510,15 +510,50 @@ function startAuth(){
 }
  
 // ── API ──
-const PROXIES = ['https://api.allorigins.win/raw?url=','https://corsproxy.io/?'];
-async function fetchRound(r,proxy){
-  const url=`https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=${r}`;
-  const res=await fetch(proxy+encodeURIComponent(url),{signal:AbortSignal.timeout(2000)});
-  const d=await res.json();
-  if(!d||d.returnValue!=='success') throw 0;
-  return{round:r,nums:[1,2,3,4,5,6].map(i=>d['drwtNo'+i]),bonus:d.bnusNo,date:d.drwNoDate};
+const PROXIES = [
+  'https://api.allorigins.win/raw?url=',
+  'https://corsproxy.io/?',
+  'https://api.codetabs.com/v1/proxy?quest=',
+  'https://thingproxy.freeboard.io/fetch/',
+  'https://cors.eu.org/',
+];
+const LOTTO_API = 'https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=';
+ 
+async function fetchRound(r, proxy){
+  const url = LOTTO_API + r;
+  const res = await fetch(proxy + encodeURIComponent(url), {signal:AbortSignal.timeout(3000)});
+  if(!res.ok) throw 0;
+  const d = await res.json();
+  if(!d || d.returnValue !== 'success') throw 0;
+  return {
+    round: r,
+    nums: [1,2,3,4,5,6].map(i=>d['drwtNo'+i]),
+    bonus: d.bnusNo,
+    date: d.drwNoDate
+  };
 }
-async function tryFetch(r){ for(const p of PROXIES){try{return await fetchRound(r,p);}catch(e){}} return null; }
+ 
+// 동행복권 비공식 JSON API (프록시 불필요)
+async function fetchRoundDirect(r){
+  try{
+    const res = await fetch(`https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=${r}`, {signal:AbortSignal.timeout(3000)});
+    if(!res.ok) throw 0;
+    const d = await res.json();
+    if(!d || d.returnValue !== 'success') throw 0;
+    return {round:r, nums:[1,2,3,4,5,6].map(i=>d['drwtNo'+i]), bonus:d.bnusNo, date:d.drwNoDate};
+  }catch(e){ return null; }
+}
+ 
+async function tryFetch(r){
+  // 직접 호출 먼저 시도
+  const direct = await fetchRoundDirect(r);
+  if(direct) return direct;
+  // 프록시 순차 시도
+  for(const p of PROXIES){
+    try{ return await fetchRound(r, p); }catch(e){}
+  }
+  return null;
+}
 async function fetchNewRounds(){
   const deadline = Date.now()+8000;
   let r=latestRound+1, count=0;
@@ -549,21 +584,8 @@ async function init(){
     // 당첨현황 잠금 확인
     checkPrizeUnlock();
  
-    // 최신 회차 백그라운드 업데이트
-    setTimeout(async()=>{
-      setStatus('loading','최신 회차 확인 중...');
-      try{
-        const added=await fetchNewRounds();
-        if(added>0){
-          setStatus('ok',`${added}회차 업데이트 완료 — 최신: ${latestRound}회`);
-          updateStats(); renderFreqBars(); renderFreqGrid();
-          renderPrizeHeader(); loadPrizeTab(latestRound);
-          if(currentUid) loadMyNums(); // 내 번호도 갱신 (auth된 경우만)
-        } else {
-          setStatus('ok',`최신 상태 (261~${latestRound}회)`);
-        }
-      }catch(e){ setStatus('ok',`내장 통계 사용 중`); }
-    }, 300);
+    // 최신 회차 백그라운드 업데이트 (재시도 포함)
+    setTimeout(()=>autoUpdate(), 300);
   }catch(e){
     setStatus('err','오류 발생 — 새로고침 해주세요');
     genBtn.disabled=false; isReady=true;
@@ -571,6 +593,30 @@ async function init(){
 }
  
 // ── 자동업데이트 스케줄 ──
+// 자동 업데이트 (재시도 포함)
+async function autoUpdate(retry=0){
+  setStatus('loading','최신 회차 확인 중...');
+  try{
+    const added = await fetchNewRounds();
+    if(added > 0){
+      setStatus('ok', `${added}회차 업데이트 완료 — 최신: ${latestRound}회`);
+      updateStats(); renderFreqBars(); renderFreqGrid();
+      renderPrizeHeader(); loadPrizeTab(latestRound);
+      if(currentUid) loadMyNums();
+    } else {
+      setStatus('ok', `최신 상태 (261~${latestRound}회)`);
+    }
+  }catch(e){
+    if(retry < 3){
+      // 실패시 5초 후 재시도
+      setStatus('loading', `업데이트 재시도 중... (${retry+1}/3)`);
+      setTimeout(()=>autoUpdate(retry+1), 5000);
+    } else {
+      setStatus('ok', `내장 통계 사용 중 (261~${latestRound}회)`);
+    }
+  }
+}
+ 
 function scheduleAutoUpdate(){
   try{
     const now=new Date(), kst=new Date(now.getTime()+9*3600000);
