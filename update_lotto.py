@@ -1,30 +1,53 @@
 #!/usr/bin/env python3
-"""매주 토요일 추첨 후 index.html의 SEED_HISTORY와 latestRound를 자동 업데이트"""
-import urllib.request, urllib.parse, json, re, sys, time
+import urllib.request, json, re, sys, time, ssl
+ 
+# SSL 검증 무시 (GitHub Actions 환경)
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
  
 def fetch_round(r):
-    """여러 방법으로 로또 회차 데이터 가져오기"""
+    # 동행복권 JSON API - 다양한 헤더로 시도
+    url = f"https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo={r}"
     
-    # 방법1: 동행복권 직접 (인코딩 처리)
-    urls = [
-        f"https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo={r}",
+    headers_list = [
+        {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Referer': 'https://www.dhlottery.co.kr/gameResult.do?method=byWin',
+            'Origin': 'https://www.dhlottery.co.kr',
+            'Connection': 'keep-alive',
+        },
+        {
+            'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 11)',
+            'Accept': '*/*',
+        }
     ]
     
-    for url in urls:
+    for i, headers in enumerate(headers_list):
         try:
-            req = urllib.request.Request(url, headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': 'application/json, text/javascript, */*',
-                'Accept-Language': 'ko-KR,ko;q=0.9',
-                'Referer': 'https://www.dhlottery.co.kr/'
-            })
-            res = urllib.request.urlopen(req, timeout=15)
-            raw = res.read()
-            print(f"  raw response ({len(raw)} bytes): {raw[:100]}")
+            req = urllib.request.Request(url, headers=headers)
+            res = urllib.request.urlopen(req, timeout=20, context=ctx)
             
-            # BOM 및 공백 제거
-            text = raw.decode('utf-8-sig').strip()
-            if not text:
+            # gzip 디코딩 처리
+            import io
+            raw_bytes = res.read()
+            
+            # gzip 여부 확인
+            try:
+                import gzip
+                raw = gzip.decompress(raw_bytes)
+            except:
+                raw = raw_bytes
+            
+            text = raw.decode('utf-8', errors='replace').strip()
+            print(f"  헤더{i+1} 응답 ({len(text)}자): {repr(text[:150])}")
+            
+            if not text or text[0] not in ['{', '[']:
+                print(f"  JSON 아님, 건너뜀")
                 continue
                 
             d = json.loads(text)
@@ -35,55 +58,60 @@ def fetch_round(r):
                     'bonus': d['bnusNo'],
                     'date': d['drwNoDate']
                 }
-            else:
-                print(f"  returnValue: {d.get('returnValue')}")
+            print(f"  returnValue: {d.get('returnValue')}, 전체: {list(d.keys())[:5]}")
         except Exception as e:
-            print(f"  방법1 오류: {e}")
+            print(f"  헤더{i+1} 오류: {type(e).__name__}: {e}")
+        time.sleep(0.5)
     
-    # 방법2: 동행복권 모바일 API
+    # HTML 파싱 방법
     try:
-        url2 = f"https://m.dhlottery.co.kr/gameResult.do?method=byWin&drwNo={r}"
+        url2 = f"https://www.dhlottery.co.kr/gameResult.do?method=byWin&drwNo={r}"
         req2 = urllib.request.Request(url2, headers={
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)',
-            'Accept': '*/*',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0',
+            'Accept': 'text/html,application/xhtml+xml',
+            'Accept-Language': 'ko-KR,ko;q=0.9',
         })
-        res2 = urllib.request.urlopen(req2, timeout=15)
-        html = res2.read().decode('utf-8', errors='ignore')
+        res2 = urllib.request.urlopen(req2, timeout=20, context=ctx)
+        raw2 = res2.read()
+        try:
+            import gzip
+            html = gzip.decompress(raw2).decode('utf-8', errors='replace')
+        except:
+            html = raw2.decode('utf-8', errors='replace')
         
-        # HTML에서 당첨번호 파싱
-        nums_match = re.findall(r'<span class="ball_645 lball_(\d+)"[^>]*>(\d+)</span>', html)
-        bonus_match = re.search(r'<span class="ball_645 lball_(\d+)"[^>]*>\s*(\d+)\s*</span>\s*</div>\s*</div>', html)
+        print(f"  HTML 응답 ({len(html)}자)")
         
-        if len(nums_match) >= 6:
-            nums = [int(m[1]) for m in nums_match[:6]]
-            bonus = int(nums_match[6][1]) if len(nums_match) > 6 else 0
-            date_match = re.search(r'(\d{4}년\s*\d{1,2}월\s*\d{1,2}일)', html)
-            date_str = date_match.group(1) if date_match else ''
-            print(f"  방법2 성공: {nums} 보너스:{bonus}")
-            return {'round': r, 'nums': nums, 'bonus': bonus, 'date': date_str}
+        # 번호 파싱 - 여러 패턴 시도
+        patterns = [
+            r'class="ball_645[^"]*"[^>]*>\s*(\d+)\s*<',
+            r'<span[^>]+ball[^>]+>\s*(\d+)\s*</span>',
+            r'"drwtNo\d+":(\d+)',
+        ]
+        
+        for pat in patterns:
+            nums_found = re.findall(pat, html)
+            if len(nums_found) >= 7:
+                nums = [int(n) for n in nums_found[:6]]
+                bonus = int(nums_found[6])
+                date_m = re.search(r'(\d{4}-\d{2}-\d{2})', html)
+                date_str = date_m.group(1) if date_m else ''
+                print(f"  HTML 파싱 성공(패턴): {nums} 보너스:{bonus}")
+                return {'round': r, 'nums': nums, 'bonus': bonus, 'date': date_str}
+        
+        # JSON 데이터 추출 시도
+        json_match = re.search(r'drwNo["\s:]+(\d+)[^}]+drwtNo1["\s:]+(\d+)[^}]+drwtNo2["\s:]+(\d+)[^}]+drwtNo3["\s:]+(\d+)[^}]+drwtNo4["\s:]+(\d+)[^}]+drwtNo5["\s:]+(\d+)[^}]+drwtNo6["\s:]+(\d+)[^}]+bnusNo["\s:]+(\d+)', html)
+        if json_match:
+            g = json_match.groups()
+            nums = [int(g[i]) for i in range(1,7)]
+            bonus = int(g[7])
+            print(f"  HTML JSON 추출 성공: {nums} 보너스:{bonus}")
+            return {'round': r, 'nums': nums, 'bonus': bonus, 'date': ''}
+            
+        print(f"  HTML에서 번호 파싱 실패")
+        print(f"  HTML 샘플: {html[1000:1500]}")
+        
     except Exception as e:
-        print(f"  방법2 오류: {e}")
-    
-    # 방법3: 공공데이터 스크래핑
-    try:
-        url3 = f"https://www.dhlottery.co.kr/gameResult.do?method=byWin&drwNo={r}&gameGubn=lotto"
-        req3 = urllib.request.Request(url3, headers={
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        })
-        res3 = urllib.request.urlopen(req3, timeout=15)
-        html3 = res3.read().decode('utf-8', errors='ignore')
-        
-        # 번호 파싱
-        win_nums = re.findall(r'<span[^>]+class="[^"]*ball_645[^"]*"[^>]*>(\d+)</span>', html3)
-        if len(win_nums) >= 7:
-            nums = [int(n) for n in win_nums[:6]]
-            bonus = int(win_nums[6])
-            date_m = re.search(r'(\d{4}-\d{2}-\d{2})', html3)
-            date_str = date_m.group(1) if date_m else ''
-            print(f"  방법3 성공: {nums} 보너스:{bonus}")
-            return {'round': r, 'nums': nums, 'bonus': bonus, 'date': date_str}
-    except Exception as e:
-        print(f"  방법3 오류: {e}")
+        print(f"  HTML 방법 오류: {type(e).__name__}: {e}")
     
     return None
  
@@ -100,46 +128,34 @@ def main():
     new_rounds = []
     r = current + 1
     while True:
-        print(f"\n  {r}회차 조회 중...")
+        print(f"\n{'='*40}\n{r}회차 조회 중...")
         d = fetch_round(r)
         if not d:
-            print(f"  {r}회차 데이터 없음 - 중단")
+            print(f"{r}회차 데이터 없음 - 종료")
             break
         new_rounds.append(d)
-        print(f"  ✅ {r}회차: {d['nums']} 보너스:{d['bonus']}")
+        print(f"✅ {r}회차 확보: {d['nums']} 보너스:{d['bonus']}")
         r += 1
         time.sleep(1)
  
     if not new_rounds:
-        print("\n새 회차 없음 - index.html 변경 안 함")
+        print("\n새 회차 없음")
         return
  
     latest = new_rounds[-1]
     new_latest_round = latest['round']
-    print(f"\n{len(new_rounds)}개 새 회차 발견! 최신: {new_latest_round}회차")
+    print(f"\n{len(new_rounds)}개 새 회차! 최신: {new_latest_round}회")
  
-    # SEED_HISTORY 파싱
     sh_match = re.search(r'const SEED_HISTORY = \[(.*?)\];', content, re.DOTALL)
-    if not sh_match:
-        print("SEED_HISTORY not found"); sys.exit(1)
- 
     existing = []
     for m2 in re.finditer(r'\{round:(\d+),nums:\[([^\]]+)\],bonus:(\d+)\}', sh_match.group(1)):
-        existing.append({
-            'round': int(m2.group(1)),
-            'nums': list(map(int, m2.group(2).split(','))),
-            'bonus': int(m2.group(3))
-        })
+        existing.append({'round':int(m2.group(1)),'nums':list(map(int,m2.group(2).split(','))),'bonus':int(m2.group(3))})
  
     for d in new_rounds:
-        existing.append({'round': d['round'], 'nums': d['nums'], 'bonus': d['bonus']})
- 
+        existing.append({'round':d['round'],'nums':d['nums'],'bonus':d['bonus']})
     existing = sorted(existing, key=lambda x: x['round'])[-5:]
  
-    lines = []
-    for e in existing:
-        nums_str = ','.join(map(str, e['nums']))
-        lines.append(f"  {{round:{e['round']},nums:[{nums_str}],bonus:{e['bonus']}}}")
+    lines = [f"  {{round:{e['round']},nums:[{','.join(map(str,e['nums']))}],bonus:{e['bonus']}}}" for e in existing]
     new_sh = 'const SEED_HISTORY = [\n' + ',\n'.join(lines) + ',\n];'
  
     content = re.sub(r'const SEED_HISTORY = \[.*?\];', new_sh, content, flags=re.DOTALL)
@@ -149,7 +165,7 @@ def main():
  
     with open('index.html', 'w', encoding='utf-8') as f:
         f.write(content)
-    print(f"\n✅ index.html 업데이트 완료! latestRound: {new_latest_round}")
+    print(f"\n✅ 완료! latestRound: {new_latest_round}")
  
 if __name__ == '__main__':
     main()
