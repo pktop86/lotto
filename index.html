@@ -921,6 +921,7 @@ async function init(){
     updateStats(); renderFreqBars(); renderFreqGrid(); updateFreeCounter();
     renderPrizeHeader(); scheduleAutoUpdate(); startSaturdayChecker();
     setStatus('ok',`내장 통계 준비 완료 (261~${latestRound}회)`);
+    setPrizeTabUnlocked(false); // 초기 잠금 상태 명시
     loadTodayLucky(); // 오늘의 행운 로드
   // 생년월일 max 동적 설정 (현재 날짜 - 14년)
   const birthEl=document.getElementById('myinfo-birth');
@@ -962,6 +963,7 @@ async function autoUpdate(retry=0){
       renderPrizeHeader(); loadPrizeTab(latestRound);
       if(currentUid) loadMyNums();
       if(latestRound!==oldRound){ resetChallengeState(); onAuthReady(()=>initChallenge()); }
+      checkPrizeUnlock(); // 회차 갱신 후 탭 활성화 재평가
       maybeScoreCurrentChallenge();
     } else {
       setStatus('ok', `최신 상태 (261~${latestRound}회)`);
@@ -1467,20 +1469,36 @@ function renderRoundChips(active){
     el.appendChild(b);
   }
 }
+function setPrizeTabUnlocked(isUnlocked){
+  const tabBtn=document.getElementById('tab-prize-btn');
+  const locked=document.getElementById('prize-locked');
+  const prizeCont=document.getElementById('prize-content');
+  prizeUnlocked=!!isUnlocked;
+  if(isUnlocked){
+    tabBtn.classList.remove('disabled');
+    if(locked) locked.style.display='none';
+    if(prizeCont) prizeCont.style.display='block';
+  } else {
+    tabBtn.classList.add('disabled');
+    if(locked) locked.style.display='block';
+    if(prizeCont) prizeCont.style.display='none';
+  }
+}
+ 
 function checkPrizeUnlock(){
-  if(!db)return;
+  if(!db) return;
   try{
-    const q=query(collection(db,'picks'),where('prize','<=',2));
-    if(unsubPrize)unsubPrize();
-    unsubPrize=onSnapshot(q,snap=>{
-      if(snap.docs.some(d=>{const p=d.data().prize;return p===1||p===2;})&&!prizeUnlocked){
-        prizeUnlocked=true;
-        document.getElementById('tab-prize-btn').classList.remove('disabled');
-        document.getElementById('prize-locked').style.display='none';
-        document.getElementById('prize-content').style.display='block';
-      }
+    // prize 필드 무시 — 실제 당첨번호로 재계산
+    const q=query(collection(db,'picks'),where('round','==',latestRound));
+    if(unsubPrize) unsubPrize();
+    unsubPrize=onSnapshot(q, snap=>{
+      const hasTopWinner=snap.docs.some(d=>{
+        const p=checkPrize(d.data().nums||[],latestWinNums,latestBonusNum);
+        return p===1||p===2;
+      });
+      setPrizeTabUnlocked(hasTopWinner);
     });
-  }catch(e){}
+  }catch(e){ console.error('checkPrizeUnlock error:',e); }
 }
  
 // ── 탭 전환 ──
