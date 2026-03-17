@@ -428,6 +428,171 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .near-lucky-cell{min-width:100px}
 .near-table .lucky-row-gold{border-left:3px solid var(--accent)}
 .near-table .lucky-row-orange{border-left:3px solid #e05c20}
+
+ /* ── 내주변 판매점 정렬 설명 ── */
+.near-sort-help{
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 12px;
+  margin:0 0 12px;
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.7;
+}
+.near-sort-help strong{
+  color:#fff;
+  font-weight:800;
+}
+.near-sort-help .accent{
+  color:var(--accent);
+}
+.near-sort-help .blue{
+  color:var(--accent3);
+}
+.near-sort-help .orange{
+  color:#ffb347;
+}
+
+/* ── 내 주변 명당 TOP10 ── */
+.near-top10-box{
+  background:linear-gradient(135deg,rgba(240,192,64,.10),rgba(224,92,32,.06));
+  border:1px solid rgba(240,192,64,.22);
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:14px;
+}
+.near-top10-title{
+  font-size:12px;
+  font-weight:900;
+  color:var(--accent);
+  margin-bottom:10px;
+}
+.near-top10-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.near-top10-item{
+  background:rgba(0,0,0,.18);
+  border:1px solid rgba(255,255,255,.05);
+  border-radius:10px;
+  padding:10px 12px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+}
+.near-top10-rank{
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:11px;
+  flex-shrink:0;
+  background:var(--panel);
+  color:#fff;
+}
+.near-top10-rank.r1{background:var(--accent);color:#000;}
+.near-top10-rank.r2{background:#c0c0c0;color:#000;}
+.near-top10-rank.r3{background:#c88000;color:#fff;}
+.near-top10-main{flex:1;min-width:0;}
+.near-top10-name{
+  color:#fff;
+  font-weight:800;
+  font-size:12px;
+  margin-bottom:3px;
+}
+.near-top10-sub{
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.5;
+}
+.near-top10-side{
+  text-align:right;
+  flex-shrink:0;
+}
+.near-top10-score{
+  color:var(--accent);
+  font-weight:900;
+  font-size:13px;
+}
+.near-top10-first{
+  color:#fff;
+  font-size:10px;
+  margin-top:3px;
+}
+.near-top10-recent{
+  color:var(--muted);
+  font-size:9px;
+  margin-top:2px;
+}
+
+/* ── 명당 배지 개선 ── */
+.lucky-badge-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.lucky-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px 8px;
+  border-radius:8px;
+  font-size:10px;
+  font-weight:800;
+  width:max-content;
+}
+.lucky-badge-gold{
+  background:rgba(240,192,64,.2);
+  color:var(--accent);
+  border:1px solid rgba(240,192,64,.35);
+}
+.lucky-badge-orange{
+  background:rgba(224,92,32,.15);
+  color:#e05c20;
+  border:1px solid rgba(224,92,32,.3);
+}
+.lucky-badge-blue{
+  background:rgba(58,184,255,.12);
+  color:var(--accent3);
+  border:1px solid rgba(58,184,255,.25);
+}
+.lucky-badge-none{
+  background:rgba(255,255,255,.05);
+  color:var(--muted);
+  border:1px solid var(--border);
+}
+.lucky-score-bar-wrap{
+  width:64px;
+  height:5px;
+  background:rgba(255,255,255,.08);
+  border-radius:3px;
+  overflow:hidden;
+  display:inline-block;
+  vertical-align:middle;
+  margin-left:4px;
+}
+.lucky-score-bar-fill{
+  height:100%;
+  border-radius:3px;
+}
+.lucky-meta{
+  font-size:10px;
+  color:#fff; /* 요청하신 흰색 */
+  line-height:1.5;
+  font-weight:700;
+}
+.lucky-meta .sub{
+  color:#fff;
+}
+.lucky-meta .muted{
+  color:rgba(255,255,255,.72);
+  font-weight:600;
+}
 </style>
 </head>
 <body>
@@ -739,11 +904,20 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     </div>
     <div class="near-count" id="near-count"></div>
     <div id="near-sort-row" class="near-sort-row" style="display:none">
-      <button class="near-sort-btn on" data-sort="dist" onclick="sortAndRender('dist',this)">📍 가까운순</button>
-      <button class="near-sort-btn" data-sort="lucky" onclick="sortAndRender('lucky',this)">🏆 명당순</button>
-      <button class="near-sort-btn" data-sort="first" onclick="sortAndRender('first',this)">🥇 1등많은순</button>
-      <button class="near-sort-btn" data-sort="recent" onclick="sortAndRender('recent',this)">⚡ 최근당첨순</button>
-    </div>
+  <button class="near-sort-btn on" data-sort="dist" onclick="sortAndRender('dist',this)">📍 가까운순</button>
+  <button class="near-sort-btn" data-sort="lucky" onclick="sortAndRender('lucky',this)">🏆 명당점수순</button>
+  <button class="near-sort-btn" data-sort="first" onclick="sortAndRender('first',this)">🥇 1등횟수순</button>
+  <button class="near-sort-btn" data-sort="recent" onclick="sortAndRender('recent',this)">⚡ 최근당첨회차순</button>
+</div>
+
+<div id="near-sort-help" class="near-sort-help" style="display:none"></div>
+
+<div id="near-top10-box" class="near-top10-box" style="display:none">
+  <div class="near-top10-title">🏆 내 주변 명당 TOP10</div>
+  <div id="near-top10-list" class="near-top10-list"></div>
+</div>
+
+<div id="near-list"></div>
     <div id="near-list"></div>
   </div>
  
@@ -1622,9 +1796,12 @@ async function searchStores(){
     }));
     console.log('[searchStores] merged sample:', merged[0]);
     window._nearStores = merged;
-    window._nearCurrentSort = 'dist';
-    document.getElementById('near-sort-row').style.display = merged.length ? 'flex' : 'none';
-    renderStores(merged);
+window._nearCurrentSort = 'dist';
+document.getElementById('near-sort-row').style.display = merged.length ? 'flex' : 'none';
+
+renderNearSortHelp('dist');
+renderNearTop10(merged);
+renderStores(merged);
   }catch(e){
     console.error('searchStores error:',e);
     document.getElementById('near-count').textContent='판매점 검색 실패';
@@ -2867,6 +3044,85 @@ document.getElementById('myinfo-reset-btn').addEventListener('click', ()=>{
 // ── 명당 시스템 ──
 let _luckyStatsCache = null;
 let _luckyStatsCacheTime = 0;
+
+ function renderNearSortHelp(sortType){
+  const el = document.getElementById('near-sort-help');
+  if(!el) return;
+
+  let html = '';
+
+  if(sortType === 'dist'){
+    html = `
+      <strong>📍 가까운순</strong><br>
+      현재 위치에서 <span class="accent">거리</span>가 가까운 판매점부터 보여줍니다.
+    `;
+  }else if(sortType === 'lucky'){
+    html = `
+      <strong>🏆 명당점수순</strong><br>
+      <span class="accent">명당점수</span>는 <strong>1등 횟수 + 2등 횟수 + 최근 당첨 회차</strong>를 함께 반영한 종합 점수입니다.
+    `;
+  }else if(sortType === 'first'){
+    html = `
+      <strong>🥇 1등횟수순</strong><br>
+      <span class="orange">1등 당첨 횟수만</span> 기준으로 정렬합니다. 2등 횟수나 최근 당첨 여부는 반영하지 않습니다.
+    `;
+  }else if(sortType === 'recent'){
+    html = `
+      <strong>⚡ 최근당첨회차순</strong><br>
+      가장 최근 <span class="blue">당첨된 회차 번호</span>가 큰 판매점이 위로 올라옵니다.
+    `;
+  }
+
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
+ function renderNearTop10(stores){
+  const box = document.getElementById('near-top10-box');
+  const list = document.getElementById('near-top10-list');
+  if(!box || !list) return;
+
+  const ranked = [...stores]
+    .filter(s => s.lucky)
+    .sort((a,b)=>{
+      const sa = a.lucky?.luckyScore || 0;
+      const sb = b.lucky?.luckyScore || 0;
+      return sb - sa || a.dist - b.dist;
+    })
+    .slice(0,10);
+
+  if(!ranked.length){
+    box.style.display = 'none';
+    list.innerHTML = '';
+    return;
+  }
+
+  list.innerHTML = ranked.map((s,i)=>{
+    const rankCls = i===0 ? 'r1' : i===1 ? 'r2' : i===2 ? 'r3' : '';
+    const first = (s.lucky?.firstAutoCount || 0) + (s.lucky?.firstManualCount || 0);
+    const second = s.lucky?.secondCount || 0;
+    const recent = s.lucky?.recentWinRound || 0;
+    const dist = s.dist < 1000 ? `${s.dist}m` : `${(s.dist/1000).toFixed(1)}km`;
+
+    return `
+      <div class="near-top10-item">
+        <div class="near-top10-rank ${rankCls}">${i+1}</div>
+        <div class="near-top10-main">
+          <div class="near-top10-name">${s.name}</div>
+          <div class="near-top10-sub">${s.addr || ''}</div>
+        </div>
+        <div class="near-top10-side">
+          <div class="near-top10-score">🏆 ${s.lucky?.luckyScore || 0}점</div>
+          <div class="near-top10-first">🥇 ${first}회 · 🥈 ${second}회</div>
+          <div class="near-top10-recent">${recent ? `최근 ${recent}회 · ${dist}` : dist}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  box.style.display = 'block';
+}
+
  
 // 텍스트 정규화 (공백·괄호·하이픈 제거)
 function normText(s=''){
@@ -2939,29 +3195,41 @@ function sortAndRender(sortType, btn){
   window._nearCurrentSort = sortType;
   document.querySelectorAll('.near-sort-btn').forEach(b=>b.classList.remove('on'));
   if(btn) btn.classList.add('on');
+
   const stores = window._nearStores || [];
   const sorted = [...stores].sort((a,b)=>{
-    if(sortType==='dist') return a.dist-b.dist;
+    if(sortType==='dist'){
+      return a.dist - b.dist;
+    }
+
     if(sortType==='lucky'){
-      const sa=a.lucky?.luckyScore||0, sb=b.lucky?.luckyScore||0;
-      return sb-sa||a.dist-b.dist;
+      const sa = a.lucky?.luckyScore || 0;
+      const sb = b.lucky?.luckyScore || 0;
+      return sb - sa || a.dist - b.dist;
     }
+
     if(sortType==='first'){
-      const fa=(a.lucky?.firstAutoCount||0)+(a.lucky?.firstManualCount||0);
-      const fb=(b.lucky?.firstAutoCount||0)+(b.lucky?.firstManualCount||0);
-      return fb-fa||a.dist-b.dist;
+      const fa = (a.lucky?.firstAutoCount || 0) + (a.lucky?.firstManualCount || 0);
+      const fb = (b.lucky?.firstAutoCount || 0) + (b.lucky?.firstManualCount || 0);
+      return fb - fa || a.dist - b.dist;
     }
+
     if(sortType==='recent'){
-      const ra=a.lucky?.recentWinRound||0, rb=b.lucky?.recentWinRound||0;
-      return rb-ra||a.dist-b.dist;
+      const ra = a.lucky?.recentWinRound || 0;
+      const rb = b.lucky?.recentWinRound || 0;
+      return rb - ra || a.dist - b.dist;
     }
-    return a.dist-b.dist;
+
+    return a.dist - b.dist;
   });
-  nearMarkers.forEach(m=>nearMap.removeLayer(m)); nearMarkers=[];
+
+  renderNearSortHelp(sortType);
+  renderNearTop10(stores); // TOP10은 항상 '명당점수' 기준 고정
+  nearMarkers.forEach(m=>nearMap.removeLayer(m));
+  nearMarkers = [];
   renderStores(sorted);
 }
 window.sortAndRender = sortAndRender;
- 
  
 init();
 </script>
