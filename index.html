@@ -370,6 +370,40 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .fortune-action-text{font-size:12px;color:var(--text);line-height:1.6}
 .fortune-empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:12px}
 .fortune-empty-icon{font-size:36px;margin-bottom:10px;opacity:.4}
+ 
+/* ── 챌린지 개선 UI ── */
+.challenge-status-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px}
+.status-open{background:rgba(64,208,128,.15);color:var(--green);border:1px solid rgba(64,208,128,.3)}
+.status-closed{background:rgba(255,80,80,.12);color:var(--red);border:1px solid rgba(255,80,80,.25)}
+.status-scored{background:rgba(240,192,64,.15);color:var(--accent);border:1px solid rgba(240,192,64,.3)}
+.challenge-my-rank-card{background:linear-gradient(135deg,rgba(176,96,255,.12),rgba(58,184,255,.08));border:1px solid rgba(176,96,255,.25);border-radius:12px;padding:14px;margin-bottom:12px;display:none}
+.challenge-my-rank-card.show{display:block}
+.challenge-my-rank-val{font-family:"Black Han Sans",sans-serif;font-size:2rem;color:#b060ff;line-height:1}
+.challenge-my-rank-label{font-size:10px;color:var(--muted);margin-top:3px}
+.challenge-my-rank-nums{display:flex;gap:3px;flex-wrap:wrap;margin-top:8px}
+.challenge-rule-info{font-size:10px;color:var(--muted);margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:8px;line-height:1.6}
+.challenge-top10{margin-top:12px}
+.challenge-top10-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.challenge-top10-list{display:flex;flex-direction:column;gap:5px;max-height:400px;overflow-y:auto}
+.challenge-top10-item{background:var(--card);border-radius:8px;padding:9px 12px;display:flex;align-items:center;gap:8px;font-size:11px}
+.challenge-top10-item.is-me{border:1px solid rgba(176,96,255,.4);background:rgba(176,96,255,.06)}
+.challenge-top10-rank{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;flex-shrink:0}
+.rank-1{background:var(--accent);color:#000}
+.rank-2{background:#c0c0c0;color:#000}
+.rank-3{background:#c88000;color:#fff}
+.rank-other{background:var(--panel);color:var(--muted)}
+.challenge-top10-nums{display:flex;gap:3px;flex-wrap:wrap;flex:1}
+.challenge-top10-match{font-size:10px;color:var(--accent);font-weight:700;flex-shrink:0}
+.challenge-history{margin-top:12px}
+.challenge-history-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.challenge-history-list{display:none;flex-direction:column;gap:8px}
+.challenge-history-list.show{display:flex}
+.challenge-hist-item{background:var(--card);border-radius:10px;padding:12px}
+.challenge-hist-round{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:6px}
+.challenge-hist-my{font-size:10px;color:var(--muted);margin-bottom:4px}
+.challenge-hist-nums{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px}
+.challenge-hist-result{display:flex;align-items:center;gap:6px}
+.challenge-hist-rank{font-size:11px;font-weight:700}
 </style>
 </head>
 <body>
@@ -411,7 +445,13 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     <div class="challenge-card" id="challenge-card">
       <div class="challenge-header">
         <div class="challenge-title">🏆 주간 챌린지</div>
-        <div class="challenge-round-badge" id="challenge-round-badge">— 회차</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="challenge-status-badge status-open" id="challenge-status-badge">● 참여 중</span>
+          <div class="challenge-round-badge" id="challenge-round-badge">— 회차</div>
+        </div>
+      </div>
+      <div class="challenge-rule-info">
+        🏅 동률 규칙: 일치 개수 많은 순 → 보너스 번호 일치 → 먼저 참여한 순
       </div>
       <div class="challenge-stats">
         <div class="challenge-stat">
@@ -419,10 +459,25 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
           <div class="challenge-stat-label">참가자 수</div>
         </div>
         <div class="challenge-stat">
-          <div class="challenge-stat-val" id="challenge-deadline">추첨 전</div>
+          <div class="challenge-stat-val" id="challenge-deadline">—</div>
           <div class="challenge-stat-label">상태</div>
         </div>
       </div>
+      <!-- 내 순위 카드 (채점 후 표시) -->
+      <div class="challenge-my-rank-card" id="challenge-my-rank-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div class="challenge-my-rank-val" id="challenge-my-rank-val">—</div>
+            <div class="challenge-my-rank-label">내 순위</div>
+          </div>
+          <div style="text-align:right">
+            <div id="challenge-my-match" style="font-size:13px;font-weight:700;color:var(--accent)">—</div>
+            <div style="font-size:10px;color:var(--muted)">번호 일치</div>
+          </div>
+        </div>
+        <div class="challenge-my-rank-nums" id="challenge-my-rank-nums"></div>
+      </div>
+      <!-- 참여 완료 상태 -->
       <div class="challenge-my-status" id="challenge-my-status">
         <div style="display:flex;align-items:center;justify-content:space-between">
           <span style="color:var(--text);font-weight:700">✅ 참여 완료</span>
@@ -430,6 +485,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
         </div>
         <div class="challenge-my-nums" id="challenge-my-nums"></div>
       </div>
+      <!-- 참여 버튼 -->
       <div class="challenge-btns" id="challenge-btns">
         <button class="challenge-btn challenge-btn-main" id="challenge-btn-gen" disabled>🎲 생성 번호로 참여</button>
         <button class="challenge-btn challenge-btn-lucky" id="challenge-btn-lucky">🍀 행운 번호로 참여</button>
@@ -440,9 +496,18 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
         <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="challenge-select-count">0/6 선택</div>
         <button class="challenge-btn challenge-btn-main" id="challenge-btn-custom-submit" disabled>✅ 이 번호로 참여</button>
       </div>
-      <div class="challenge-entries" id="challenge-entries" style="display:none">
-        <div class="challenge-entries-title">최근 참여자</div>
-        <div id="challenge-entries-list"></div>
+      <!-- TOP10 랭킹 -->
+      <div class="challenge-top10" id="challenge-top10" style="display:none">
+        <div class="challenge-top10-title">🏆 TOP 10 랭킹</div>
+        <div class="challenge-top10-list" id="challenge-top10-list"></div>
+      </div>
+ 
+      <!-- 지난 회차 히스토리 -->
+      <div class="challenge-history" id="challenge-history">
+        <div class="challenge-history-title" id="challenge-history-toggle">
+          📋 지난 회차 결과 <span id="challenge-history-arrow">▶</span>
+        </div>
+        <div class="challenge-history-list" id="challenge-history-list"></div>
       </div>
     </div>
     <div class="status-bar">
@@ -589,7 +654,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <div class="myinfo-section-title">🔮 내 정보 입력</div>
       <div class="myinfo-form-row">
         <label class="myinfo-label">생년월일</label>
-        <input type="date" class="myinfo-input" id="myinfo-birth" id="myinfo-birth-input">
+        <input type="date" class="myinfo-input" id="myinfo-birth">
       </div>
       <div class="myinfo-form-row">
         <label class="myinfo-label">생시 (태어난 시간대)</label>
@@ -688,7 +753,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
  
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, getDocsFromServer, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc, setDoc, getDoc }
+import { getFirestore, collection, addDoc, getDocs, getDocsFromServer, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc, setDoc, getDoc, runTransaction, increment }
   from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
@@ -851,12 +916,11 @@ async function init(){
     setStatus('ok',`내장 통계 준비 완료 (261~${latestRound}회)`);
     loadTodayLucky(); // 오늘의 행운 로드
   // 생년월일 max 동적 설정 (현재 날짜 - 14년)
-  const birthEl=document.getElementById('myinfo-birth-input');
+  const birthEl=document.getElementById('myinfo-birth');
   if(birthEl){
     const maxDate=new Date(new Date().getTime()+9*3600000);
     maxDate.setFullYear(maxDate.getFullYear()-14);
     birthEl.max=maxDate.toISOString().slice(0,10);
-    birthEl.id='myinfo-birth';
   }
  
     updateFortuneDisplay(); // 내정보 운세 표시
@@ -883,13 +947,15 @@ async function init(){
 async function autoUpdate(retry=0){
   setStatus('loading','최신 회차 확인 중...');
   try{
+    const oldRound=latestRound;
     const added = await fetchNewRounds();
     if(added > 0){
       setStatus('ok', `${added}회차 업데이트 완료 — 최신: ${latestRound}회`);
       updateStats(); renderFreqBars(); renderFreqGrid();
       renderPrizeHeader(); loadPrizeTab(latestRound);
       if(currentUid) loadMyNums();
-          maybeScoreCurrentChallenge();
+      if(latestRound!==oldRound){ resetChallengeState(); onAuthReady(()=>initChallenge()); }
+      maybeScoreCurrentChallenge();
     } else {
       setStatus('ok', `최신 상태 (261~${latestRound}회)`);
     }
@@ -1988,115 +2054,261 @@ document.getElementById('sim-btn-10000').addEventListener('click',()=>{
  
  
 // ── 주간 챌린지 ──
-let challengeGenNums = [];   // 생성된 번호 (참여용)
-let challengeCustomNums = []; // 직접 선택 번호
-let challengeMyEntry = null;  // 내 참여 정보
-let challengeParticipants = 0;
-let challengeUnsubEntries = null;
+let challengeGenNums = [];
+let challengeCustomNums = [];
+let challengeMyEntry = null;
+let challengeRoundData = null;
+let challengeUnsubRound = null;
+let challengeUnsubTop10 = null;
+ 
+// 회차 상태 계산 - 서버 문서 기준 우선, 클라이언트 시간은 fallback
+function getChallengeStatus(){
+  // 서버 문서에 status가 있으면 우선 사용
+  if(challengeRoundData?.status==='scored') return 'scored';
+  if(challengeRoundData?.status==='closed') return 'closed';
+  if(challengeRoundData?.scored===true) return 'scored';
+  // 서버 상태 없으면 클라이언트 시간으로 fallback
+  const kst=new Date(new Date().getTime()+9*3600000);
+  if(kst.getDay()===6&&kst.getHours()>=20) return 'closed';
+  return 'open';
+}
+ 
+// 상태 배지 업데이트
+function updateStatusBadge(status){
+  const badge = document.getElementById('challenge-status-badge');
+  const deadline = document.getElementById('challenge-deadline');
+  if(!badge) return;
+  if(status==='open'){
+    badge.className='challenge-status-badge status-open'; badge.textContent='● 참여 중';
+    if(deadline) deadline.textContent='추첨 전';
+  } else if(status==='closed'){
+    badge.className='challenge-status-badge status-closed'; badge.textContent='● 마감';
+    if(deadline) deadline.textContent='채점 대기';
+  } else {
+    badge.className='challenge-status-badge status-scored'; badge.textContent='● 채점 완료';
+    if(deadline) deadline.textContent='결과 공개';
+  }
+}
+ 
+// 회차 변경 시 state reset
+function resetChallengeState(){
+  challengeMyEntry = null;
+  challengeRoundData = null;
+  challengeGenNums = [];
+  challengeCustomNums = [];
+  if(challengeUnsubRound){ challengeUnsubRound(); challengeUnsubRound=null; }
+  if(challengeUnsubTop10){ challengeUnsubTop10(); challengeUnsubTop10=null; }
+  const statusEl=document.getElementById('challenge-my-status');
+  const btnsEl=document.getElementById('challenge-btns');
+  const rankCard=document.getElementById('challenge-my-rank-card');
+  if(statusEl) statusEl.classList.remove('show');
+  if(btnsEl) btnsEl.style.display='flex';
+  if(rankCard) rankCard.classList.remove('show');
+}
  
 // 챌린지 초기화
 async function initChallenge(){
   const roundId = String(latestRound);
   document.getElementById('challenge-round-badge').textContent = latestRound + '회차';
- 
   if(!db){ renderChallengeOffline(); return; }
  
-  // 참가자 수 실시간 구독
   try{
-    const entriesRef = collection(db, 'challenge_rounds', roundId, 'entries');
-    if(challengeUnsubEntries) challengeUnsubEntries();
-    challengeUnsubEntries = onSnapshot(entriesRef, snap=>{
-      challengeParticipants = snap.size;
-      document.getElementById('challenge-count').textContent = snap.size.toLocaleString() + '명';
-      // 최근 참여자 표시
-      const entries = snap.docs.map(d=>({id:d.id,...d.data()}))
-        .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0))
-        .slice(0,5);
-      renderChallengeEntries(entries);
+    // round summary 문서 구독 (entries 전체 대신)
+    const roundRef = doc(db,'challenge_rounds',roundId);
+    if(challengeUnsubRound) challengeUnsubRound();
+    challengeUnsubRound = onSnapshot(roundRef, snap=>{
+      challengeRoundData = snap.exists() ? snap.data() : null;
+      const count = challengeRoundData?.participantCount || 0;
+      document.getElementById('challenge-count').textContent = count.toLocaleString()+'명';
+      const status = getChallengeStatus();
+      updateStatusBadge(status);
+      // 마감/채점 후 참여 버튼 비활성화
+      const btnsEl=document.getElementById('challenge-btns');
+      if(status!=='open'&&btnsEl&&!challengeMyEntry) {
+        btnsEl.querySelectorAll('.challenge-btn').forEach(b=>{b.disabled=true;b.style.opacity='.4';});
+      }
+      // 채점 완료 시 TOP10 표시
+      if(status==='scored'&&challengeRoundData?.top10Preview){
+        renderTop10(challengeRoundData.top10Preview);
+      }
     });
+ 
     // 내 참여 여부 확인
-    onAuthReady(()=>checkMyEntry(roundId));
+    onAuthReady(()=>{
+      checkMyEntry(roundId);
+      loadChallengeHistory();
+    });
   }catch(e){ console.warn('challenge init error:',e); }
  
-  // 번호 그리드 생성
   buildNumGrid();
 }
  
 function renderChallengeOffline(){
-  document.getElementById('challenge-count').textContent = '—';
-  document.getElementById('challenge-deadline').textContent = '오프라인';
+  document.getElementById('challenge-count').textContent='—';
+  document.getElementById('challenge-deadline').textContent='오프라인';
 }
  
-// 내 참여 여부 확인
+// 내 참여 확인
 async function checkMyEntry(roundId){
   if(!currentUid||!db) return;
   try{
     const entryRef=doc(db,'challenge_rounds',roundId,'entries',currentUid);
     const snap=await getDoc(entryRef);
-    if(snap.exists()){ challengeMyEntry={id:currentUid,...snap.data()}; renderMyEntry(); }
+    if(snap.exists()){
+      challengeMyEntry={id:currentUid,...snap.data()};
+      renderMyEntry();
+    }
   }catch(e){ console.warn('checkMyEntry error:',e); }
 }
  
 // 내 참여 상태 렌더
 function renderMyEntry(){
   if(!challengeMyEntry) return;
-  const statusEl = document.getElementById('challenge-my-status');
-  const numsEl = document.getElementById('challenge-my-nums');
-  const btnsEl = document.getElementById('challenge-btns');
-  const rankBadge = document.getElementById('challenge-rank-badge');
-  statusEl.classList.add('show');
-  btnsEl.style.display = 'none';
-  // 번호 표시
-  numsEl.innerHTML = (challengeMyEntry.numbers||[]).map(n=>
+  const statusEl=document.getElementById('challenge-my-status');
+  const numsEl=document.getElementById('challenge-my-nums');
+  const btnsEl=document.getElementById('challenge-btns');
+  const rankBadge=document.getElementById('challenge-rank-badge');
+  if(statusEl) statusEl.classList.add('show');
+  if(btnsEl) btnsEl.style.display='none';
+  if(numsEl) numsEl.innerHTML=(challengeMyEntry.numbers||[]).map(n=>
     `<div class="ball ${ballCls(n)}" style="width:26px;height:26px;font-size:10px">${n}</div>`
   ).join('');
-  // 랭킹 표시
-  const rank = challengeMyEntry.rank||0;
-  const label = challengeMyEntry.resultLabel||'집계 대기';
-  const cls = rank>0&&rank<=10?'rank-top10':rank>0&&rank<=100?'rank-top100':'rank-done';
-  rankBadge.className = 'challenge-rank-badge '+cls;
-  rankBadge.textContent = label;
+  const rank=challengeMyEntry.rank||0;
+  const label=challengeMyEntry.resultLabel||'집계 대기';
+  const cls=rank>0&&rank<=10?'rank-top10':rank>0&&rank<=100?'rank-top100':'rank-done';
+  if(rankBadge){ rankBadge.className='challenge-rank-badge '+cls; rankBadge.textContent=label; }
+  // 순위 카드 (채점 완료 시)
+  if(rank>0){
+    const rankCard=document.getElementById('challenge-my-rank-card');
+    const rankVal=document.getElementById('challenge-my-rank-val');
+    const matchEl=document.getElementById('challenge-my-match');
+    const numsRank=document.getElementById('challenge-my-rank-nums');
+    if(rankCard) rankCard.classList.add('show');
+    if(rankVal) rankVal.textContent=rank+'위';
+    if(matchEl) matchEl.textContent=(challengeMyEntry.matchCount||0)+'개'+(challengeMyEntry.bonusMatch?' + 보너스':'');
+    if(numsRank) numsRank.innerHTML=(challengeMyEntry.numbers||[]).map(n=>
+      `<div class="ball ${ballCls(n)}" style="width:24px;height:24px;font-size:9px">${n}</div>`
+    ).join('');
+  }
 }
  
-// 참여자 목록 렌더
-function renderChallengeEntries(entries){
-  if(!entries.length){ document.getElementById('challenge-entries').style.display='none'; return; }
-  document.getElementById('challenge-entries').style.display='block';
-  const list = document.getElementById('challenge-entries-list');
-  list.innerHTML = entries.map((e,i)=>{
-    const isMe = e.uid===currentUid;
-    const nums = (e.numbers||[]).map(n=>`<div class="ball ${ballCls(n)}" style="width:22px;height:22px;font-size:9px">${n}</div>`).join('');
-    return `<div class="challenge-entry-item${isMe?' challenge-entry-mine':''}">
-      <div class="challenge-entry-rank">${i+1}</div>
-      <div class="challenge-entry-nums">${nums}</div>
+// TOP10 렌더
+function renderTop10(top10){
+  const el=document.getElementById('challenge-top10');
+  const list=document.getElementById('challenge-top10-list');
+  if(!el||!list) return;
+  el.style.display='block';
+  list.innerHTML=top10.map((e,i)=>{
+    const isMe=e.uid===currentUid;
+    const rankCls=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-other';
+    const nums=(e.numbers||[]).map(n=>
+      `<div class="ball ${ballCls(n)}" style="width:22px;height:22px;font-size:9px">${n}</div>`
+    ).join('');
+    return `<div class="challenge-top10-item${isMe?' is-me':''}">
+      <div class="challenge-top10-rank ${rankCls}">${i+1}</div>
+      <div class="challenge-top10-nums">${nums}</div>
+      <div class="challenge-top10-match">${e.matchCount||0}개${e.bonusMatch?'+보너스':''}</div>
       ${isMe?'<span style="font-size:9px;color:#b060ff">나</span>':''}
     </div>`;
   }).join('');
 }
  
-// 챌린지 참여 실행
+// 최근 참여자 UI 제거
+ 
+// 지난 회차 히스토리
+async function loadChallengeHistory(){
+  if(!currentUid||!db) return;
+  const list=document.getElementById('challenge-history-list');
+  if(!list) return;
+  try{
+    // 최근 3회차 히스토리 - 병렬 처리
+    const prevRounds=[latestRound-1,latestRound-2,latestRound-3].filter(r=>r>0);
+    const results=await Promise.all(prevRounds.map(async r=>{
+      const [roundSnap,entrySnap]=await Promise.all([
+        getDoc(doc(db,'challenge_rounds',String(r))),
+        getDoc(doc(db,'challenge_rounds',String(r),'entries',currentUid))
+      ]);
+      if(!roundSnap.exists()||!roundSnap.data().scored) return null;
+      return{round:r,roundData:roundSnap.data(),myEntry:entrySnap.exists()?entrySnap.data():null};
+    }));
+    const items=results.filter(Boolean);
+    if(!items.length){
+      list.innerHTML='<div style="font-size:11px;color:var(--muted);padding:8px">지난 회차 참여 기록이 없습니다.</div>';
+      return;
+    }
+    list.innerHTML=items.map(item=>{
+      const {round,roundData,myEntry}=item;
+      const winNums=roundData.winNums||[];
+      const bonus=roundData.bonusNum||0;
+      const myNums=myEntry?.numbers||[];
+      const myRank=myEntry?.rank||0;
+      const myMatch=myEntry?.matchCount||0;
+      const rankLabel=myRank>0&&myRank<=10?'TOP10':myRank>0&&myRank<=100?'TOP100':myRank>0?`${myRank}위`:'미참여';
+      const rankCls=myRank>0&&myRank<=10?'rank-top10':myRank>0&&myRank<=100?'rank-top100':'rank-done';
+      const winBalls=winNums.map(n=>`<div class="ball ${ballCls(n)}" style="width:22px;height:22px;font-size:9px">${n}</div>`).join('');
+      const myBalls=myNums.map(n=>`<div class="ball ${ballCls(n)}" style="width:22px;height:22px;font-size:9px">${n}</div>`).join('');
+      return `<div class="challenge-hist-item">
+        <div class="challenge-hist-round">${round}회차 · ${roundData.participantCount||0}명 참여</div>
+        <div class="challenge-hist-my" style="font-size:10px;color:var(--muted)">당첨번호: <span style="font-size:10px;color:var(--muted)">보너스 ${bonus}</span></div>
+        <div class="challenge-hist-nums">${winBalls}</div>
+        ${myEntry?`
+          <div style="font-size:10px;color:var(--muted);margin-top:6px">내 번호</div>
+          <div class="challenge-hist-nums">${myBalls}</div>
+          <div class="challenge-hist-result">
+            <span class="challenge-hist-rank challenge-rank-badge ${rankCls}" style="display:inline-block">${rankLabel}</span>
+            <span style="font-size:10px;color:var(--muted)">${myMatch}개 일치${myEntry.bonusMatch?' + 보너스':''}</span>
+          </div>
+        `:'<div style="font-size:10px;color:var(--muted);margin-top:6px">미참여</div>'}
+      </div>`;
+    }).join('');
+  }catch(e){ console.warn('loadChallengeHistory error:',e); }
+}
+ 
+// 챌린지 참여 - 검증 강화
 async function joinChallenge(numbers, sourceType){
+  // 검증: 6개, 중복 없음, 1~45 범위
   if(!numbers||numbers.length!==6){ alert('6개 번호를 선택해주세요.'); return; }
+  if(new Set(numbers).size!==6){ alert('중복된 번호가 있습니다.'); return; }
+  if(numbers.some(n=>n<1||n>45||!Number.isInteger(n))){ alert('번호는 1~45 사이 정수여야 합니다.'); return; }
   if(!db||!currentUid){ alert('로그인 정보가 없습니다. 잠시 후 시도해주세요.'); return; }
+  // 상태 확인 (마감 후 참여 방지)
+  const status=getChallengeStatus();
+  if(status!=='open'){ alert('이번 회차 챌린지는 마감됐습니다.'); return; }
+ 
   const roundId=String(latestRound);
   const entryRef=doc(db,'challenge_rounds',roundId,'entries',currentUid);
   try{
     const snap=await getDoc(entryRef);
     if(snap.exists()){
-      challengeMyEntry={id:currentUid,...snap.data()};
-      renderMyEntry();
-      alert('이미 이번 회차에 참여하셨습니다.');
-      return;
+      challengeMyEntry={id:currentUid,...snap.data()}; renderMyEntry();
+      alert('이미 이번 회차에 참여하셨습니다.'); return;
     }
-    await setDoc(entryRef,{uid:currentUid,numbers,sourceType,createdAt:serverTimestamp(),matchCount:0,bonusMatch:false,rank:0,resultLabel:'집계 대기'});
+    // 원자적 트랜잭션: entry 생성 + participantCount 증가
+    const roundRef=doc(db,'challenge_rounds',roundId);
+    await runTransaction(db, async t=>{
+      const entrySnap=await t.get(entryRef);
+      if(entrySnap.exists()) throw new Error('already_joined');
+      t.set(entryRef,{
+        uid:currentUid, numbers, sourceType, createdAt:serverTimestamp(),
+        matchCount:0, bonusMatch:false, rank:0, resultLabel:'집계 대기'
+      });
+      // participantCount만 증가 (status는 건드리지 않음)
+      t.set(roundRef,{
+        roundId:latestRound,
+        participantCount:increment(1),
+        updatedAt:serverTimestamp()
+      },{merge:true});
+    });
     challengeMyEntry={id:currentUid,uid:currentUid,numbers,sourceType,rank:0,resultLabel:'집계 대기'};
     renderMyEntry();
     alert('✅ 챌린지 참여 완료!');
-  }catch(e){ console.error('joinChallenge error:',e); alert('참여 중 오류가 발생했습니다.'); }
+  }catch(e){
+    if(e.message==='already_joined'){ alert('이미 이번 회차에 참여하셨습니다.'); checkMyEntry(roundId); }
+    else { console.error('joinChallenge error:',e); alert('참여 중 오류가 발생했습니다.'); }
+  }
 }
  
- 
-// 자동 채점
+// 자동 채점 (클라이언트 fallback - Cloud Functions 미사용 시)
 async function maybeScoreCurrentChallenge(){
   if(!db||!latestWinNums||latestWinNums.length!==6) return;
   const roundId=String(latestRound);
@@ -2106,31 +2318,40 @@ async function maybeScoreCurrentChallenge(){
     const currentData=roundSnap.exists()?roundSnap.data():{};
     if(currentData.scored===true) return;
     await scoreChallenge(roundId,latestWinNums,latestBonusNum);
-    await setDoc(roundRef,{roundId:latestRound,scored:true,updatedAt:serverTimestamp()},{merge:true});
+    // round 문서에 채점 결과 요약 저장
+    const entriesSnap=await getDocsFromServer(collection(db,'challenge_rounds',roundId,'entries'));
+    const entries=entriesSnap.docs.map(d=>d.data());
+    const top10=entries
+      .filter(e=>e.rank>0&&e.rank<=10)
+      .sort((a,b)=>a.rank-b.rank)
+      .map(e=>({uid:e.uid,numbers:e.numbers,matchCount:e.matchCount,bonusMatch:e.bonusMatch,rank:e.rank}));
+    await setDoc(roundRef,{
+      scored:true, status:'scored', updatedAt:serverTimestamp(),
+      winNums:latestWinNums, bonusNum:latestBonusNum,
+      top10Preview:top10
+    },{merge:true});
     console.log('챌린지 자동 채점 완료');
   }catch(e){ console.error('maybeScoreCurrentChallenge error:',e); }
 }
-// 채점 함수 (추첨 결과 입력 후 호출)
-async function scoreChallenge(roundId, winNums, bonusNum){
+ 
+// 채점 함수
+async function scoreChallenge(roundId,winNums,bonusNum){
   if(!db) return;
   try{
-    const entriesRef = collection(db,'challenge_rounds',roundId,'entries');
-    const snap = await getDocsFromServer(entriesRef);
-    const entries = snap.docs.map(d=>({id:d.id,...d.data()}));
-    // 점수 계산
-    const scored = entries.map(e=>{
-      const nums = e.numbers||[];
-      const mc = nums.filter(n=>winNums.includes(n)).length;
-      const bm = nums.includes(bonusNum);
-      return{...e, matchCount:mc, bonusMatch:bm};
+    const entriesRef=collection(db,'challenge_rounds',roundId,'entries');
+    const snap=await getDocsFromServer(entriesRef);
+    const entries=snap.docs.map(d=>({id:d.id,...d.data()}));
+    const scored=entries.map(e=>{
+      const nums=e.numbers||[];
+      const mc=nums.filter(n=>winNums.includes(n)).length;
+      const bm=nums.includes(bonusNum);
+      return{...e,matchCount:mc,bonusMatch:bm};
     });
-    // 정렬: 일치수↓ → 보너스↓ → createdAt↑
     scored.sort((a,b)=>{
       if(b.matchCount!==a.matchCount) return b.matchCount-a.matchCount;
       if(b.bonusMatch!==a.bonusMatch) return b.bonusMatch?1:-1;
       return (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0);
     });
-    // 랭킹 라벨 부여 및 업데이트
     for(let i=0;i<scored.length;i++){
       const e=scored[i];
       const rank=i+1;
@@ -2138,28 +2359,25 @@ async function scoreChallenge(roundId, winNums, bonusNum){
       await setDoc(doc(db,'challenge_rounds',roundId,'entries',e.id),
         {matchCount:e.matchCount,bonusMatch:e.bonusMatch,rank,resultLabel:label},{merge:true});
     }
-    console.log('채점 완료:', scored.length,'명');
+    console.log('채점 완료:',scored.length,'명');
   }catch(e){ console.error('scoreChallenge error:',e); }
 }
  
 // 직접 선택 번호 그리드
 function buildNumGrid(){
-  const grid = document.getElementById('challenge-num-grid');
+  const grid=document.getElementById('challenge-num-grid');
   if(!grid) return;
-  grid.innerHTML='';
-  challengeCustomNums=[];
+  grid.innerHTML=''; challengeCustomNums=[];
   for(let n=1;n<=45;n++){
     const btn=document.createElement('button');
-    btn.className='challenge-num-btn';
-    btn.textContent=n;
+    btn.className='challenge-num-btn'; btn.textContent=n;
     btn.addEventListener('click',()=>{
       if(btn.classList.contains('selected')){
         btn.classList.remove('selected');
         challengeCustomNums=challengeCustomNums.filter(x=>x!==n);
       } else {
         if(challengeCustomNums.length>=6) return;
-        btn.classList.add('selected');
-        challengeCustomNums.push(n);
+        btn.classList.add('selected'); challengeCustomNums.push(n);
       }
       const cnt=document.getElementById('challenge-select-count');
       if(cnt) cnt.textContent=challengeCustomNums.length+'/6 선택';
@@ -2169,6 +2387,14 @@ function buildNumGrid(){
     grid.appendChild(btn);
   }
 }
+ 
+// 히스토리 토글
+document.getElementById('challenge-history-toggle').addEventListener('click',()=>{
+  const list=document.getElementById('challenge-history-list');
+  const arrow=document.getElementById('challenge-history-arrow');
+  list.classList.toggle('show');
+  if(arrow) arrow.textContent=list.classList.contains('show')?'▼':'▶';
+});
  
 // 챌린지 버튼 이벤트
 document.getElementById('challenge-btn-gen').addEventListener('click',()=>{
@@ -2181,21 +2407,18 @@ document.getElementById('challenge-btn-lucky').addEventListener('click',()=>{
   joinChallenge(luckyBalls,'lucky');
 });
 document.getElementById('challenge-btn-custom-toggle').addEventListener('click',()=>{
-  const inp=document.getElementById('challenge-custom-input');
-  inp.classList.toggle('show');
+  document.getElementById('challenge-custom-input').classList.toggle('show');
 });
 document.getElementById('challenge-btn-custom-submit').addEventListener('click',()=>{
   if(challengeCustomNums.length!==6){ alert('6개를 선택해주세요.'); return; }
   joinChallenge([...challengeCustomNums].sort((a,b)=>a-b),'custom');
 });
  
-// 번호 생성 후 챌린지 버튼 활성화
 function updateChallengeGenNums(nums){
   challengeGenNums=[...nums];
   const btn=document.getElementById('challenge-btn-gen');
-  if(btn&&!challengeMyEntry) btn.disabled=false;
+  if(btn&&!challengeMyEntry&&getChallengeStatus()==='open') btn.disabled=false;
 }
- 
  
 // ── 내정보 & 오행 운세 ──
  
