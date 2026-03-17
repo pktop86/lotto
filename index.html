@@ -297,6 +297,43 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .sim-summary{background:var(--card);border-radius:10px;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
 .sim-sum-val{font-family:"Black Han Sans",sans-serif;font-size:1.1rem;color:var(--accent3);line-height:1;margin-bottom:3px}
 .sim-sum-label{font-size:9px;color:var(--muted)}
+ 
+/* ── 주간 챌린지 ── */
+.challenge-card{background:linear-gradient(135deg,rgba(176,96,255,.1),rgba(58,184,255,.08));border:1px solid rgba(176,96,255,.3);border-radius:16px;padding:16px;margin-bottom:14px}
+.challenge-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.challenge-title{font-size:13px;font-weight:900;color:#b060ff;display:flex;align-items:center;gap:6px}
+.challenge-round-badge{background:rgba(176,96,255,.2);color:#b060ff;font-size:10px;font-weight:700;padding:3px 9px;border-radius:10px}
+.challenge-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.challenge-stat{background:rgba(0,0,0,.2);border-radius:10px;padding:10px;text-align:center}
+.challenge-stat-val{font-family:"Black Han Sans",sans-serif;font-size:1.2rem;color:#b060ff;line-height:1;margin-bottom:3px}
+.challenge-stat-label{font-size:9px;color:var(--muted)}
+.challenge-my-status{background:rgba(176,96,255,.08);border:1px solid rgba(176,96,255,.2);border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:11px;display:none}
+.challenge-my-status.show{display:block}
+.challenge-my-nums{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.challenge-rank-badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;margin-left:6px}
+.rank-top10{background:rgba(240,192,64,.25);color:var(--accent)}
+.rank-top100{background:rgba(58,184,255,.2);color:var(--accent3)}
+.rank-done{background:rgba(255,255,255,.08);color:var(--muted)}
+.challenge-btns{display:flex;flex-direction:column;gap:7px}
+.challenge-btn{border:none;border-radius:10px;padding:11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;text-align:center;width:100%}
+.challenge-btn-main{background:linear-gradient(135deg,#b060ff,#3ab8ff);color:#fff}
+.challenge-btn-main:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(176,96,255,.4)}
+.challenge-btn-main:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.challenge-btn-lucky{background:rgba(240,192,64,.15);color:var(--accent);border:1px solid rgba(240,192,64,.3)}
+.challenge-btn-custom{background:var(--card);color:var(--muted);border:1px solid var(--border)}
+.challenge-btn-custom:hover{color:var(--text)}
+.challenge-entries{margin-top:10px}
+.challenge-entries-title{font-size:10px;color:var(--muted);margin-bottom:6px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.challenge-entry-item{background:var(--card);border-radius:8px;padding:8px 10px;margin-bottom:5px;display:flex;align-items:center;gap:8px;font-size:11px}
+.challenge-entry-rank{width:28px;height:28px;border-radius:50%;background:rgba(176,96,255,.2);color:#b060ff;font-weight:900;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.challenge-entry-nums{display:flex;gap:3px;flex-wrap:wrap;flex:1}
+.challenge-entry-mine{border:1px solid rgba(176,96,255,.4)}
+.challenge-custom-input{display:none;margin-top:8px}
+.challenge-custom-input.show{display:block}
+.challenge-custom-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:8px}
+.challenge-num-btn{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:6px 2px;font-size:11px;font-weight:700;cursor:pointer;text-align:center;color:var(--muted);transition:all .15s}
+.challenge-num-btn.selected{background:var(--accent);color:#000;border-color:var(--accent)}
+.challenge-num-btn:disabled{opacity:.4;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -331,6 +368,44 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
           <div class="lucky-analyzing-icon">🔮</div>
           <div>AI가 오늘의 행운 패턴 분석 중...</div>
         </div>
+      </div>
+    </div>
+    <!-- 주간 챌린지 -->
+    <div class="challenge-card" id="challenge-card">
+      <div class="challenge-header">
+        <div class="challenge-title">🏆 주간 챌린지</div>
+        <div class="challenge-round-badge" id="challenge-round-badge">— 회차</div>
+      </div>
+      <div class="challenge-stats">
+        <div class="challenge-stat">
+          <div class="challenge-stat-val" id="challenge-count">—</div>
+          <div class="challenge-stat-label">참가자 수</div>
+        </div>
+        <div class="challenge-stat">
+          <div class="challenge-stat-val" id="challenge-deadline">추첨 전</div>
+          <div class="challenge-stat-label">상태</div>
+        </div>
+      </div>
+      <div class="challenge-my-status" id="challenge-my-status">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="color:var(--text);font-weight:700">✅ 참여 완료</span>
+          <span class="challenge-rank-badge rank-done" id="challenge-rank-badge">집계 대기</span>
+        </div>
+        <div class="challenge-my-nums" id="challenge-my-nums"></div>
+      </div>
+      <div class="challenge-btns" id="challenge-btns">
+        <button class="challenge-btn challenge-btn-main" id="challenge-btn-gen" disabled>🎲 생성 번호로 참여</button>
+        <button class="challenge-btn challenge-btn-lucky" id="challenge-btn-lucky">🍀 행운 번호로 참여</button>
+        <button class="challenge-btn challenge-btn-custom" id="challenge-btn-custom-toggle">✏️ 직접 번호 선택</button>
+      </div>
+      <div class="challenge-custom-input" id="challenge-custom-input">
+        <div class="challenge-custom-grid" id="challenge-num-grid"></div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="challenge-select-count">0/6 선택</div>
+        <button class="challenge-btn challenge-btn-main" id="challenge-btn-custom-submit" disabled>✅ 이 번호로 참여</button>
+      </div>
+      <div class="challenge-entries" id="challenge-entries" style="display:none">
+        <div class="challenge-entries-title">최근 참여자</div>
+        <div id="challenge-entries-list"></div>
       </div>
     </div>
     <div class="status-bar">
@@ -679,6 +754,7 @@ async function init(){
     renderPrizeHeader(); scheduleAutoUpdate(); startSaturdayChecker();
     setStatus('ok',`내장 통계 준비 완료 (261~${latestRound}회)`);
     loadTodayLucky(); // 오늘의 행운 로드
+    onAuthReady(()=>initChallenge()); // 챌린지 초기화
  
     // Auth → 내 번호 로드
     startAuth();
@@ -862,7 +938,7 @@ async function doGenerate(count){
   allNums.forEach((nums,i)=>resultsEl.appendChild(renderResult(nums,i)));
   if(count<10){usedFree+=count; saveUsedFree(usedFree); updateFreeCounter();}
   genBtn.disabled=false; genBtn.textContent='🎲 번호 추첨하기';
-  if(allNums.length>0) updateSimTarget(allNums[0]); // 첫 번째 줄을 시뮬레이션 대상으로
+  if(allNums.length>0){ updateSimTarget(allNums[0]); updateChallengeGenNums(allNums[0]); }
   setTimeout(()=>resultsEl.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
   // Firebase 저장 (auth 준비 후)
   const doSave = async () => {
@@ -1656,6 +1732,211 @@ confirmBtn.addEventListener('click',()=>{
   if(pendingCount==='sim-1000'){ hideAdModal(); runSimulation(1000); }
   else if(pendingCount==='sim-10000'){ hideAdModal(); runSimulation(10000); }
 });
+ 
+ 
+// ── 주간 챌린지 ──
+let challengeGenNums = [];   // 생성된 번호 (참여용)
+let challengeCustomNums = []; // 직접 선택 번호
+let challengeMyEntry = null;  // 내 참여 정보
+let challengeParticipants = 0;
+let challengeUnsubEntries = null;
+ 
+// 챌린지 초기화
+async function initChallenge(){
+  const roundId = String(latestRound);
+  document.getElementById('challenge-round-badge').textContent = latestRound + '회차';
+ 
+  if(!db){ renderChallengeOffline(); return; }
+ 
+  // 참가자 수 실시간 구독
+  try{
+    const entriesRef = collection(db, 'challenge_rounds', roundId, 'entries');
+    if(challengeUnsubEntries) challengeUnsubEntries();
+    challengeUnsubEntries = onSnapshot(entriesRef, snap=>{
+      challengeParticipants = snap.size;
+      document.getElementById('challenge-count').textContent = snap.size.toLocaleString() + '명';
+      // 최근 참여자 표시
+      const entries = snap.docs.map(d=>({id:d.id,...d.data()}))
+        .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0))
+        .slice(0,5);
+      renderChallengeEntries(entries);
+    });
+    // 내 참여 여부 확인
+    onAuthReady(()=>checkMyEntry(roundId));
+  }catch(e){ console.warn('challenge init error:',e); }
+ 
+  // 번호 그리드 생성
+  buildNumGrid();
+}
+ 
+function renderChallengeOffline(){
+  document.getElementById('challenge-count').textContent = '—';
+  document.getElementById('challenge-deadline').textContent = '오프라인';
+}
+ 
+// 내 참여 여부 확인
+async function checkMyEntry(roundId){
+  if(!currentUid||!db) return;
+  try{
+    const q = query(
+      collection(db,'challenge_rounds',roundId,'entries'),
+      where('uid','==',currentUid)
+    );
+    const snap = await getDocsFromServer(q);
+    if(!snap.empty){
+      challengeMyEntry = {id:snap.docs[0].id,...snap.docs[0].data()};
+      renderMyEntry();
+    }
+  }catch(e){ console.warn('checkMyEntry error:',e); }
+}
+ 
+// 내 참여 상태 렌더
+function renderMyEntry(){
+  if(!challengeMyEntry) return;
+  const statusEl = document.getElementById('challenge-my-status');
+  const numsEl = document.getElementById('challenge-my-nums');
+  const btnsEl = document.getElementById('challenge-btns');
+  const rankBadge = document.getElementById('challenge-rank-badge');
+  statusEl.classList.add('show');
+  btnsEl.style.display = 'none';
+  // 번호 표시
+  numsEl.innerHTML = (challengeMyEntry.numbers||[]).map(n=>
+    `<div class="ball ${ballCls(n)}" style="width:26px;height:26px;font-size:10px">${n}</div>`
+  ).join('');
+  // 랭킹 표시
+  const rank = challengeMyEntry.rank||0;
+  const label = challengeMyEntry.resultLabel||'집계 대기';
+  const cls = rank>0&&rank<=10?'rank-top10':rank>0&&rank<=100?'rank-top100':'rank-done';
+  rankBadge.className = 'challenge-rank-badge '+cls;
+  rankBadge.textContent = label;
+}
+ 
+// 참여자 목록 렌더
+function renderChallengeEntries(entries){
+  if(!entries.length){ document.getElementById('challenge-entries').style.display='none'; return; }
+  document.getElementById('challenge-entries').style.display='block';
+  const list = document.getElementById('challenge-entries-list');
+  list.innerHTML = entries.map((e,i)=>{
+    const isMe = e.uid===currentUid;
+    const nums = (e.numbers||[]).map(n=>`<div class="ball ${ballCls(n)}" style="width:22px;height:22px;font-size:9px">${n}</div>`).join('');
+    return `<div class="challenge-entry-item${isMe?' challenge-entry-mine':''}">
+      <div class="challenge-entry-rank">${i+1}</div>
+      <div class="challenge-entry-nums">${nums}</div>
+      ${isMe?'<span style="font-size:9px;color:#b060ff">나</span>':''}
+    </div>`;
+  }).join('');
+}
+ 
+// 챌린지 참여 실행
+async function joinChallenge(numbers, sourceType){
+  if(!numbers||numbers.length!==6){ alert('6개 번호를 선택해주세요.'); return; }
+  if(!db||!currentUid){ alert('로그인 정보가 없습니다. 잠시 후 시도해주세요.'); return; }
+  const roundId = String(latestRound);
+  // 중복 참여 방지
+  if(challengeMyEntry){ alert('이미 이번 회차에 참여하셨습니다.'); return; }
+  try{
+    const entriesRef = collection(db,'challenge_rounds',roundId,'entries');
+    const docRef = await addDoc(entriesRef, {
+      uid: currentUid,
+      numbers: numbers,
+      sourceType: sourceType, // 'generated'|'lucky'|'custom'
+      createdAt: serverTimestamp(),
+      matchCount: 0,
+      bonusMatch: false,
+      rank: 0,
+      resultLabel: '집계 대기'
+    });
+    challengeMyEntry = {id:docRef.id, uid:currentUid, numbers, sourceType, rank:0, resultLabel:'집계 대기'};
+    renderMyEntry();
+    alert('✅ 챌린지 참여 완료!');
+  }catch(e){ console.error('joinChallenge error:',e); alert('참여 중 오류가 발생했습니다.'); }
+}
+ 
+// 채점 함수 (추첨 결과 입력 후 호출)
+async function scoreChallenge(roundId, winNums, bonusNum){
+  if(!db) return;
+  try{
+    const entriesRef = collection(db,'challenge_rounds',roundId,'entries');
+    const snap = await getDocsFromServer(entriesRef);
+    const entries = snap.docs.map(d=>({id:d.id,...d.data()}));
+    // 점수 계산
+    const scored = entries.map(e=>{
+      const nums = e.numbers||[];
+      const mc = nums.filter(n=>winNums.includes(n)).length;
+      const bm = nums.includes(bonusNum);
+      return{...e, matchCount:mc, bonusMatch:bm};
+    });
+    // 정렬: 일치수↓ → 보너스↓ → createdAt↑
+    scored.sort((a,b)=>{
+      if(b.matchCount!==a.matchCount) return b.matchCount-a.matchCount;
+      if(b.bonusMatch!==a.bonusMatch) return b.bonusMatch?1:-1;
+      return (a.createdAt?.seconds||0)-(b.createdAt?.seconds||0);
+    });
+    // 랭킹 라벨 부여 및 업데이트
+    for(let i=0;i<scored.length;i++){
+      const e=scored[i];
+      const rank=i+1;
+      const label=rank<=10?'TOP10':rank<=100?'TOP100':'참가완료';
+      await setDoc(doc(db,'challenge_rounds',roundId,'entries',e.id),
+        {matchCount:e.matchCount,bonusMatch:e.bonusMatch,rank,resultLabel:label},{merge:true});
+    }
+    console.log('채점 완료:', scored.length,'명');
+  }catch(e){ console.error('scoreChallenge error:',e); }
+}
+ 
+// 직접 선택 번호 그리드
+function buildNumGrid(){
+  const grid = document.getElementById('challenge-num-grid');
+  if(!grid) return;
+  grid.innerHTML='';
+  challengeCustomNums=[];
+  for(let n=1;n<=45;n++){
+    const btn=document.createElement('button');
+    btn.className='challenge-num-btn';
+    btn.textContent=n;
+    btn.addEventListener('click',()=>{
+      if(btn.classList.contains('selected')){
+        btn.classList.remove('selected');
+        challengeCustomNums=challengeCustomNums.filter(x=>x!==n);
+      } else {
+        if(challengeCustomNums.length>=6) return;
+        btn.classList.add('selected');
+        challengeCustomNums.push(n);
+      }
+      const cnt=document.getElementById('challenge-select-count');
+      if(cnt) cnt.textContent=challengeCustomNums.length+'/6 선택';
+      const sub=document.getElementById('challenge-btn-custom-submit');
+      if(sub) sub.disabled=challengeCustomNums.length!==6;
+    });
+    grid.appendChild(btn);
+  }
+}
+ 
+// 챌린지 버튼 이벤트
+document.getElementById('challenge-btn-gen').addEventListener('click',()=>{
+  if(!challengeGenNums.length){ alert('먼저 번호를 생성해주세요.'); return; }
+  joinChallenge(challengeGenNums,'generated');
+});
+document.getElementById('challenge-btn-lucky').addEventListener('click',()=>{
+  const luckyBalls=[...document.querySelectorAll('#lucky-balls .lucky-ball')].map(b=>parseInt(b.textContent));
+  if(luckyBalls.length!==6){ alert('오늘의 행운 번호를 먼저 불러오세요.'); return; }
+  joinChallenge(luckyBalls,'lucky');
+});
+document.getElementById('challenge-btn-custom-toggle').addEventListener('click',()=>{
+  const inp=document.getElementById('challenge-custom-input');
+  inp.classList.toggle('show');
+});
+document.getElementById('challenge-btn-custom-submit').addEventListener('click',()=>{
+  if(challengeCustomNums.length!==6){ alert('6개를 선택해주세요.'); return; }
+  joinChallenge([...challengeCustomNums].sort((a,b)=>a-b),'custom');
+});
+ 
+// 번호 생성 후 챌린지 버튼 활성화
+function updateChallengeGenNums(nums){
+  challengeGenNums=[...nums];
+  const btn=document.getElementById('challenge-btn-gen');
+  if(btn&&!challengeMyEntry) btn.disabled=false;
+}
  
  
 init();
