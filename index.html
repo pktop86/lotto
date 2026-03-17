@@ -1955,28 +1955,47 @@ async function fetchKakaoStores(){
 }
 
 function getLuckyBadgeHtml(lucky){
-  if(!lucky || !hasLuckyData(lucky)){
-    return '<span class="lucky-badge lucky-badge-none">명당 데이터 없음</span>';
+
+  if(!lucky){
+    return `<span class="lucky-badge lucky-badge-none">명당 데이터 없음</span>`;
   }
 
   const score = lucky.luckyScore || 0;
-  const cls = score >= 80 ? 'lucky-badge-gold' : score >= 50 ? 'lucky-badge-orange' : 'lucky-badge-blue';
+
   const first = (lucky.firstAutoCount || 0) + (lucky.firstManualCount || 0);
   const second = lucky.secondCount || 0;
-  const barColor = score >= 80 ? 'var(--accent)' : score >= 50 ? '#e05c20' : 'var(--accent3)';
+  const recent = lucky.recentWinRound || 0;
+
+  const cls =
+    score >= 80 ? 'lucky-badge-gold' :
+    score >= 50 ? 'lucky-badge-orange' :
+    'lucky-badge-blue';
+
+  const barColor =
+    score >= 80 ? 'var(--accent)' :
+    score >= 50 ? '#e05c20' :
+    'var(--accent3)';
 
   return `
     <div class="lucky-badge-wrap">
+
       <span class="lucky-badge ${cls}">
         🏆 ${score}점
         <span class="lucky-score-bar-wrap">
-          <span class="lucky-score-bar-fill" style="width:${score}%;background:${barColor}"></span>
+          <span class="lucky-score-bar-fill"
+            style="width:${score}%;background:${barColor}">
+          </span>
         </span>
       </span>
+
       <div class="lucky-meta">
-        <span class="sub">🥇 1등 ${first}회 · 🥈 2등 ${second}회</span>
-        ${lucky.recentWinRound ? `<br><span class="muted">최근 당첨 ${lucky.recentWinRound}회</span>` : ''}
+        🥇 1등 ${first}회 · 🥈 2등 ${second}회
+        <br>
+        <span class="muted">
+          ${recent ? `최근 당첨 ${recent}회` : '최근 당첨 데이터 없음'}
+        </span>
       </div>
+
     </div>
   `;
 }
@@ -2085,35 +2104,78 @@ async function searchStores(){
 }
 
 function formatNearTop10List(stores){
+
   if(!stores || !stores.length){
-    return `<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px 8px">표시할 명당 데이터가 없습니다.</div>`;
+    return `
+      <div style="font-size:12px;color:var(--muted);
+      text-align:center;padding:20px 8px">
+
+      표시할 명당 데이터가 없습니다.
+
+      </div>`;
   }
 
   return stores.map((s,i)=>{
-    const rankCls = i===0 ? 'r1' : i===1 ? 'r2' : i===2 ? 'r3' : '';
-    const first = (s.lucky?.firstAutoCount || 0) + (s.lucky?.firstManualCount || 0);
+
+    const first =
+      (s.lucky?.firstAutoCount || 0)
+    + (s.lucky?.firstManualCount || 0);
+
     const second = s.lucky?.secondCount || 0;
+
     const recent = s.lucky?.recentWinRound || 0;
-    const dist = s.dist < 1000 ? `${s.dist}m` : `${(s.dist/1000).toFixed(1)}km`;
-    const score = s.lucky?.luckyScore || 0;
+
+    const dist =
+      s.dist < 1000
+      ? `${s.dist}m`
+      : `${(s.dist/1000).toFixed(1)}km`;
 
     return `
       <div class="near-top10-item">
-        <div class="near-top10-rank ${rankCls}">${i+1}</div>
+
+        <div class="near-top10-rank">${i+1}</div>
+
         <div class="near-top10-main">
-          <div class="near-top10-name">${s.name}</div>
-          <div class="near-top10-addr">${s.addr || ''}</div>
-          <div class="near-top10-meta">
-            🥇 1등 ${first}회 · 🥈 2등 ${second}회<br>
-            <span class="muted">${recent ? `최근 당첨 ${recent}회` : '최근 당첨 데이터 없음'}</span>
+
+          <div class="near-top10-name">
+            ${s.name}
           </div>
+
+          <div class="near-top10-addr">
+            ${s.addr || ''}
+          </div>
+
+          <div class="near-top10-meta">
+
+            🥇 1등 ${first}회 ·
+            🥈 2등 ${second}회
+
+            <br>
+
+            <span class="muted">
+            ${recent ? `최근 당첨 ${recent}회`
+            : '최근 당첨 데이터 없음'}
+            </span>
+
+          </div>
+
         </div>
+
         <div class="near-top10-side">
-          <div class="near-top10-score">🏆 ${score}점</div>
-          <div class="near-top10-dist">${dist}</div>
+
+          <div class="near-top10-score">
+            🏆 ${s.lucky?.luckyScore || 0}점
+          </div>
+
+          <div class="near-top10-dist">
+            ${dist}
+          </div>
+
         </div>
+
       </div>
     `;
+
   }).join('');
 }
 
@@ -2142,20 +2204,30 @@ function closeNearTop10Modal(){
 }
 
 function renderNearTop10(stores){
+
   const ranked = [...stores]
-    .filter(s => s.lucky && hasLuckyData(s.lucky))
+
+    .filter(s => s.lucky)
+
     .sort((a,b)=>{
+
       const sa = a.lucky?.luckyScore || 0;
       const sb = b.lucky?.luckyScore || 0;
+
       return sb - sa || a.dist - b.dist;
+
     })
+
     .slice(0,10);
 
   window._nearTop10Stores = ranked;
 
-  const openWrap = document.getElementById('near-top10-open-wrap');
+  const openWrap =
+    document.getElementById('near-top10-open-wrap');
+
   if(openWrap){
-    openWrap.style.display = ranked.length ? 'block' : 'none';
+    openWrap.style.display =
+      ranked.length ? 'block' : 'none';
   }
 
   updateNearTop10ButtonText();
@@ -3404,41 +3476,55 @@ return best;
  
 // 정렬 + 재렌더
 function sortAndRender(sortType, btn){
+
   window._nearCurrentSort = sortType;
-  document.querySelectorAll('.near-sort-btn').forEach(b=>b.classList.remove('on'));
+
+  document.querySelectorAll('.near-sort-btn')
+    .forEach(b => b.classList.remove('on'));
+
   if(btn) btn.classList.add('on');
 
   const stores = window._nearStores || [];
+
   const sorted = [...stores].sort((a,b)=>{
-    if(sortType==='dist'){
+
+    if(sortType === 'dist'){
       return a.dist - b.dist;
     }
 
-    if(sortType==='lucky'){
+    if(sortType === 'lucky'){
       const sa = a.lucky?.luckyScore || 0;
       const sb = b.lucky?.luckyScore || 0;
       return sb - sa || a.dist - b.dist;
     }
 
-    if(sortType==='first'){
-      const fa = (a.lucky?.firstAutoCount || 0) + (a.lucky?.firstManualCount || 0);
-      const fb = (b.lucky?.firstAutoCount || 0) + (b.lucky?.firstManualCount || 0);
+    if(sortType === 'first'){
+      const fa = (a.lucky?.firstAutoCount || 0)
+               + (a.lucky?.firstManualCount || 0);
+
+      const fb = (b.lucky?.firstAutoCount || 0)
+               + (b.lucky?.firstManualCount || 0);
+
       return fb - fa || a.dist - b.dist;
     }
 
-    if(sortType==='recent'){
+    if(sortType === 'recent'){
       const ra = a.lucky?.recentWinRound || 0;
       const rb = b.lucky?.recentWinRound || 0;
+
       return rb - ra || a.dist - b.dist;
     }
 
     return a.dist - b.dist;
+
   });
 
   renderNearSortHelp(sortType);
-  renderNearTop10(stores); // TOP10은 항상 '명당점수' 기준 고정
-  nearMarkers.forEach(m=>nearMap.removeLayer(m));
+  renderNearTop10(stores);
+
+  nearMarkers.forEach(m => nearMap.removeLayer(m));
   nearMarkers = [];
+
   renderStores(sorted);
 }
 window.sortAndRender = sortAndRender;
