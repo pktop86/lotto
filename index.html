@@ -955,8 +955,6 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     </div>
    <div class="near-count" id="near-count"></div>
 
-<div class="near-count" id="near-count"></div>
-
 <div id="near-top10-open-wrap" style="display:none;margin-bottom:10px">
   <button id="near-top10-open-btn" class="near-top10-open-btn">
     🏆 내 500m 주변 명당 TOP10 보기
@@ -3408,24 +3406,100 @@ function normText(s=''){
     .toLowerCase();
 }
  
-// Firestore store_stats 로드 - 배열 반환 (캐시 10분)
+// Firestore store_stats 로드 - 메모리 + localStorage 캐시 + 정규화
+const STORE_STATS_CACHE_KEY = 'lotto_store_stats_cache_v3';
+const STORE_STATS_CACHE_TIME_KEY = 'lotto_store_stats_cache_time_v3';
+const STORE_STATS_CACHE_TTL = 24 * 60 * 60 * 1000;
+
+function toNum(v){
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeLuckyStat(raw){
+  if(!raw) return null;
+
+  const firstAutoCount = toNum(
+    raw.firstAutoCount ?? raw.first_auto_count ?? raw.autoFirstCount ?? raw.rank1AutoCount
+  );
+  const firstManualCount = toNum(
+    raw.firstManualCount ?? raw.first_manual_count ?? raw.manualFirstCount ?? raw.rank1ManualCount
+  );
+
+  const secondCount = toNum(
+    raw.secondCount ?? raw.second_count ?? raw.rank2Count ?? raw.twoCount ?? raw.secondPrizeCount
+  );
+
+  const recentWinRound = toNum(
+    raw.recentWinRound ?? raw.recent_round ?? raw.lastWinRound ?? raw.latestWinRound
+  );
+
+  const fallbackScore = (firstAutoCount + firstManualCount) * 35 + secondCount * 12 + (recentWinRound ? 8 : 0);
+  const luckyScore = toNum(raw.luckyScore ?? raw.score ?? raw.lucky_point ?? fallbackScore);
+
+  return {
+    ...raw,
+    _id: raw._id || '',
+    name: raw.name ?? raw.storeName ?? raw.shopName ?? raw.storeNm ?? raw.shop_name ?? '',
+    addr: raw.addr ?? raw.address ?? raw.roadAddr ?? raw.roadAddress ?? raw.road_address ?? '',
+    firstAutoCount,
+    firstManualCount,
+    secondCount,
+    recentWinRound,
+    luckyScore
+  };
+}
+
+function saveLuckyStatsCache(list){
+  try{
+    localStorage.setItem(STORE_STATS_CACHE_KEY, JSON.stringify(list));
+    localStorage.setItem(STORE_STATS_CACHE_TIME_KEY, String(Date.now()));
+  }catch(e){}
+}
+
+function loadLuckyStatsCache(){
+  try{
+    const raw = localStorage.getItem(STORE_STATS_CACHE_KEY);
+    const time = Number(localStorage.getItem(STORE_STATS_CACHE_TIME_KEY) || 0);
+    if(!raw || !time) return null;
+    if(Date.now() - time > STORE_STATS_CACHE_TTL) return null;
+    const parsed = JSON.parse(raw);
+    if(!Array.isArray(parsed)) return null;
+    return parsed;
+  }catch(e){
+    return null;
+  }
+}
+
 async function loadLuckyStats(){
   const now = Date.now();
   if(_luckyStatsCache && now - _luckyStatsCacheTime < 600000) return _luckyStatsCache;
-  if(!db) return [];
+
+  const localCached = loadLuckyStatsCache();
+  if(localCached?.length){
+    _luckyStatsCache = localCached;
+    _luckyStatsCacheTime = now;
+  }
+
+  if(!db){
+    return _luckyStatsCache || [];
+  }
+
   try{
     const snap = await getDocs(collection(db,'store_stats'));
-    const list = snap.docs.map(d=>({ _id:d.id, ...d.data() }));
+    const list = snap.docs.map(d => normalizeLuckyStat({ _id:d.id, ...d.data() })).filter(Boolean);
     _luckyStatsCache = list;
     _luckyStatsCacheTime = now;
+    saveLuckyStatsCache(list);
     console.log('[loadLuckyStats] loaded:', list.length, list[0]);
     return list;
   }catch(e){
-    console.warn('loadLuckyStats error:',e);
+    console.warn('loadLuckyStats error:', e);
+    if(_luckyStatsCache?.length) return _luckyStatsCache;
     return [];
   }
 }
- 
+
 // 이름+주소 점수 기반 매칭
 function hasLuckyData(stat){
   if(!stat) return false;
@@ -3435,59 +3509,64 @@ function hasLuckyData(stat){
   const score = stat.luckyScore || 0;
   return first > 0 || second > 0 || recent > 0 || score > 0;
 }
- 
+
 function findLuckyMatch(name, addr, luckyList){
-  if(!Array.isArray(luckyList)||!name) return null;
+  if(!Array.isArray(luckyList) || !name) return null;
+
   const nameN = normText(name);
   const addrN = normText(addr);
-  let best=null, bestScore=0;
-  for(const stat of luckyList){
-    const statName = normText(
-      stat.name||stat.storeName||stat.shopName||stat.storeNm||stat._id||''
-    );
-    const statAddr = normText(
-      stat.roadAddr||stat.addr||stat.address||stat.roadAddress||''
-    );
-    let score=0;
-    // 이름 매칭
-    if(statName&&statName===nameN) score+=70;
-    else if(statName&&(statName.includes(nameN)||nameN.includes(statName))) score+=45;
-    // 주소 매칭
-    if(addrN&&statAddr){
-      if(statAddr===addrN) score+=40;
-      else if(statAddr.includes(addrN)||addrN.includes(statAddr)) score+=25;
-      else{
-        const ha=addrN.slice(0,12), hb=statAddr.slice(0,12);
-        if(ha&&hb&&ha===hb) score+=15;
+  let best = null;
+  let bestScore = 0;
+
+  for(const raw of luckyList){
+    const stat = normalizeLuckyStat(raw);
+    if(!stat) continue;
+
+    const statName = normText(stat.name || stat.storeName || stat.shopName || stat.storeNm || stat._id || '');
+    const statAddr = normText(stat.addr || stat.roadAddr || stat.address || stat.roadAddress || '');
+
+    let score = 0;
+
+    if(statName && statName === nameN) score += 85;
+    else if(statName && (statName.includes(nameN) || nameN.includes(statName))) score += 58;
+
+    if(addrN && statAddr){
+      if(statAddr === addrN) score += 55;
+      else if(statAddr.includes(addrN) || addrN.includes(statAddr)) score += 34;
+      else {
+        const ha = addrN.slice(0, 14);
+        const hb = statAddr.slice(0, 14);
+        if(ha && hb && ha === hb) score += 18;
       }
     }
-    // 문서ID에 이름/주소 포함 보정
-    const idN=normText(stat._id||'');
+
+    const idN = normText(stat._id || '');
     if(idN){
-      if(idN.includes(nameN)) score+=20;
-      if(addrN&&idN.includes(addrN.slice(0,10))) score+=10;
+      if(nameN && idN.includes(nameN)) score += 20;
+      if(addrN && idN.includes(addrN.slice(0, 10))) score += 10;
     }
-    if(score>bestScore){ bestScore=score; best=stat; }
+
+    if(score > bestScore){
+      bestScore = score;
+      best = stat;
+    }
   }
+
   if(bestScore < 45) return null;
-if(!hasLuckyData(best)) return null;
-return best;
+  if(!hasLuckyData(best)) return null;
+  return best;
 }
- 
+
 // 정렬 + 재렌더
 function sortAndRender(sortType, btn){
-
   window._nearCurrentSort = sortType;
 
-  document.querySelectorAll('.near-sort-btn')
-    .forEach(b => b.classList.remove('on'));
-
+  document.querySelectorAll('.near-sort-btn').forEach(b => b.classList.remove('on'));
   if(btn) btn.classList.add('on');
 
   const stores = window._nearStores || [];
 
   const sorted = [...stores].sort((a,b)=>{
-
     if(sortType === 'dist'){
       return a.dist - b.dist;
     }
@@ -3495,28 +3574,32 @@ function sortAndRender(sortType, btn){
     if(sortType === 'lucky'){
       const sa = a.lucky?.luckyScore || 0;
       const sb = b.lucky?.luckyScore || 0;
-      return sb - sa || a.dist - b.dist;
+      const fa = (a.lucky?.firstAutoCount || 0) + (a.lucky?.firstManualCount || 0);
+      const fb = (b.lucky?.firstAutoCount || 0) + (b.lucky?.firstManualCount || 0);
+      const s2a = a.lucky?.secondCount || 0;
+      const s2b = b.lucky?.secondCount || 0;
+      const ra = a.lucky?.recentWinRound || 0;
+      const rb = b.lucky?.recentWinRound || 0;
+      return sb - sa || fb - fa || s2b - s2a || rb - ra || a.dist - b.dist;
     }
 
     if(sortType === 'first'){
-      const fa = (a.lucky?.firstAutoCount || 0)
-               + (a.lucky?.firstManualCount || 0);
-
-      const fb = (b.lucky?.firstAutoCount || 0)
-               + (b.lucky?.firstManualCount || 0);
-
-      return fb - fa || a.dist - b.dist;
+      const fa = (a.lucky?.firstAutoCount || 0) + (a.lucky?.firstManualCount || 0);
+      const fb = (b.lucky?.firstAutoCount || 0) + (b.lucky?.firstManualCount || 0);
+      const s2a = a.lucky?.secondCount || 0;
+      const s2b = b.lucky?.secondCount || 0;
+      return fb - fa || s2b - s2a || a.dist - b.dist;
     }
 
     if(sortType === 'recent'){
       const ra = a.lucky?.recentWinRound || 0;
       const rb = b.lucky?.recentWinRound || 0;
-
-      return rb - ra || a.dist - b.dist;
+      const sa = a.lucky?.luckyScore || 0;
+      const sb = b.lucky?.luckyScore || 0;
+      return rb - ra || sb - sa || a.dist - b.dist;
     }
 
     return a.dist - b.dist;
-
   });
 
   renderNearSortHelp(sortType);
@@ -3527,6 +3610,7 @@ function sortAndRender(sortType, btn){
 
   renderStores(sorted);
 }
+
 window.sortAndRender = sortAndRender;
  
 init();
