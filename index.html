@@ -1335,7 +1335,7 @@ function renderMyNums(docs){
       top.appendChild(balls);
       if(showResult&&p>0){const pr=document.createElement('div');pr.className='my-item-prize';pr.textContent=PLABELS[p];top.appendChild(pr);}
       // 시뮬레이션 버튼
-      const simB=document.createElement('button'); simB.className='my-item-sim-btn'; simB.textContent='🎯 시뮬';
+      const simB=document.createElement('button'); simB.className='my-item-sim-btn'; simB.textContent='🎯 시뮬레이션';
       simB.addEventListener('click',()=>{
         updateSimTarget(d.nums||[]);
         // 번호추첨 탭으로 이동 + 시뮬레이션 영역 스크롤
