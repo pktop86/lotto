@@ -1788,179 +1788,214 @@ document.querySelectorAll('.seg-btn').forEach(btn=>{
 });
  
 // ── 내주변 판매점 ──
-let nearMap=null, nearMarkers=[], nearRadius=500, myLat=0, myLng=0;
-const KAKAO_JS_KEY = '발급필요'; // 카카오 JS 앱키 (developers.kakao.com)
- 
+let nearMap = null, nearMarkers = [], nearRadius = 500, myLat = 0, myLng = 0;
+const KAKAO_JS_KEY = '발급필요';
+
 function getNearRadiusLabel(r){
-  if(r >= 1000){
-    return (r / 1000) + 'km';
-  }
-  return r + 'm';
+  return r >= 1000 ? (r / 1000) + 'km' : r + 'm';
 }
 
 function updateNearTop10ButtonText(){
   const btn = document.getElementById('near-top10-open-btn');
   if(!btn) return;
-  const label = getNearRadiusLabel(nearRadius);
-  btn.textContent = `🏆 내 ${label} 주변 명당 TOP10 보기`;
-}
- 
- function initNearTab(){
-  if(nearMap){ setTimeout(()=>nearMap.invalidateSize(),100); }
-}
- function getNearRadiusLabel(r){
-  if(r >= 1000){
-    return (r / 1000) + 'km';
-  }
-  return r + 'm';
+  btn.textContent = `🏆 내 ${getNearRadiusLabel(nearRadius)} 주변 명당 TOP10 보기`;
 }
 
-function updateNearTop10ButtonText(){
-  const btn = document.getElementById('near-top10-open-btn');
-  if(!btn) return;
-  const label = getNearRadiusLabel(nearRadius);
-  btn.textContent = `🏆 내 ${label} 주변 명당 TOP10 보기`;
+function initNearTab(){
+  if(nearMap){
+    setTimeout(() => nearMap.invalidateSize(), 100);
+  }
 }
+
 function startNearSearch(){
-  const btn=document.getElementById('loc-btn');
-  btn.disabled=true; btn.innerHTML='📡 위치 확인 중...';
+  const btn = document.getElementById('loc-btn');
+  btn.disabled = true;
+  btn.innerHTML = '📡 위치 확인 중...';
+
   if(!navigator.geolocation){
     alert('위치 서비스를 지원하지 않는 브라우저입니다.');
-    btn.disabled=false; return;
+    btn.disabled = false;
+    return;
   }
-  navigator.geolocation.getCurrentPosition(pos=>{
-    myLat=pos.coords.latitude; myLng=pos.coords.longitude;
-btn.style.display='none';
-document.getElementById('near-filter').style.display='flex';
-document.getElementById('map-loading').style.display='none';
-updateNearTop10ButtonText();
-loadLeaflet();
-  }, err=>{
-    btn.disabled=false;
-    btn.innerHTML='📍 내 위치로 주변 판매점 찾기';
-    if(err.code===1) alert('위치 권한이 거부됐습니다.\n브라우저 주소창 왼쪽 🔒 아이콘 → 위치 → 허용으로 바꿔주세요.');
-    else if(err.code===2) alert('위치를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.');
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    myLat = pos.coords.latitude;
+    myLng = pos.coords.longitude;
+
+    btn.style.display = 'none';
+    document.getElementById('near-filter').style.display = 'flex';
+    document.getElementById('map-loading').style.display = 'none';
+
+    updateNearTop10ButtonText();
+    loadLeaflet();
+  }, err => {
+    btn.disabled = false;
+    btn.innerHTML = '📍 내 위치로 주변 판매점 찾기';
+
+    if(err.code === 1) alert('위치 권한이 거부됐습니다.\n브라우저에서 위치 권한을 허용해주세요.');
+    else if(err.code === 2) alert('위치를 가져올 수 없습니다.');
     else alert('위치 요청 시간이 초과됐습니다.');
-  },{enableHighAccuracy:true, timeout:15000, maximumAge:0});
+  }, {
+    enableHighAccuracy: true,
+    timeout: 15000,
+    maximumAge: 0
+  });
 }
- 
+
 function loadLeaflet(){
-  if(window.L){ initLeafletMap(); return; }
-  const lc=document.createElement('link');
-  lc.rel='stylesheet'; lc.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+  if(window.L){
+    initLeafletMap();
+    return;
+  }
+
+  const lc = document.createElement('link');
+  lc.rel = 'stylesheet';
+  lc.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
   document.head.appendChild(lc);
-  const ls=document.createElement('script');
-  ls.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-  ls.onload=initLeafletMap;
+
+  const ls = document.createElement('script');
+  ls.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  ls.onload = initLeafletMap;
   document.head.appendChild(ls);
 }
- 
+
 function initLeafletMap(){
-  const el=document.getElementById('map');
-  nearMap=L.map(el,{zoomControl:true}).setView([myLat,myLng],15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'© OpenStreetMap contributors',maxZoom:19
+  const el = document.getElementById('map');
+
+  if (nearMap) {
+    nearMap.remove();
+    nearMap = null;
+  }
+
+  nearMap = L.map(el, { zoomControl: true }).setView([myLat, myLng], 15);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
   }).addTo(nearMap);
-  // 내 위치 마커
-  const myIcon=L.divIcon({
-    html:'<div style="background:#f0c040;width:18px;height:18px;border-radius:50%;border:3px solid #000;box-shadow:0 0 10px rgba(240,192,64,.9)"></div>',
-    iconSize:[18,18],iconAnchor:[9,9],className:''
+
+  const myIcon = L.divIcon({
+    html: '<div style="background:#f0c040;width:18px;height:18px;border-radius:50%;border:3px solid #000;box-shadow:0 0 10px rgba(240,192,64,.9)"></div>',
+    iconSize: [18,18],
+    iconAnchor: [9,9],
+    className: ''
   });
-  L.marker([myLat,myLng],{icon:myIcon}).addTo(nearMap)
-    .bindPopup('<b>📍 내 위치</b>').openPopup();
+
+  L.marker([myLat, myLng], { icon: myIcon }).addTo(nearMap)
+    .bindPopup('<b>📍 내 위치</b>')
+    .openPopup();
+
   searchStores();
 }
- 
-async function searchStores(){
-  document.getElementById('near-count').textContent='판매점 검색 중...';
-  document.getElementById('near-list').innerHTML='<div class="near-empty" style="padding:20px">🔍 주변 판매점을 검색하고 있습니다...<div class="near-loading-lucky">🏆 명당 정보 로딩 중...</div></div>';
-  nearMarkers.forEach(m=>nearMap.removeLayer(m)); nearMarkers=[];
-  try{
-    const [stores, luckyList] = await Promise.all([
-      fetchKakaoStores(),
-      loadLuckyStats()
-    ]);
-    console.log('[searchStores] kakao stores:', stores.length);
-    console.log('[searchStores] luckyList count:', luckyList.length);
-    const merged = stores.map(s=>({
-      ...s,
-      lucky: findLuckyMatch(s.name, s.addr, luckyList)
-    }));
-    console.log('[searchStores] merged sample:', merged[0]);
-    window._nearStores = merged;
-window._nearCurrentSort = 'dist';
-document.getElementById('near-sort-row').style.display = merged.length ? 'flex' : 'none';
 
-renderNearSortHelp('dist');
-renderNearTop10(merged);
-renderStores(merged);
-  }catch(e){
-    console.error('searchStores error:',e);
-    document.getElementById('near-count').textContent='판매점 검색 실패';
-    document.getElementById('near-list').innerHTML='<div class="near-empty">오류가 발생했습니다. 다시 시도해주세요.</div>';
+function getDistM(lat1,lng1,lat2,lng2){
+  const R = 6371000;
+  const dLat = (lat2-lat1) * Math.PI/180;
+  const dLng = (lng2-lng1) * Math.PI/180;
+  const a =
+    Math.sin(dLat/2) ** 2 +
+    Math.cos(lat1*Math.PI/180) *
+    Math.cos(lat2*Math.PI/180) *
+    Math.sin(dLng/2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function filterDist(el, r){
+  nearRadius = r;
+  document.querySelectorAll('.near-chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  updateNearTop10ButtonText();
+
+  if(nearMap && myLat){
+    searchStores();
   }
 }
- 
+
 async function fetchKakaoStores(){
   try{
-    // 카카오 로컬 키워드 검색 API
     const keywords = ['로또판매점','복권판매점','동행복권'];
     let allStores = [];
+
     for(const kw of keywords){
-      const url=`https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(kw)}&x=${myLng}&y=${myLat}&radius=${nearRadius}&sort=distance&size=15`;
-      const res=await fetch(url,{headers:{'Authorization':'KakaoAK 7dbae8e1490f231590025423e15c5e07'}});
+      const url = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(kw)}&x=${myLng}&y=${myLat}&radius=${nearRadius}&sort=distance&size=15`;
+      const res = await fetch(url, {
+        headers:{ 'Authorization':'KakaoAK 7dbae8e1490f231590025423e15c5e07' }
+      });
       if(!res.ok) continue;
-      const data=await res.json();
-      const stores=(data.documents||[]).map(p=>({
+
+      const data = await res.json();
+      const stores = (data.documents || []).map(p => ({
         name:p.place_name,
-        addr:p.road_address_name||p.address_name,
-        lat:parseFloat(p.y), lng:parseFloat(p.x),
-        dist:parseInt(p.distance)||Math.round(getDistM(myLat,myLng,parseFloat(p.y),parseFloat(p.x))),
-        phone:p.phone||'',
-        url:p.place_url||''
+        addr:p.road_address_name || p.address_name,
+        lat:parseFloat(p.y),
+        lng:parseFloat(p.x),
+        dist:parseInt(p.distance) || Math.round(getDistM(myLat,myLng,parseFloat(p.y),parseFloat(p.x))),
+        phone:p.phone || '',
+        url:p.place_url || ''
       }));
-      allStores=[...allStores,...stores];
+
+      allStores = [...allStores, ...stores];
     }
-    // 중복 제거 (place_name+addr 기준)
-    const seen=new Set();
-    const unique=allStores.filter(s=>{
-      const key=s.name+s.addr;
-      if(seen.has(key)) return false;
-      seen.add(key); return true;
-    }).filter(s=>s.dist<=nearRadius).sort((a,b)=>a.dist-b.dist);
-    return unique;
+
+    const seen = new Set();
+    return allStores
+      .filter(s => {
+        const key = s.name + s.addr;
+        if(seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .filter(s => s.dist <= nearRadius)
+      .sort((a,b) => a.dist - b.dist);
+
   }catch(e){
     console.warn('카카오 API 오류:', e);
     return [];
   }
 }
- 
+
 function getLuckyBadgeHtml(lucky){
-  if(!lucky) return '<span class="lucky-badge lucky-badge-none">명당 데이터 없음</span>';
-  const score=lucky.luckyScore||0;
-  const cls=score>=80?'lucky-badge-gold':score>=50?'lucky-badge-orange':'lucky-badge-blue';
-  const first=(lucky.firstAutoCount||0)+(lucky.firstManualCount||0);
-  const barColor=score>=80?'var(--accent)':score>=50?'#e05c20':'var(--accent3)';
-  return `<span class="lucky-badge ${cls}">🏆 ${score}점
-    <span class="lucky-score-bar-wrap"><span class="lucky-score-bar-fill" style="width:${score}%;background:${barColor}"></span></span>
-  </span>
-  <span style="font-size:9px;color:var(--muted);margin-left:4px">1등 ${first}회 · 2등 ${lucky.secondCount||0}회${lucky.recentWinRound?` · 최근${lucky.recentWinRound}회`:''}</span>`;
+  if(!lucky){
+    return '<span class="lucky-badge lucky-badge-none">명당 데이터 없음</span>';
+  }
+
+  const score = lucky.luckyScore || 0;
+  const first = (lucky.firstAutoCount || 0) + (lucky.firstManualCount || 0);
+  const second = lucky.secondCount || 0;
+  const recent = lucky.recentWinRound || 0;
+  const cls = score >= 80 ? 'lucky-badge-gold' : score >= 50 ? 'lucky-badge-orange' : 'lucky-badge-blue';
+  const barColor = score >= 80 ? 'var(--accent)' : score >= 50 ? '#e05c20' : 'var(--accent3)';
+
+  return `
+    <div class="lucky-badge-wrap">
+      <span class="lucky-badge ${cls}">
+        🏆 ${score}점
+        <span class="lucky-score-bar-wrap">
+          <span class="lucky-score-bar-fill" style="width:${score}%;background:${barColor}"></span>
+        </span>
+      </span>
+      <div class="lucky-meta">
+        <span class="sub">🥇 1등 ${first}회 · 🥈 2등 ${second}회</span><br>
+        <span class="muted">${recent ? `⚡ 최근 당첨 ${recent}회` : '최근 당첨 데이터 없음'}</span>
+      </div>
+    </div>
+  `;
 }
- 
+
 function getMarkerColor(store){
   if(!store.lucky) return '#888';
-  const s=store.lucky.luckyScore||0;
-  if(s>=80) return '#f4c430';
-  if(s>=50) return '#ff6a00';
+  const s = store.lucky.luckyScore || 0;
+  if(s >= 80) return '#f4c430';
+  if(s >= 50) return '#ff6a00';
   return '#3ab8ff';
 }
- 
+
 function renderStores(stores){
-  const rLabel=nearRadius>=1000?nearRadius/1000+'km':nearRadius+'m';
-  
+  const rLabel = nearRadius >= 1000 ? (nearRadius/1000)+'km' : nearRadius+'m';
+
   if(!stores.length){
-    document.getElementById('near-count').textContent=`반경 ${rLabel} 내 판매점 검색 완료`;
-    document.getElementById('near-list').innerHTML=`
+    document.getElementById('near-count').textContent = `반경 ${rLabel} 내 판매점 검색 완료`;
+    document.getElementById('near-list').innerHTML = `
       <div class="near-empty">
         <div style="font-size:32px;margin-bottom:12px">🗺️</div>
         <div style="margin-bottom:8px">지도 데이터에 등록된 판매점이 없습니다.</div>
@@ -1971,62 +2006,175 @@ function renderStores(stores){
       </div>`;
     return;
   }
-  
-  document.getElementById('near-count').textContent=`반경 ${rLabel} 내 판매점 ${stores.length}개`;
-  
+
+  document.getElementById('near-count').textContent = `반경 ${rLabel} 내 판매점 ${stores.length}개`;
+
   stores.slice(0,30).forEach((s,i)=>{
-    const color=getMarkerColor(s)||( i===0?'#f0c040':i<3?'#e05c20':'#3ab8ff');
-    const ic=L.divIcon({
+    const color = getMarkerColor(s) || (i===0 ? '#f0c040' : i<3 ? '#e05c20' : '#3ab8ff');
+    const ic = L.divIcon({
       html:`<div style="background:${color};color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;border:2px solid rgba(0,0,0,.4);box-shadow:0 2px 6px rgba(0,0,0,.5)">${i+1}</div>`,
-      iconSize:[24,24],iconAnchor:[12,12],className:''
+      iconSize:[24,24],
+      iconAnchor:[12,12],
+      className:''
     });
-    const m=L.marker([s.lat,s.lng],{icon:ic}).addTo(nearMap)
-      .bindPopup(`<b>${s.name}</b><br>${s.addr||''}<br><span style="color:#e05c20;font-weight:700">${s.dist}m</span>${s.lucky?`<br>🏆 명당 ${s.lucky.luckyScore}점 · 1등 ${(s.lucky.firstAutoCount||0)+(s.lucky.firstManualCount||0)}회`:''}`);
+
+    const first = (s.lucky?.firstAutoCount || 0) + (s.lucky?.firstManualCount || 0);
+    const m = L.marker([s.lat,s.lng],{icon:ic}).addTo(nearMap)
+      .bindPopup(`<b>${s.name}</b><br>${s.addr||''}<br><span style="color:#e05c20;font-weight:700">${s.dist}m</span>${s.lucky ? `<br>🏆 명당 ${s.lucky.luckyScore}점 · 1등 ${first}회` : ''}`);
     nearMarkers.push(m);
   });
-  
-  const pts=[[myLat,myLng],...stores.slice(0,8).map(s=>[s.lat,s.lng])];
-  nearMap.fitBounds(pts,{padding:[30,30]});
-  
-  let html=`<div style="overflow-x:auto"><table class="near-table">
+
+  const pts = [[myLat,myLng], ...stores.slice(0,8).map(s=>[s.lat,s.lng])];
+  nearMap.fitBounds(pts, {padding:[30,30]});
+
+  let html = `<div style="overflow-x:auto"><table class="near-table">
     <thead><tr><th>#</th><th>판매점명 / 주소</th><th>거리</th><th>명당</th></tr></thead><tbody>`;
+
   stores.forEach((s,i)=>{
-    const rankCls=i===0?'':i===1?' r2':i===2?' r3':'';
-    const dist=s.dist<1000?s.dist+'m':(s.dist/1000).toFixed(1)+'km';
-    const luckyRowCls=s.lucky&&s.lucky.luckyScore>=80?' lucky-row-gold':s.lucky&&s.lucky.luckyScore>=50?' lucky-row-orange':'';
-    html+=`<tr class="${luckyRowCls}">
+    const rankCls = i===0 ? '' : i===1 ? ' r2' : i===2 ? ' r3' : '';
+    const dist = s.dist < 1000 ? s.dist+'m' : (s.dist/1000).toFixed(1)+'km';
+    const luckyRowCls = s.lucky && s.lucky.luckyScore >= 80 ? ' lucky-row-gold' : s.lucky && s.lucky.luckyScore >= 50 ? ' lucky-row-orange' : '';
+
+    html += `<tr class="${luckyRowCls}">
       <td><div class="near-rank${rankCls}">${i+1}</div></td>
       <td>
-        <div class="near-name">${s.url?`<a href="${s.url}" target="_blank" style="color:var(--text);text-decoration:none">${s.name} 🔗</a>`:s.name}</div>
-        ${s.addr?`<div class="near-addr">${s.addr}</div>`:''}
-        ${s.phone?`<div class="near-tel">📞 ${s.phone}</div>`:''}
+        <div class="near-name">${s.url ? `<a href="${s.url}" target="_blank" style="color:var(--text);text-decoration:none">${s.name} 🔗</a>` : s.name}</div>
+        ${s.addr ? `<div class="near-addr">${s.addr}</div>` : ''}
+        ${s.phone ? `<div class="near-tel">📞 ${s.phone}</div>` : ''}
       </td>
       <td><div class="near-dist">${dist}</div></td>
       <td class="near-lucky-cell">${getLuckyBadgeHtml(s.lucky)}</td>
     </tr>`;
   });
-  html+=`</tbody></table></div>`;
-  document.getElementById('near-list').innerHTML=html;
+
+  html += `</tbody></table></div>`;
+  document.getElementById('near-list').innerHTML = html;
 }
- 
-function filterDist(el,r){
-  nearRadius=r;
-  document.querySelectorAll('.near-chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');
+
+async function searchStores(){
+  document.getElementById('near-count').textContent = '판매점 검색 중...';
+  document.getElementById('near-list').innerHTML = '<div class="near-empty" style="padding:20px">🔍 주변 판매점을 검색하고 있습니다...<div class="near-loading-lucky">🏆 명당 정보 로딩 중...</div></div>';
+
+  nearMarkers.forEach(m => nearMap.removeLayer(m));
+  nearMarkers = [];
+
+  try{
+    const [stores, luckyList] = await Promise.all([
+      fetchKakaoStores(),
+      loadLuckyStats()
+    ]);
+
+    const merged = stores.map(s => ({
+      ...s,
+      lucky: findLuckyMatch(s.name, s.addr, luckyList)
+    }));
+
+    window._nearStores = merged;
+    window._nearCurrentSort = 'dist';
+
+    document.getElementById('near-sort-row').style.display = merged.length ? 'flex' : 'none';
+
+    renderNearSortHelp('dist');
+    renderNearTop10(merged);
+    renderStores(merged);
+
+  }catch(e){
+    console.error('searchStores error:', e);
+    document.getElementById('near-count').textContent = '판매점 검색 실패';
+    document.getElementById('near-list').innerHTML = '<div class="near-empty">오류가 발생했습니다. 다시 시도해주세요.</div>';
+  }
+}
+
+function formatNearTop10List(stores){
+  if(!stores || !stores.length){
+    return `<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px 8px">표시할 명당 데이터가 없습니다.</div>`;
+  }
+
+  return stores.map((s,i)=>{
+    const rankCls = i===0 ? 'r1' : i===1 ? 'r2' : i===2 ? 'r3' : '';
+    const first = (s.lucky?.firstAutoCount || 0) + (s.lucky?.firstManualCount || 0);
+    const second = s.lucky?.secondCount || 0;
+    const recent = s.lucky?.recentWinRound || 0;
+    const dist = s.dist < 1000 ? `${s.dist}m` : `${(s.dist/1000).toFixed(1)}km`;
+    const score = s.lucky?.luckyScore || 0;
+
+    return `
+      <div class="near-top10-item">
+        <div class="near-top10-rank ${rankCls}">${i+1}</div>
+        <div class="near-top10-main">
+          <div class="near-top10-name">${s.name}</div>
+          <div class="near-top10-addr">${s.addr || ''}</div>
+          <div class="near-top10-meta">
+            🥇 1등 ${first}회 · 🥈 2등 ${second}회<br>
+            <span class="muted">${recent ? `최근 당첨 ${recent}회` : '최근 당첨 데이터 없음'}</span>
+          </div>
+        </div>
+        <div class="near-top10-side">
+          <div class="near-top10-score">🏆 ${score}점</div>
+          <div class="near-top10-dist">${dist}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openNearTop10Modal(){
+  const modal = document.getElementById('near-top10-modal');
+  const listEl = document.getElementById('near-top10-modal-list');
+  const titleEl = modal?.querySelector('.modal-title');
+  const descEl = modal?.querySelector('.modal-desc');
+
+  if(!modal || !listEl) return;
+
+  const label = getNearRadiusLabel(nearRadius);
+
+  if(titleEl) titleEl.textContent = `내 ${label} 주변 명당 TOP10`;
+  if(descEl){
+    descEl.innerHTML = `현재 반경 <strong style="color:var(--accent)">${label}</strong> 내 판매점 중 <strong style="color:var(--accent)">명당점수 기준 TOP10</strong>입니다.`;
+  }
+
+  listEl.innerHTML = formatNearTop10List(window._nearTop10Stores || []);
+  modal.classList.add('show');
+}
+
+function closeNearTop10Modal(){
+  const modal = document.getElementById('near-top10-modal');
+  if(modal) modal.classList.remove('show');
+}
+
+function renderNearTop10(stores){
+  const ranked = [...stores]
+    .sort((a,b)=>{
+      const sa = a.lucky?.luckyScore || 0;
+      const sb = b.lucky?.luckyScore || 0;
+      const fa = (a.lucky?.firstAutoCount || 0) + (a.lucky?.firstManualCount || 0);
+      const fb = (b.lucky?.firstAutoCount || 0) + (b.lucky?.firstManualCount || 0);
+      const ra = a.lucky?.recentWinRound || 0;
+      const rb = b.lucky?.recentWinRound || 0;
+      return sb - sa || fb - fa || rb - ra || a.dist - b.dist;
+    })
+    .slice(0,10);
+
+  window._nearTop10Stores = ranked;
+
+  const openWrap = document.getElementById('near-top10-open-wrap');
+  if(openWrap){
+    openWrap.style.display = stores.length ? 'block' : 'none';
+  }
 
   updateNearTop10ButtonText();
+}
 
-  if(nearMap&&myLat) searchStores();
-}
- 
-function getDistM(lat1,lng1,lat2,lng2){
-  const R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-window.startNearSearch=startNearSearch;
-window.filterDist=filterDist;
-// 판매점 버튼 이벤트
+document.getElementById('near-top10-open-btn')?.addEventListener('click', openNearTop10Modal);
+document.getElementById('near-top10-close-btn')?.addEventListener('click', closeNearTop10Modal);
+document.getElementById('near-top10-modal')?.addEventListener('click', (e)=>{
+  if(e.target === document.getElementById('near-top10-modal')) closeNearTop10Modal();
+});
+
+window.startNearSearch = startNearSearch;
+window.filterDist = filterDist;
+window.sortAndRender = sortAndRender;
+
 document.getElementById('loc-btn').addEventListener('click', startNearSearch);
 document.querySelectorAll('.near-chip').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -2034,8 +2182,6 @@ document.querySelectorAll('.near-chip').forEach(btn=>{
     filterDist(btn, r);
   });
 });
- 
- 
 // ── 오늘의 행운 ──
 const LUCKY_COLORS = [
   {name:'골드',hex:'#f0c040'},
@@ -3140,44 +3286,11 @@ document.getElementById('myinfo-reset-btn').addEventListener('click', ()=>{
 let _luckyStatsCache = null;
 let _luckyStatsCacheTime = 0;
 
-function formatNearTop10List(stores){
-  if(!stores || !stores.length){
-    return `<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px 8px">표시할 명당 데이터가 없습니다.</div>`;
-  }
 
-  return stores.map((s,i)=>{
-    const rankCls = i===0 ? 'r1' : i===1 ? 'r2' : i===2 ? 'r3' : '';
-    const first = (s.lucky?.firstAutoCount || 0) + (s.lucky?.firstManualCount || 0);
-    const second = s.lucky?.secondCount || 0;
-    const recent = s.lucky?.recentWinRound || 0;
-    const dist = s.dist < 1000 ? `${s.dist}m` : `${(s.dist/1000).toFixed(1)}km`;
-    const score = s.lucky?.luckyScore || 0;
 
-    return `
-      <div class="near-top10-item">
-        <div class="near-top10-rank ${rankCls}">${i+1}</div>
-        <div class="near-top10-main">
-          <div class="near-top10-name">${s.name}</div>
-          <div class="near-top10-addr">${s.addr || ''}</div>
-          <div class="near-top10-meta">
-            🥇 1등 ${first}회 · 🥈 2등 ${second}회<br>
-            <span class="muted">${recent ? `최근 당첨 ${recent}회` : '최근 당첨 데이터 없음'}</span>
-          </div>
-        </div>
-        <div class="near-top10-side">
-          <div class="near-top10-score">🏆 ${score}점</div>
-          <div class="near-top10-dist">${dist}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
 
-document.getElementById('near-top10-open-btn')?.addEventListener('click', openNearTop10Modal);
-document.getElementById('near-top10-close-btn')?.addEventListener('click', closeNearTop10Modal);
-document.getElementById('near-top10-modal')?.addEventListener('click', (e)=>{
-  if(e.target === document.getElementById('near-top10-modal')) closeNearTop10Modal();
-});
+
+
  
  function renderNearSortHelp(sortType){
   const el = document.getElementById('near-sort-help');
@@ -3211,36 +3324,7 @@ document.getElementById('near-top10-modal')?.addEventListener('click', (e)=>{
   el.style.display = 'block';
 }
 
-function renderNearTop10(stores){
-  const ranked = [...stores]
-    .sort((a,b)=>{
-      const sa = a.lucky?.luckyScore || 0;
-      const sb = b.lucky?.luckyScore || 0;
 
-      const fa = (a.lucky?.firstAutoCount || 0) + (a.lucky?.firstManualCount || 0);
-      const fb = (b.lucky?.firstAutoCount || 0) + (b.lucky?.firstManualCount || 0);
-
-      const ra = a.lucky?.recentWinRound || 0;
-      const rb = b.lucky?.recentWinRound || 0;
-
-      return (
-        sb - sa ||
-        fb - fa ||
-        rb - ra ||
-        a.dist - b.dist
-      );
-    })
-    .slice(0,10);
-
-  window._nearTop10Stores = ranked;
-
-  const openWrap = document.getElementById('near-top10-open-wrap');
-  if(openWrap){
-    openWrap.style.display = stores.length ? 'block' : 'none';
-  }
-
-  updateNearTop10ButtonText();
-}
 
  
 
@@ -3354,14 +3438,5 @@ window.sortAndRender = sortAndRender;
  
 init();
 </script>
- <div class="modal-overlay" id="near-top10-modal">
-  <div class="modal" style="max-width:380px">
-    <div class="modal-icon">🏆</div>
-    <div class="modal-title">내 주변 명당 TOP10</div>
-    <div class="modal-desc">반경 내 판매점 중 명당점수 기준 TOP10입니다.</div>
-    <div id="near-top10-modal-list" class="near-top10-modal-list"></div>
-    <button class="modal-btn modal-btn-primary" id="near-top10-close-btn">닫기</button>
-  </div>
-</div>
 </body>
 </html>
