@@ -361,7 +361,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     <div class="lucky-card" id="lucky-card">
       <div class="lucky-card-header">
         <div class="lucky-card-title">🍀 오늘의 행운</div>
-        <button class="lucky-refresh" id="lucky-refresh-btn" title="새로고침">🔄</button>
+        <button class="lucky-refresh" id="lucky-refresh-btn" title="매일 00:00 갱신 · 오늘은 모두 같은 번호">🔄</button>
       </div>
       <div id="lucky-content">
         <div class="lucky-analyzing">
@@ -782,6 +782,7 @@ async function autoUpdate(retry=0){
       updateStats(); renderFreqBars(); renderFreqGrid();
       renderPrizeHeader(); loadPrizeTab(latestRound);
       if(currentUid) loadMyNums();
+          maybeScoreCurrentChallenge();
     } else {
       setStatus('ok', `최신 상태 (261~${latestRound}회)`);
     }
@@ -1026,10 +1027,10 @@ async function loadMyNums(){
   if(!currentUid||!db) return;
   try{
     // 인덱스 없이 전체 컬렉션 가져온 뒤 클라이언트 필터
-    const snap = await getDocsFromServer(collection(db,'picks'));
+    const q2=query(collection(db,'picks'),where('uid','==',currentUid));
+    const snap = await getDocsFromServer(q2);
     const all = snap.docs
       .map(d=>({id:d.id,...d.data()}))
-      .filter(d=>d.uid===currentUid)
       .sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
     const keep=[latestRound, latestRound-1];
     const filtered=all.filter(d=>keep.includes(d.round));
@@ -1599,20 +1600,10 @@ function renderLuckyCard(data){
   });
   // 챌린지 버튼
   document.getElementById('lucky-challenge-btn').addEventListener('click',async()=>{
-    // 시뮬레이션 대상으로도 설정
     updateSimTarget(numbers);
-    if(!currentUid||!db)return;
-    try{
-      await addDoc(collection(db,'picks'),{
-        uid:currentUid,round:latestRound,nums:numbers,
-        prize:checkPrize(numbers,latestWinNums,latestBonusNum),
-        isLucky:true,createdAt:serverTimestamp()
-      });
-      const banner=document.getElementById('lucky-challenge-banner');
-      if(banner)banner.classList.add('show');
-      loadMyNums();
-      setTimeout(()=>banner&&banner.classList.remove('show'),3000);
-    }catch(e){console.error(e);}
+    const luckyBalls=[...numbers];
+    if(luckyBalls.length!==6){alert('오늘의 행운 번호를 먼저 불러오세요.');return;}
+    await joinChallenge(luckyBalls,'lucky');
   });
   }, 0); // setTimeout 닫기
 }
@@ -1689,7 +1680,7 @@ async function runSimulation(count){
   out.innerHTML=`<div class="sim-running"><div class="sim-running-anim">⚙️</div><div>AI 시뮬레이션 실행중... (0/${count})</div><div class="sim-progress"><div class="sim-progress-bar" id="sim-prog" style="width:0%"></div></div></div>`;
  
   const results={0:0,1:0,2:0,3:0,4:0,5:0};
-  const CHUNK=500;
+  const CHUNK=250;
   let done=0;
  
   await new Promise(resolve=>{
@@ -1836,15 +1827,9 @@ function renderChallengeOffline(){
 async function checkMyEntry(roundId){
   if(!currentUid||!db) return;
   try{
-    const q = query(
-      collection(db,'challenge_rounds',roundId,'entries'),
-      where('uid','==',currentUid)
-    );
-    const snap = await getDocsFromServer(q);
-    if(!snap.empty){
-      challengeMyEntry = {id:snap.docs[0].id,...snap.docs[0].data()};
-      renderMyEntry();
-    }
+    const entryRef=doc(db,'challenge_rounds',roundId,'entries',currentUid);
+    const snap=await getDoc(entryRef);
+    if(snap.exists()){ challengeMyEntry={id:currentUid,...snap.data()}; renderMyEntry(); }
   }catch(e){ console.warn('checkMyEntry error:',e); }
 }
  
@@ -1889,27 +1874,38 @@ function renderChallengeEntries(entries){
 async function joinChallenge(numbers, sourceType){
   if(!numbers||numbers.length!==6){ alert('6개 번호를 선택해주세요.'); return; }
   if(!db||!currentUid){ alert('로그인 정보가 없습니다. 잠시 후 시도해주세요.'); return; }
-  const roundId = String(latestRound);
-  // 중복 참여 방지
-  if(challengeMyEntry){ alert('이미 이번 회차에 참여하셨습니다.'); return; }
+  const roundId=String(latestRound);
+  const entryRef=doc(db,'challenge_rounds',roundId,'entries',currentUid);
   try{
-    const entriesRef = collection(db,'challenge_rounds',roundId,'entries');
-    const docRef = await addDoc(entriesRef, {
-      uid: currentUid,
-      numbers: numbers,
-      sourceType: sourceType, // 'generated'|'lucky'|'custom'
-      createdAt: serverTimestamp(),
-      matchCount: 0,
-      bonusMatch: false,
-      rank: 0,
-      resultLabel: '집계 대기'
-    });
-    challengeMyEntry = {id:docRef.id, uid:currentUid, numbers, sourceType, rank:0, resultLabel:'집계 대기'};
+    const snap=await getDoc(entryRef);
+    if(snap.exists()){
+      challengeMyEntry={id:currentUid,...snap.data()};
+      renderMyEntry();
+      alert('이미 이번 회차에 참여하셨습니다.');
+      return;
+    }
+    await setDoc(entryRef,{uid:currentUid,numbers,sourceType,createdAt:serverTimestamp(),matchCount:0,bonusMatch:false,rank:0,resultLabel:'집계 대기'});
+    challengeMyEntry={id:currentUid,uid:currentUid,numbers,sourceType,rank:0,resultLabel:'집계 대기'};
     renderMyEntry();
     alert('✅ 챌린지 참여 완료!');
   }catch(e){ console.error('joinChallenge error:',e); alert('참여 중 오류가 발생했습니다.'); }
 }
  
+ 
+// 자동 채점
+async function maybeScoreCurrentChallenge(){
+  if(!db||!latestWinNums||latestWinNums.length!==6) return;
+  const roundId=String(latestRound);
+  const roundRef=doc(db,'challenge_rounds',roundId);
+  try{
+    const roundSnap=await getDoc(roundRef);
+    const currentData=roundSnap.exists()?roundSnap.data():{};
+    if(currentData.scored===true) return;
+    await scoreChallenge(roundId,latestWinNums,latestBonusNum);
+    await setDoc(roundRef,{roundId:latestRound,scored:true,updatedAt:serverTimestamp()},{merge:true});
+    console.log('챌린지 자동 채점 완료');
+  }catch(e){ console.error('maybeScoreCurrentChallenge error:',e); }
+}
 // 채점 함수 (추첨 결과 입력 후 호출)
 async function scoreChallenge(roundId, winNums, bonusNum){
   if(!db) return;
