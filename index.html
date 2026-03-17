@@ -466,6 +466,15 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
         <button class="sim-btn sim-btn-ad" id="sim-btn-1000" disabled>📺 1000회</button>
         <button class="sim-btn sim-btn-ad" id="sim-btn-10000" disabled>📺 10000회</button>
       </div>
+      <!-- 직접 번호 선택 -->
+      <div style="margin-bottom:10px">
+        <button class="sim-btn" id="sim-custom-toggle" style="background:var(--card);color:var(--muted);border:1px solid var(--border);width:100%;font-size:11px;padding:8px">✏️ 직접 번호 선택해서 시뮬레이션</button>
+        <div id="sim-custom-area" style="display:none;margin-top:10px">
+          <div id="sim-num-grid" style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:8px"></div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="sim-custom-count">0/6 선택</div>
+          <button class="sim-btn sim-btn-free" id="sim-custom-apply" disabled style="width:100%;margin-bottom:0">✅ 이 번호로 시뮬레이션 대상 설정</button>
+        </div>
+      </div>
       <div id="sim-output"></div>
     </div>
     </div>
@@ -958,7 +967,7 @@ function renderResult(nums,idx){
   // 시뮬레이션 선택 버튼 (번호와 체크 사이)
   const simBtn=document.createElement('button');
   simBtn.style.cssText='background:rgba(58,184,255,.15);border:1px solid rgba(58,184,255,.3);color:var(--accent3);border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0';
-  simBtn.textContent='🎯 시뮬';
+  simBtn.textContent='🎯 시뮬레이션';
   simBtn.addEventListener('click',()=>{
     updateSimTarget(nums);
     document.getElementById('sim-box').scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -1768,6 +1777,60 @@ function updateSimTarget(nums){
     if(b){ b.disabled=false; b.style.opacity='1'; }
   });
 }
+ 
+ 
+// 시뮬레이션 직접 번호 선택
+let simCustomNums = [];
+ 
+function buildSimNumGrid(){
+  const grid = document.getElementById('sim-num-grid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  simCustomNums = [];
+  for(let n=1; n<=45; n++){
+    const btn = document.createElement('button');
+    btn.style.cssText = 'background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 2px;font-size:11px;font-weight:700;cursor:pointer;text-align:center;color:var(--muted);transition:all .15s';
+    btn.textContent = n;
+    btn.addEventListener('click', ()=>{
+      if(btn.dataset.sel === '1'){
+        btn.dataset.sel = '0';
+        btn.style.background = 'var(--card)';
+        btn.style.color = 'var(--muted)';
+        btn.style.borderColor = 'var(--border)';
+        simCustomNums = simCustomNums.filter(x => x !== n);
+      } else {
+        if(simCustomNums.length >= 6) return;
+        btn.dataset.sel = '1';
+        btn.style.background = 'var(--accent)';
+        btn.style.color = '#000';
+        btn.style.borderColor = 'var(--accent)';
+        simCustomNums.push(n);
+      }
+      const cnt = document.getElementById('sim-custom-count');
+      if(cnt) cnt.textContent = simCustomNums.length + '/6 선택';
+      const apply = document.getElementById('sim-custom-apply');
+      if(apply) apply.disabled = simCustomNums.length !== 6;
+    });
+    grid.appendChild(btn);
+  }
+}
+ 
+// 직접 선택 토글
+document.getElementById('sim-custom-toggle').addEventListener('click', ()=>{
+  const area = document.getElementById('sim-custom-area');
+  const isOpen = area.style.display !== 'none';
+  area.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) buildSimNumGrid();
+});
+ 
+// 적용 버튼
+document.getElementById('sim-custom-apply').addEventListener('click', ()=>{
+  if(simCustomNums.length !== 6) return;
+  const sorted = [...simCustomNums].sort((a,b) => a-b);
+  updateSimTarget(sorted);
+  // 토글 닫기
+  document.getElementById('sim-custom-area').style.display = 'none';
+});
  
 // 시뮬레이션 버튼 이벤트
 document.getElementById('sim-btn-100').addEventListener('click',()=>runSimulation(100));
