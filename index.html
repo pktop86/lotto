@@ -410,6 +410,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     <!-- 내 오늘의 운세 카드 (내정보 입력 시 표시) -->
     <div class="fortune-card" id="fortune-pick-card" style="display:none">
       <div class="fortune-card-title">🔮 내 오늘의 운세</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:10px;opacity:.7">오행 기반 경량 개인화 결과입니다. 정통 명리학 전체 풀이가 아닙니다.</div>
       <div id="fortune-pick-content"></div>
     </div>
     <!-- 주간 챌린지 -->
@@ -591,7 +592,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <div class="myinfo-section-title">🔮 내 정보 입력</div>
       <div class="myinfo-form-row">
         <label class="myinfo-label">생년월일</label>
-        <input type="date" class="myinfo-input" id="myinfo-birth" max="2010-01-01">
+        <input type="date" class="myinfo-input" id="myinfo-birth" id="myinfo-birth-input">
       </div>
       <div class="myinfo-form-row">
         <label class="myinfo-label">생시 (태어난 시간대)</label>
@@ -852,8 +853,18 @@ async function init(){
     renderPrizeHeader(); scheduleAutoUpdate(); startSaturdayChecker();
     setStatus('ok',`내장 통계 준비 완료 (261~${latestRound}회)`);
     loadTodayLucky(); // 오늘의 행운 로드
+  // 생년월일 max 동적 설정 (현재 날짜 - 14년)
+  const birthEl=document.getElementById('myinfo-birth-input');
+  if(birthEl){
+    const maxDate=new Date(new Date().getTime()+9*3600000);
+    maxDate.setFullYear(maxDate.getFullYear()-14);
+    birthEl.max=maxDate.toISOString().slice(0,10);
+    birthEl.id='myinfo-birth';
+  }
+ 
     updateFortuneDisplay(); // 내정보 운세 표시
     onAuthReady(()=>initChallenge()); // 챌린지 초기화
+    setTimeout(()=>maybeScoreCurrentChallenge(), 2000); // 채점 체크
  
     // Auth → 내 번호 로드
     startAuth();
@@ -1595,47 +1606,70 @@ function getTodayKey(){
 }
  
 function generateLuckyNums(seed){
-  // seed 기반 결정론적 난수 (같은 날 같은 번호)
-  function seededRand(s){ s=Math.sin(s)*10000; return s-Math.floor(s); }
+  function seededRand(s){ const x=Math.sin(s)*10000; return x-Math.floor(x); }
+  let pool=Array.from({length:45},(_,i)=>i+1);
+  const selected=[];
+  let s=seed;
   const weights={};
   for(let n=1;n<=45;n++){
     const freq=freqData[n]||1;
     const absent=recentHist.slice(-8).every(h=>!h.nums.includes(n));
-    weights[n]=freq*(absent?1.4:1.0);
+    let w=1;
+    w+=absent?1.4:0;
+    w+=Math.max(0,1.2-freq/150);
+    w+=seededRand(seed+n)*0.5;
+    weights[n]=Math.max(w,0.1);
   }
-  const pool=Array.from({length:45},(_,i)=>i+1);
-  const selected=[];
-  let s=seed;
-  while(selected.length<6){
-    const total=pool.reduce((a,n)=>a+(weights[n]||1),0);
+  while(selected.length<6&&pool.length>0){
+    const total=pool.reduce((sum,n)=>sum+(weights[n]||1),0);
     let r=seededRand(s++)*total;
-    for(const n of pool){
-      r-=weights[n]||1;
-      if(r<=0&&!selected.includes(n)){
-        selected.push(n);
-        break;
-      }
+    let pickedIndex=0;
+    for(let i=0;i<pool.length;i++){
+      r-=(weights[pool[i]]||1);
+      if(r<=0){pickedIndex=i;break;}
     }
+    selected.push(pool[pickedIndex]);
+    pool.splice(pickedIndex,1);
   }
-  // 홀짝 균형 보정
-  const sorted=selected.sort((a,b)=>a-b);
-  return sorted.length===6?sorted:selected.slice(0,6).sort((a,b)=>a-b);
+  return selected.sort((a,b)=>a-b);
 }
  
-function generateLuckyData(dateKey){
-  // dateKey를 숫자 seed로 변환
+// 공용 기본 오늘의 행운 생성 (개인화 미포함 - Firestore 저장용)
+function generateLuckyDataBase(dateKey){
   const seed=dateKey.replace(/-/g,'').split('').reduce((a,c)=>a+c.charCodeAt(0),0);
   const nums=generateLuckyNums(seed);
   const colorIdx=Math.floor(seed%LUCKY_COLORS.length);
   const timeIdx=Math.floor((seed*7)%LUCKY_TIMES.length);
-  const score=65+Math.floor((seed*13)%30); // 65~94%
+  const score=65+Math.floor((seed*13)%30);
   return {
-    numbers:nums,
+    numbers:[...nums],
     luckyScore:score,
     luckyColor:LUCKY_COLORS[colorIdx],
     luckyTimeRange:LUCKY_TIMES[timeIdx],
     createdAt:new Date().toISOString()
   };
+}
+// 개인 행운 숫자 반영 (클라이언트 렌더링 직전에만 적용)
+function applyPersonalLuckyNumber(data){
+  if(!window._personalLuckyNum) return data;
+  const n=window._personalLuckyNum;
+  const result={...data, numbers:[...data.numbers]};
+  if(!result.numbers.includes(n)){
+    const replaceIdx=Math.floor(Math.abs(Math.sin(n))*result.numbers.length)%result.numbers.length;
+    result.numbers[replaceIdx]=n;
+    result.numbers=[...new Set(result.numbers)].sort((a,b)=>a-b);
+    while(result.numbers.length<6){
+      const c=Math.floor(Math.abs(Math.sin(result.numbers.length+n))*45)+1;
+      if(!result.numbers.includes(c)) result.numbers.push(c);
+    }
+    result.numbers.sort((a,b)=>a-b);
+  }
+  return result;
+}
+// 최종 오늘의 행운 데이터 (개인화 포함)
+function generateLuckyData(dateKey){
+  const base=generateLuckyDataBase(dateKey);
+  return applyPersonalLuckyNumber(base);
 }
  
 function renderLuckyCard(data){
@@ -1710,29 +1744,26 @@ function renderLuckyCard(data){
  
 async function loadTodayLucky(){
   const dateKey=getTodayKey();
-  const container=document.getElementById('lucky-content');
- 
-  // 1. Firestore에서 오늘 데이터 조회
+  // 1. Firestore에서 공용 데이터 조회/저장 (개인화 미포함)
   if(db){
     try{
       const docRef=doc(db,'daily_lucky',dateKey);
       const snap=await getDoc(docRef);
+      let baseData;
       if(snap.exists()){
-        renderLuckyCard(snap.data());
-        return;
+        baseData=snap.data();
+      } else {
+        // 공용 데이터만 저장 (개인화 절대 포함 금지)
+        baseData=generateLuckyDataBase(dateKey);
+        await setDoc(docRef,baseData);
       }
-      // 없으면 생성 후 저장
-      const data=generateLuckyData(dateKey);
-      await setDoc(docRef,data);
-      renderLuckyCard(data);
+      // 개인화는 렌더링 직전에만 적용
+      renderLuckyCard(applyPersonalLuckyNumber(baseData));
       return;
-    }catch(e){
-      console.warn('Firestore lucky error:',e);
-    }
+    }catch(e){ console.warn('Firestore lucky error:',e); }
   }
-  // Firestore 없으면 로컬 생성
-  const data=generateLuckyData(dateKey);
-  renderLuckyCard(data);
+  // Firestore 없으면 로컬 생성 + 개인화 적용
+  renderLuckyCard(applyPersonalLuckyNumber(generateLuckyDataBase(dateKey)));
 }
  
 // 새로고침 버튼 (날짜 바뀌면 재로드)
@@ -2438,18 +2469,7 @@ function updateFortuneDisplay(){
 }
  
 // 오늘의 행운 번호에 개인 행운 숫자 반영
-const _origGenerateLuckyData = generateLuckyData;
-function generateLuckyData(dateKey){
-  const data = _origGenerateLuckyData(dateKey);
-  if(window._personalLuckyNum){
-    const n = window._personalLuckyNum;
-    if(!data.numbers.includes(n)){
-      data.numbers[5] = n; // 마지막 번호 교체
-      data.numbers.sort((a,b)=>a-b);
-    }
-  }
-  return data;
-}
+// generateLuckyData 3단 분리 완료 (위쪽에 정의)
  
 // 성별 버튼 이벤트
 document.querySelectorAll('.myinfo-gender-btn').forEach(btn => {
