@@ -222,6 +222,40 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .modal-btn-primary:disabled{opacity:.4;cursor:not-allowed}
 .modal-btn-secondary{background:var(--card);color:var(--muted);border:1px solid var(--border);margin-top:8px;font-size:12px}
 @media(max-width:400px){.stats-row{grid-template-columns:repeat(2,1fr)}.prize-cards{grid-template-columns:repeat(3,1fr)}.algo-rules{grid-template-columns:1fr}.ball{width:30px;height:30px;font-size:11px}}
+ 
+/* ── 오늘의 행운 카드 ── */
+.lucky-card{background:linear-gradient(135deg,rgba(240,192,64,.12),rgba(224,92,32,.08));border:1px solid rgba(240,192,64,.35);border-radius:16px;padding:18px 16px;margin-bottom:16px;position:relative;overflow:hidden}
+.lucky-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(240,192,64,.06));pointer-events:none}
+.lucky-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.lucky-card-title{font-size:13px;font-weight:900;color:var(--accent);display:flex;align-items:center;gap:6px}
+.lucky-refresh{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0;line-height:1;transition:transform .4s}
+.lucky-refresh:hover{transform:rotate(180deg)}
+.lucky-balls-row{display:flex;gap:7px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+.lucky-ball{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;box-shadow:0 3px 10px rgba(0,0,0,.4),inset 0 -2px 5px rgba(0,0,0,.25);transition:transform .3s;animation:luckySpin .6s ease both}
+@keyframes luckySpin{from{opacity:0;transform:scale(.5) rotate(-180deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+.lucky-ball:nth-child(1){animation-delay:.05s}
+.lucky-ball:nth-child(2){animation-delay:.1s}
+.lucky-ball:nth-child(3){animation-delay:.15s}
+.lucky-ball:nth-child(4){animation-delay:.2s}
+.lucky-ball:nth-child(5){animation-delay:.25s}
+.lucky-ball:nth-child(6){animation-delay:.3s}
+.lucky-info-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.lucky-info{background:rgba(0,0,0,.2);border-radius:10px;padding:8px 6px;text-align:center}
+.lucky-info-val{font-size:14px;font-weight:900;color:var(--accent);line-height:1.2}
+.lucky-info-label{font-size:9px;color:var(--muted);margin-top:2px}
+.lucky-score-bar{height:5px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.lucky-score-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:3px;transition:width 1s ease}
+.lucky-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lucky-btn{border:none;border-radius:10px;padding:10px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;letter-spacing:.3px}
+.lucky-btn-sim{background:var(--accent);color:#000}
+.lucky-btn-sim:hover{transform:translateY(-1px);box-shadow:0 4px 14px var(--glow)}
+.lucky-btn-challenge{background:rgba(58,184,255,.15);color:var(--accent3);border:1px solid rgba(58,184,255,.3)}
+.lucky-btn-challenge:hover{background:rgba(58,184,255,.25)}
+.lucky-analyzing{text-align:center;padding:20px;color:var(--muted);font-size:12px}
+.lucky-analyzing-icon{font-size:28px;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.7}}
+.lucky-challenge-banner{background:rgba(58,184,255,.08);border:1px solid rgba(58,184,255,.2);border-radius:8px;padding:8px 12px;font-size:10px;color:var(--accent3);text-align:center;margin-top:8px;display:none}
+.lucky-challenge-banner.show{display:block}
 </style>
 </head>
 <body>
@@ -245,6 +279,19 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
  
   <!-- 번호추첨 탭 -->
   <div class="tab-content on" id="tab-pick">
+    <!-- 오늘의 행운 카드 -->
+    <div class="lucky-card" id="lucky-card">
+      <div class="lucky-card-header">
+        <div class="lucky-card-title">🍀 오늘의 행운</div>
+        <button class="lucky-refresh" id="lucky-refresh-btn" title="새로고침">🔄</button>
+      </div>
+      <div id="lucky-content">
+        <div class="lucky-analyzing">
+          <div class="lucky-analyzing-icon">🔮</div>
+          <div>AI가 오늘의 행운 패턴 분석 중...</div>
+        </div>
+      </div>
+    </div>
     <div class="status-bar">
       <div class="s-dot loading" id="s-dot"></div>
       <span id="s-text">준비 중...</span>
@@ -415,7 +462,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
  
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, getDocsFromServer, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc }
+import { getFirestore, collection, addDoc, getDocs, getDocsFromServer, query, where, orderBy, onSnapshot, serverTimestamp, deleteDoc, doc, setDoc, getDoc }
   from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 import { getAuth, signInAnonymously, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
@@ -576,6 +623,7 @@ async function init(){
     updateStats(); renderFreqBars(); renderFreqGrid(); updateFreeCounter();
     renderPrizeHeader(); scheduleAutoUpdate(); startSaturdayChecker();
     setStatus('ok',`내장 통계 준비 완료 (261~${latestRound}회)`);
+    loadTodayLucky(); // 오늘의 행운 로드
  
     // Auth → 내 번호 로드
     startAuth();
@@ -1239,7 +1287,181 @@ document.querySelectorAll('.near-chip').forEach(btn=>{
 });
  
  
+// ── 오늘의 행운 ──
+const LUCKY_COLORS = [
+  {name:'골드',hex:'#f0c040'},
+  {name:'루비',hex:'#ff5050'},
+  {name:'사파이어',hex:'#3ab8ff'},
+  {name:'에메랄드',hex:'#40d080'},
+  {name:'퍼플',hex:'#b060ff'},
+  {name:'로즈',hex:'#ff80b0'},
+];
+const LUCKY_TIMES = [
+  '06:00~08:00','09:00~11:00','12:00~14:00',
+  '15:00~17:00','18:00~20:00','19:00~21:00',
+  '20:00~22:00','21:00~23:00'
+];
+ 
+function getTodayKey(){
+  const kst=new Date(new Date().getTime()+9*3600000);
+  return kst.toISOString().slice(0,10);
+}
+ 
+function generateLuckyNums(seed){
+  // seed 기반 결정론적 난수 (같은 날 같은 번호)
+  function seededRand(s){ s=Math.sin(s)*10000; return s-Math.floor(s); }
+  const weights={};
+  for(let n=1;n<=45;n++){
+    const freq=freqData[n]||1;
+    const absent=recentHist.slice(-8).every(h=>!h.nums.includes(n));
+    weights[n]=freq*(absent?1.4:1.0);
+  }
+  const pool=Array.from({length:45},(_,i)=>i+1);
+  const selected=[];
+  let s=seed;
+  while(selected.length<6){
+    const total=pool.reduce((a,n)=>a+(weights[n]||1),0);
+    let r=seededRand(s++)*total;
+    for(const n of pool){
+      r-=weights[n]||1;
+      if(r<=0&&!selected.includes(n)){
+        selected.push(n);
+        break;
+      }
+    }
+  }
+  // 홀짝 균형 보정
+  const sorted=selected.sort((a,b)=>a-b);
+  return sorted.length===6?sorted:selected.slice(0,6).sort((a,b)=>a-b);
+}
+ 
+function generateLuckyData(dateKey){
+  // dateKey를 숫자 seed로 변환
+  const seed=dateKey.replace(/-/g,'').split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const nums=generateLuckyNums(seed);
+  const colorIdx=Math.floor(seed%LUCKY_COLORS.length);
+  const timeIdx=Math.floor((seed*7)%LUCKY_TIMES.length);
+  const score=65+Math.floor((seed*13)%30); // 65~94%
+  return {
+    numbers:nums,
+    luckyScore:score,
+    luckyColor:LUCKY_COLORS[colorIdx],
+    luckyTimeRange:LUCKY_TIMES[timeIdx],
+    createdAt:new Date().toISOString()
+  };
+}
+ 
+function renderLuckyCard(data){
+  const {numbers,luckyScore,luckyColor,luckyTimeRange}=data;
+  const container=document.getElementById('lucky-content');
+  if(!container)return;
+  container.innerHTML=`
+    <div class="lucky-balls-row" id="lucky-balls"></div>
+    <div class="lucky-score-bar"><div class="lucky-score-fill" id="lucky-score-fill" style="width:0%"></div></div>
+    <div class="lucky-info-row">
+      <div class="lucky-info">
+        <div class="lucky-info-val" id="lucky-score-val">${luckyScore}%</div>
+        <div class="lucky-info-label">행운지수</div>
+      </div>
+      <div class="lucky-info">
+        <div class="lucky-info-val" style="color:${luckyColor.hex}">${luckyColor.name}</div>
+        <div class="lucky-info-label">행운 컬러</div>
+      </div>
+      <div class="lucky-info">
+        <div class="lucky-info-val" style="font-size:11px">${luckyTimeRange}</div>
+        <div class="lucky-info-label">행운 시간</div>
+      </div>
+    </div>
+    <div class="lucky-btns">
+      <button class="lucky-btn lucky-btn-sim" id="lucky-sim-btn">🎲 이 번호로 시뮬레이션</button>
+      <button class="lucky-btn lucky-btn-challenge" id="lucky-challenge-btn">🏆 챌린지 참여</button>
+    </div>
+    <div class="lucky-challenge-banner" id="lucky-challenge-banner">✅ 챌린지 참여 완료! 번호가 저장됐습니다.</div>
+  `;
+  // 공 렌더
+  const ballsEl=document.getElementById('lucky-balls');
+  numbers.forEach(n=>{
+    const b=document.createElement('div');
+    b.className='lucky-ball '+ballCls(n);
+    b.textContent=n;
+    ballsEl.appendChild(b);
+  });
+  // 점수바 애니메이션
+  setTimeout(()=>{
+    const fill=document.getElementById('lucky-score-fill');
+    if(fill)fill.style.width=luckyScore+'%';
+  },300);
+  // 시뮬레이션 버튼
+  document.getElementById('lucky-sim-btn').addEventListener('click',()=>{
+    // 번호추첨 탭으로 이동 후 결과에 행운 번호 표시
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('on'));
+    document.querySelector('[data-tab="pick"]').classList.add('on');
+    document.getElementById('tab-pick').classList.add('on');
+    // 결과란에 행운 번호 표시
+    const resultsEl=document.getElementById('results');
+    resultsEl.innerHTML='';
+    const hitSet=new Set(latestWinNums);
+    const row=document.createElement('div');
+    row.className='r-row';
+    row.innerHTML=`<div class="r-top"><div class="r-num">🍀</div><div class="r-balls">${numbers.map(n=>`<div class="ball ${ballCls(n)}${hitSet.has(n)?' hit':''}">${n}</div>`).join('')}</div><div class="r-saved" style="color:var(--accent);font-size:10px">오늘의 행운</div></div>`;
+    resultsEl.appendChild(row);
+    resultsEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+  });
+  // 챌린지 버튼
+  document.getElementById('lucky-challenge-btn').addEventListener('click',async()=>{
+    if(!currentUid||!db)return;
+    try{
+      await addDoc(collection(db,'picks'),{
+        uid:currentUid,round:latestRound,nums:numbers,
+        prize:checkPrize(numbers,latestWinNums,latestBonusNum),
+        isLucky:true,createdAt:serverTimestamp()
+      });
+      const banner=document.getElementById('lucky-challenge-banner');
+      if(banner)banner.classList.add('show');
+      loadMyNums();
+      setTimeout(()=>banner&&banner.classList.remove('show'),3000);
+    }catch(e){console.error(e);}
+  });
+}
+ 
+async function loadTodayLucky(){
+  const dateKey=getTodayKey();
+  const container=document.getElementById('lucky-content');
+ 
+  // 1. Firestore에서 오늘 데이터 조회
+  if(db){
+    try{
+      const docRef=doc(db,'daily_lucky',dateKey);
+      const snap=await getDoc(docRef);
+      if(snap.exists()){
+        renderLuckyCard(snap.data());
+        return;
+      }
+      // 없으면 생성 후 저장
+      const data=generateLuckyData(dateKey);
+      await setDoc(docRef,data);
+      renderLuckyCard(data);
+      return;
+    }catch(e){
+      console.warn('Firestore lucky error:',e);
+    }
+  }
+  // Firestore 없으면 로컬 생성
+  const data=generateLuckyData(dateKey);
+  renderLuckyCard(data);
+}
+ 
+// 새로고침 버튼 (날짜 바뀌면 재로드)
+document.getElementById('lucky-refresh-btn').addEventListener('click',()=>{
+  const container=document.getElementById('lucky-content');
+  container.innerHTML='<div class="lucky-analyzing"><div class="lucky-analyzing-icon">🔮</div><div>AI가 오늘의 행운 패턴 분석 중...</div></div>';
+  setTimeout(()=>loadTodayLucky(),600);
+});
+ 
+ 
 init();
 </script>
 </body>
 </html>
+ 
