@@ -404,6 +404,13 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .challenge-hist-nums{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px}
 .challenge-hist-result{display:flex;align-items:center;gap:6px}
 .challenge-hist-rank{font-size:11px;font-weight:700}
+ 
+/* ── 내 번호 날짜별 구분 ── */
+.my-date-divider{display:flex;align-items:center;gap:10px;margin:16px 0 8px;opacity:.7}
+.my-date-divider-line{flex:1;height:1px;background:var(--border)}
+.my-date-divider-text{font-size:10px;color:var(--muted);font-weight:700;white-space:nowrap}
+.my-item-sim-btn{background:rgba(58,184,255,.12);border:1px solid rgba(58,184,255,.25);color:var(--accent3);border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
+.my-item-sim-btn:hover{background:rgba(58,184,255,.25)}
 </style>
 </head>
 <body>
@@ -1252,6 +1259,8 @@ function renderMyNums(docs){
   const grouped={};
   docs.forEach(d=>{if(!grouped[d.round])grouped[d.round]=[];grouped[d.round].push(d);});
  
+  // 날짜별 구분용: 회차 섹션 사이에 날짜 divider 삽입
+  let lastDateKey='';
   Object.keys(grouped).sort((a,b)=>b-a).forEach(round=>{
     const rn=parseInt(round);
     const entry=recentHist.find(h=>h.round===rn);
@@ -1263,6 +1272,16 @@ function renderMyNums(docs){
     const items=grouped[round];
  
     const sec=document.createElement('div'); sec.className='my-round-section';
+ 
+    // 날짜별 divider
+    const firstTs=grouped[round][0]?.createdAt?.seconds;
+    const sectionDate=firstTs?new Date(firstTs*1000+9*3600000).toISOString().slice(0,10):'';
+    if(sectionDate && sectionDate!==lastDateKey){
+      lastDateKey=sectionDate;
+      const divider=document.createElement('div'); divider.className='my-date-divider';
+      divider.innerHTML=`<div class="my-date-divider-line"></div><div class="my-date-divider-text">📅 ${sectionDate}</div><div class="my-date-divider-line"></div>`;
+      container.appendChild(divider);
+    }
  
     // 배너
     if(showResult){
@@ -1279,7 +1298,10 @@ function renderMyNums(docs){
     sec.appendChild(title);
  
     const sub=document.createElement('div'); sub.className='my-round-sub';
-    sub.textContent=(entry&&entry.date?'추첨일: '+entry.date:'')+' · '+items.length+'줄';
+    // 날짜별 구분을 위해 저장 날짜 추출
+    const firstCreated=items[0]?.createdAt?.seconds;
+    const savedDateStr=firstCreated?new Date(firstCreated*1000+9*3600000).toISOString().slice(0,10):'';
+    sub.textContent=(entry&&entry.date?'추첨일: '+entry.date:'')+' · '+items.length+'줄'+(savedDateStr?' · 저장: '+savedDateStr:'');
     sec.appendChild(sub);
  
     if(showResult&&wn.length===6){
@@ -1310,6 +1332,18 @@ function renderMyNums(docs){
       (d.nums||[]).forEach(n=>{const b=document.createElement('div');b.className='ball '+ballCls(n)+(hitSet.has(n)?' hit':'');b.style.cssText='width:30px;height:30px;font-size:11px';b.textContent=n;balls.appendChild(b);});
       top.appendChild(balls);
       if(showResult&&p>0){const pr=document.createElement('div');pr.className='my-item-prize';pr.textContent=PLABELS[p];top.appendChild(pr);}
+      // 시뮬레이션 버튼
+      const simB=document.createElement('button'); simB.className='my-item-sim-btn'; simB.textContent='🎯 시뮬';
+      simB.addEventListener('click',()=>{
+        updateSimTarget(d.nums||[]);
+        // 번호추첨 탭으로 이동 + 시뮬레이션 영역 스크롤
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+        document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('on'));
+        document.querySelector('[data-tab="pick"]').classList.add('on');
+        document.getElementById('tab-pick').classList.add('on');
+        setTimeout(()=>document.getElementById('sim-box')?.scrollIntoView({behavior:'smooth',block:'start'}),100);
+      });
+      top.appendChild(simB);
       const db2=document.createElement('button'); db2.className='del-btn'; db2.textContent='🗑️';
       db2.addEventListener('click',()=>showDelModal([d.id],[d.nums||[]]));
       top.appendChild(db2);
