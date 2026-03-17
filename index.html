@@ -877,7 +877,11 @@ function startAdTimer(){
     else document.getElementById('timer-text').textContent=(SEC-e)+'초 후 활성화...';
   },1000);
 }
-confirmBtn.addEventListener('click',()=>{ hideAdModal(); if(pendingCount<10){usedFree=0;saveUsedFree(0);updateFreeCounter();} doGenerate(pendingCount); });
+confirmBtn.addEventListener('click',()=>{
+  if(pendingCount==='sim-1000'){ hideAdModal(); runSimulation(1000); return; }
+  if(pendingCount==='sim-10000'){ hideAdModal(); runSimulation(10000); return; }
+  hideAdModal(); if(pendingCount<10){usedFree=0;saveUsedFree(0);updateFreeCounter();} doGenerate(pendingCount);
+});
 cancelBtn.addEventListener('click',hideAdModal);
 adModal.addEventListener('click',e=>{if(e.target===adModal)hideAdModal();});
  
@@ -927,7 +931,7 @@ function makeTags(nums){
 function renderResult(nums,idx){
   const tags=makeTags(nums); const hitSet=new Set(latestWinNums);
   const div=document.createElement('div'); div.className='r-row'; div.style.animationDelay=(idx*60)+'ms';
-  div.innerHTML=`<div class="r-top"><div class="r-num">${idx+1}</div><div class="r-balls">${nums.map(n=>`<div class="ball ${ballCls(n)}${hitSet.has(n)?' hit':''}">${n}</div>`).join('')}</div><div class="r-saved" id="rsaved-${idx}"></div></div><div class="r-tags">${tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join('')}</div>`;
+  div.innerHTML=`<div class="r-top"><div class="r-num">${idx+1}</div><div class="r-balls">${nums.map(n=>`<div class="ball ${ballCls(n)}${hitSet.has(n)?' hit':''}">${n}</div>`).join('')}</div><div class="r-saved" id="rsaved-${idx}"></div></div><div class="r-tags">${tags.map(t=>`<span class="tag ${t.cls}">${t.text}</span>`).join('')}<span class="tag info" style="cursor:pointer" onclick="updateSimTarget([${nums}]);document.getElementById('sim-box').scrollIntoView({behavior:'smooth',block:'nearest'})">🎯 시뮬레이션 선택</span></div>`;
   return div;
 }
  
@@ -1713,9 +1717,12 @@ function updateSimTarget(nums){
   simNums=[...nums];
   const target=document.getElementById('sim-target');
   if(!target)return;
+  // 번호 공 표시 + 클릭해서 변경 안내
   target.innerHTML=nums.map(n=>`<div class="ball ${ballCls(n)}" style="width:30px;height:30px;font-size:11px">${n}</div>`).join('');
+  // 버튼 활성화
   ['sim-btn-100','sim-btn-1000','sim-btn-10000'].forEach(id=>{
-    const b=document.getElementById(id);if(b)b.disabled=false;
+    const b=document.getElementById(id);
+    if(b){ b.disabled=false; b.style.opacity='1'; }
   });
 }
  
@@ -1730,12 +1737,7 @@ document.getElementById('sim-btn-10000').addEventListener('click',()=>{
   showAdModal('sim-10000');
 });
  
-// 광고 모달 confirm 확장 (시뮬레이션 지원)
-const _origConfirm = confirmBtn.onclick;
-confirmBtn.addEventListener('click',()=>{
-  if(pendingCount==='sim-1000'){ hideAdModal(); runSimulation(1000); }
-  else if(pendingCount==='sim-10000'){ hideAdModal(); runSimulation(10000); }
-});
+// 시뮬레이션 광고 처리는 confirmBtn 통합 처리됨
  
  
 // ── 주간 챌린지 ──
