@@ -387,7 +387,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   <div class="tabs">
     <button class="tab-btn on" data-tab="pick">🎲 번호추첨</button>
     <button class="tab-btn" data-tab="mynums">⭐ 내 번호</button>
-    <button class="tab-btn" data-tab="myinfo">🔮 내정보</button>
+    <button class="tab-btn" data-tab="myinfo">🔮 오늘의 운세</button>
     <button class="tab-btn" data-tab="near">📍 내주변 판매점</button>
     <button class="tab-btn disabled" data-tab="prize" id="tab-prize-btn">🏆 당첨현황</button>
   </div>
@@ -406,12 +406,6 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
           <div>AI가 오늘의 행운 패턴 분석 중...</div>
         </div>
       </div>
-    </div>
-    <!-- 내 오늘의 운세 카드 (내정보 입력 시 표시) -->
-    <div class="fortune-card" id="fortune-pick-card" style="display:none">
-      <div class="fortune-card-title">🔮 내 오늘의 운세</div>
-      <div style="font-size:10px;color:var(--muted);margin-bottom:10px;opacity:.7">오행 기반 경량 개인화 결과입니다. 정통 명리학 전체 풀이가 아닙니다.</div>
-      <div id="fortune-pick-content"></div>
     </div>
     <!-- 주간 챌린지 -->
     <div class="challenge-card" id="challenge-card">
@@ -515,7 +509,10 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
         <div id="sim-custom-area" style="display:none;margin-top:10px">
           <div id="sim-num-grid" style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:8px"></div>
           <div style="font-size:11px;color:var(--muted);margin-bottom:8px" id="sim-custom-count">0/6 선택</div>
-          <button class="sim-btn sim-btn-free" id="sim-custom-apply" disabled style="width:100%;margin-bottom:0">✅ 이 번호로 시뮬레이션 대상 설정</button>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button class="sim-btn sim-btn-free" id="sim-custom-apply" disabled>✅ 시뮬레이션 설정</button>
+          <button class="sim-btn" id="sim-custom-save" disabled style="background:rgba(64,208,128,.15);color:var(--green);border:1px solid rgba(64,208,128,.3)">⭐ 내 번호 저장</button>
+        </div>
         </div>
       </div>
       <div id="sim-output"></div>
@@ -1932,6 +1929,8 @@ function buildSimNumGrid(){
       if(cnt) cnt.textContent = simCustomNums.length + '/6 선택';
       const apply = document.getElementById('sim-custom-apply');
       if(apply) apply.disabled = simCustomNums.length !== 6;
+      const save = document.getElementById('sim-custom-save');
+      if(save) save.disabled = simCustomNums.length !== 6;
     });
     grid.appendChild(btn);
   }
@@ -1950,8 +1949,23 @@ document.getElementById('sim-custom-apply').addEventListener('click', ()=>{
   if(simCustomNums.length !== 6) return;
   const sorted = [...simCustomNums].sort((a,b) => a-b);
   updateSimTarget(sorted);
-  // 토글 닫기
   document.getElementById('sim-custom-area').style.display = 'none';
+});
+ 
+// 직접 선택 번호 내 번호 저장
+document.getElementById('sim-custom-save').addEventListener('click', async ()=>{
+  if(simCustomNums.length !== 6){ alert('6개 번호를 선택해주세요.'); return; }
+  if(!currentUid||!db){ alert('로그인 정보가 없습니다.'); return; }
+  const sorted=[...simCustomNums].sort((a,b)=>a-b);
+  try{
+    await addDoc(collection(db,'picks'),{
+      uid:currentUid, round:latestRound, nums:sorted,
+      prize:checkPrize(sorted,latestWinNums,latestBonusNum),
+      sourceType:'custom_sim', createdAt:serverTimestamp()
+    });
+    loadMyNums();
+    alert('✅ 내 번호에 저장됐습니다!');
+  }catch(e){ console.error(e); alert('저장 중 오류가 발생했습니다.'); }
 });
  
 // 시뮬레이션 버튼 이벤트
@@ -2440,7 +2454,6 @@ function getCurrentGender(){
 function updateFortuneDisplay(){
   const info = loadMyInfo();
   if(!info || !info.birth){
-    document.getElementById('fortune-pick-card').style.display = 'none';
     document.getElementById('myinfo-fortune-area').innerHTML = `
       <div class="fortune-card" style="opacity:.6">
         <div class="fortune-card-title">🔮 내 오늘의 운세</div>
@@ -2449,11 +2462,7 @@ function updateFortuneDisplay(){
     return;
   }
   const fortune = generatePersonalFortune(info.birth, info.hourIdx||'', info.gender||'none');
-  // 번호추첨 탭 카드
-  const pickCard = document.getElementById('fortune-pick-card');
-  pickCard.style.display = 'block';
-  renderFortune(fortune, 'fortune-pick-content');
-  // 내정보 탭 카드
+  // 내정보(오늘의 운세) 탭 카드
   document.getElementById('myinfo-fortune-area').innerHTML = `
     <div class="fortune-card">
       <div class="fortune-card-title">🔮 내 오늘의 운세</div>
@@ -2505,7 +2514,6 @@ document.getElementById('myinfo-reset-btn').addEventListener('click', ()=>{
   document.querySelectorAll('.myinfo-gender-btn').forEach(b => b.classList.toggle('on', b.dataset.gender==='none'));
   document.getElementById('myinfo-lucky-reflect').checked = false;
   window._personalLuckyNum = null;
-  document.getElementById('fortune-pick-card').style.display = 'none';
   document.getElementById('myinfo-fortune-area').innerHTML = '';
   loadTodayLucky();
 });
