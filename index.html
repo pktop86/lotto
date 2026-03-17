@@ -902,8 +902,13 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       </div>
       <div id="map"></div>
     </div>
-    <div class="near-count" id="near-count"></div>
-    <div id="near-sort-row" class="near-sort-row" style="display:none">
+   <div class="near-count" id="near-count"></div>
+
+<div id="near-top10-open-wrap" style="display:none;margin-bottom:10px">
+  <button id="near-top10-open-btn" class="near-top10-open-btn">🏆 내 주변 명당 TOP10 보기</button>
+</div>
+
+<div id="near-sort-row" class="near-sort-row" style="display:none">
   <button class="near-sort-btn on" data-sort="dist" onclick="sortAndRender('dist',this)">📍 가까운순</button>
   <button class="near-sort-btn" data-sort="lucky" onclick="sortAndRender('lucky',this)">🏆 명당점수순</button>
   <button class="near-sort-btn" data-sort="first" onclick="sortAndRender('first',this)">🥇 1등횟수순</button>
@@ -911,12 +916,6 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 </div>
 
 <div id="near-sort-help" class="near-sort-help" style="display:none"></div>
-
-<div id="near-top10-box" class="near-top10-box" style="display:none">
-  <div class="near-top10-title">🏆 내 주변 명당 TOP10</div>
-  <div id="near-top10-list" class="near-top10-list"></div>
-</div>
-
 <div id="near-list"></div>
     <div id="near-list"></div>
   </div>
@@ -1729,7 +1728,19 @@ const KAKAO_JS_KEY = '발급필요'; // 카카오 JS 앱키 (developers.kakao.co
 function initNearTab(){
   if(nearMap){ setTimeout(()=>nearMap.invalidateSize(),100); }
 }
- 
+ function getNearRadiusLabel(r){
+  if(r >= 1000){
+    return (r / 1000) + 'km';
+  }
+  return r + 'm';
+}
+
+function updateNearTop10ButtonText(){
+  const btn = document.getElementById('near-top10-open-btn');
+  if(!btn) return;
+  const label = getNearRadiusLabel(nearRadius);
+  btn.textContent = `🏆 내 ${label} 주변 명당 TOP10 보기`;
+}
 function startNearSearch(){
   const btn=document.getElementById('loc-btn');
   btn.disabled=true; btn.innerHTML='📡 위치 확인 중...';
@@ -3045,6 +3056,57 @@ document.getElementById('myinfo-reset-btn').addEventListener('click', ()=>{
 let _luckyStatsCache = null;
 let _luckyStatsCacheTime = 0;
 
+function formatNearTop10List(stores){
+  if(!stores || !stores.length){
+    return `<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px 8px">표시할 명당 데이터가 없습니다.</div>`;
+  }
+
+  return stores.map((s,i)=>{
+    const rankCls = i===0 ? 'r1' : i===1 ? 'r2' : i===2 ? 'r3' : '';
+    const first = (s.lucky?.firstAutoCount || 0) + (s.lucky?.firstManualCount || 0);
+    const second = s.lucky?.secondCount || 0;
+    const recent = s.lucky?.recentWinRound || 0;
+    const dist = s.dist < 1000 ? `${s.dist}m` : `${(s.dist/1000).toFixed(1)}km`;
+
+    return `
+      <div class="near-top10-item">
+        <div class="near-top10-rank ${rankCls}">${i+1}</div>
+        <div class="near-top10-main">
+          <div class="near-top10-name">${s.name}</div>
+          <div class="near-top10-addr">${s.addr || ''}</div>
+          <div class="near-top10-meta">
+            🥇 1등 ${first}회 · 🥈 2등 ${second}회<br>
+            <span class="muted">${recent ? `최근 당첨 ${recent}회` : '최근 당첨 데이터 없음'}</span>
+          </div>
+        </div>
+        <div class="near-top10-side">
+          <div class="near-top10-score">🏆 ${s.lucky?.luckyScore || 0}점</div>
+          <div class="near-top10-dist">${dist}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openNearTop10Modal(){
+  const modal = document.getElementById('near-top10-modal');
+  const listEl = document.getElementById('near-top10-modal-list');
+  if(!modal || !listEl) return;
+
+  listEl.innerHTML = formatNearTop10List(window._nearTop10Stores || []);
+  modal.classList.add('show');
+}
+
+function closeNearTop10Modal(){
+  const modal = document.getElementById('near-top10-modal');
+  if(modal) modal.classList.remove('show');
+}
+ document.getElementById('near-top10-open-btn')?.addEventListener('click', openNearTop10Modal);
+document.getElementById('near-top10-close-btn')?.addEventListener('click', closeNearTop10Modal);
+document.getElementById('near-top10-modal')?.addEventListener('click', (e)=>{
+  if(e.target === document.getElementById('near-top10-modal')) closeNearTop10Modal();
+});
+ 
  function renderNearSortHelp(sortType){
   const el = document.getElementById('near-sort-help');
   if(!el) return;
