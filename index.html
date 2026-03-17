@@ -411,6 +411,23 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .my-date-divider-text{font-size:10px;color:var(--muted);font-weight:700;white-space:nowrap}
 .my-item-sim-btn{background:rgba(58,184,255,.12);border:1px solid rgba(58,184,255,.25);color:var(--accent3);border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
 .my-item-sim-btn:hover{background:rgba(58,184,255,.25)}
+ 
+/* ── 명당 시스템 ── */
+.near-sort-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;padding:0 2px}
+.near-sort-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.near-sort-btn.on{background:var(--accent);color:#000;border-color:var(--accent)}
+.lucky-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700;margin-top:4px}
+.lucky-badge-gold{background:rgba(240,192,64,.2);color:var(--accent);border:1px solid rgba(240,192,64,.35)}
+.lucky-badge-orange{background:rgba(224,92,32,.15);color:#e05c20;border:1px solid rgba(224,92,32,.3)}
+.lucky-badge-blue{background:rgba(58,184,255,.12);color:var(--accent3);border:1px solid rgba(58,184,255,.25)}
+.lucky-badge-none{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border)}
+.lucky-score-bar-wrap{width:60px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:4px}
+.lucky-score-bar-fill{height:100%;border-radius:2px}
+.near-loading-lucky{font-size:10px;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:4px}
+.near-table td{vertical-align:top;padding:10px 8px}
+.near-lucky-cell{min-width:100px}
+.near-table .lucky-row-gold{border-left:3px solid var(--accent)}
+.near-table .lucky-row-orange{border-left:3px solid #e05c20}
 </style>
 </head>
 <body>
@@ -721,6 +738,12 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <div id="map"></div>
     </div>
     <div class="near-count" id="near-count"></div>
+    <div id="near-sort-row" class="near-sort-row" style="display:none">
+      <button class="near-sort-btn on" data-sort="dist" onclick="sortAndRender('dist',this)">📍 가까운순</button>
+      <button class="near-sort-btn" data-sort="lucky" onclick="sortAndRender('lucky',this)">🏆 명당순</button>
+      <button class="near-sort-btn" data-sort="first" onclick="sortAndRender('first',this)">🥇 1등많은순</button>
+      <button class="near-sort-btn" data-sort="recent" onclick="sortAndRender('recent',this)">⚡ 최근당첨순</button>
+    </div>
     <div id="near-list"></div>
   </div>
  
@@ -1584,10 +1607,22 @@ function initLeafletMap(){
  
 async function searchStores(){
   document.getElementById('near-count').textContent='판매점 검색 중...';
-  document.getElementById('near-list').innerHTML='<div class="near-empty" style="padding:20px">🔍 주변 판매점을 검색하고 있습니다...</div>';
+  document.getElementById('near-list').innerHTML='<div class="near-empty" style="padding:20px">🔍 주변 판매점을 검색하고 있습니다...<div class="near-loading-lucky">🏆 명당 정보 로딩 중...</div></div>';
   nearMarkers.forEach(m=>nearMap.removeLayer(m)); nearMarkers=[];
-  const stores = await fetchKakaoStores();
-  renderStores(stores);
+  // 판매점 + 명당 정보 병렬 로드
+  const [stores, luckyMap] = await Promise.all([
+    fetchKakaoStores(),
+    loadLuckyStats()
+  ]);
+  // 명당 정보 병합
+  const merged = stores.map(s=>({
+    ...s,
+    lucky: findLuckyMatch(s.name, s.addr, luckyMap)
+  }));
+  window._nearStores = merged; // 정렬용 저장
+  window._nearCurrentSort = 'dist';
+  document.getElementById('near-sort-row').style.display = merged.length ? 'flex' : 'none';
+  renderStores(merged);
 }
  
 async function fetchKakaoStores(){
@@ -1624,6 +1659,26 @@ async function fetchKakaoStores(){
   }
 }
  
+function getLuckyBadgeHtml(lucky){
+  if(!lucky) return '<span class="lucky-badge lucky-badge-none">명당 데이터 없음</span>';
+  const score=lucky.luckyScore||0;
+  const cls=score>=80?'lucky-badge-gold':score>=50?'lucky-badge-orange':'lucky-badge-blue';
+  const first=(lucky.firstAutoCount||0)+(lucky.firstManualCount||0);
+  const barColor=score>=80?'var(--accent)':score>=50?'#e05c20':'var(--accent3)';
+  return `<span class="lucky-badge ${cls}">🏆 ${score}점
+    <span class="lucky-score-bar-wrap"><span class="lucky-score-bar-fill" style="width:${score}%;background:${barColor}"></span></span>
+  </span>
+  <span style="font-size:9px;color:var(--muted);margin-left:4px">1등 ${first}회 · 2등 ${lucky.secondCount||0}회${lucky.recentWinRound?` · 최근${lucky.recentWinRound}회`:''}</span>`;
+}
+ 
+function getMarkerColor(store){
+  if(!store.lucky) return '#888';
+  const s=store.lucky.luckyScore||0;
+  if(s>=80) return '#f4c430';
+  if(s>=50) return '#ff6a00';
+  return '#3ab8ff';
+}
+ 
 function renderStores(stores){
   const rLabel=nearRadius>=1000?nearRadius/1000+'km':nearRadius+'m';
   
@@ -1644,13 +1699,13 @@ function renderStores(stores){
   document.getElementById('near-count').textContent=`반경 ${rLabel} 내 판매점 ${stores.length}개`;
   
   stores.slice(0,30).forEach((s,i)=>{
-    const color=i===0?'#f0c040':i<3?'#e05c20':'#3ab8ff';
+    const color=getMarkerColor(s)||( i===0?'#f0c040':i<3?'#e05c20':'#3ab8ff');
     const ic=L.divIcon({
       html:`<div style="background:${color};color:#000;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:10px;border:2px solid rgba(0,0,0,.4);box-shadow:0 2px 6px rgba(0,0,0,.5)">${i+1}</div>`,
       iconSize:[24,24],iconAnchor:[12,12],className:''
     });
     const m=L.marker([s.lat,s.lng],{icon:ic}).addTo(nearMap)
-      .bindPopup(`<b>${s.name}</b><br>${s.addr||''}<br><span style="color:#e05c20;font-weight:700">${s.dist}m</span>`);
+      .bindPopup(`<b>${s.name}</b><br>${s.addr||''}<br><span style="color:#e05c20;font-weight:700">${s.dist}m</span>${s.lucky?`<br>🏆 명당 ${s.lucky.luckyScore}점 · 1등 ${(s.lucky.firstAutoCount||0)+(s.lucky.firstManualCount||0)}회`:''}`);
     nearMarkers.push(m);
   });
   
@@ -1658,11 +1713,12 @@ function renderStores(stores){
   nearMap.fitBounds(pts,{padding:[30,30]});
   
   let html=`<div style="overflow-x:auto"><table class="near-table">
-    <thead><tr><th>#</th><th>판매점명 / 주소</th><th>거리</th></tr></thead><tbody>`;
+    <thead><tr><th>#</th><th>판매점명 / 주소</th><th>거리</th><th>명당</th></tr></thead><tbody>`;
   stores.forEach((s,i)=>{
     const rankCls=i===0?'':i===1?' r2':i===2?' r3':'';
     const dist=s.dist<1000?s.dist+'m':(s.dist/1000).toFixed(1)+'km';
-    html+=`<tr>
+    const luckyRowCls=s.lucky&&s.lucky.luckyScore>=80?' lucky-row-gold':s.lucky&&s.lucky.luckyScore>=50?' lucky-row-orange':'';
+    html+=`<tr class="${luckyRowCls}">
       <td><div class="near-rank${rankCls}">${i+1}</div></td>
       <td>
         <div class="near-name">${s.url?`<a href="${s.url}" target="_blank" style="color:var(--text);text-decoration:none">${s.name} 🔗</a>`:s.name}</div>
@@ -1670,6 +1726,7 @@ function renderStores(stores){
         ${s.phone?`<div class="near-tel">📞 ${s.phone}</div>`:''}
       </td>
       <td><div class="near-dist">${dist}</div></td>
+      <td class="near-lucky-cell">${getLuckyBadgeHtml(s.lucky)}</td>
     </tr>`;
   });
   html+=`</tbody></table></div>`;
@@ -2799,6 +2856,71 @@ document.getElementById('myinfo-reset-btn').addEventListener('click', ()=>{
 });
  
 // 탭 전환 시 내정보 탭 진입
+ 
+// ── 명당 시스템 ──
+let _luckyStatsCache = null;
+let _luckyStatsCacheTime = 0;
+ 
+// Firestore store_stats 로드 (캐시 10분)
+async function loadLuckyStats(){
+  const now = Date.now();
+  if(_luckyStatsCache && now - _luckyStatsCacheTime < 600000) return _luckyStatsCache;
+  if(!db) return {};
+  try{
+    const snap = await getDocs(collection(db,'store_stats'));
+    const map = {};
+    snap.docs.forEach(d=>{ map[d.id] = d.data(); });
+    _luckyStatsCache = map;
+    _luckyStatsCacheTime = now;
+    return map;
+  }catch(e){ console.warn('loadLuckyStats error:',e); return {}; }
+}
+ 
+// 판매점명 매칭 (store_stats key는 storeId 또는 이름)
+function findLuckyMatch(name, addr, luckyMap){
+  if(!luckyMap||!name) return null;
+  // 정확 매칭
+  if(luckyMap[name]) return luckyMap[name];
+  // 이름 부분 매칭
+  const normalized = name.replace(/\s/g,'').toLowerCase();
+  for(const key of Object.keys(luckyMap)){
+    if(key.replace(/\s/g,'').toLowerCase().includes(normalized)||
+       normalized.includes(key.replace(/\s/g,'').toLowerCase())){
+      return luckyMap[key];
+    }
+  }
+  return null;
+}
+ 
+// 정렬 + 재렌더
+function sortAndRender(sortType, btn){
+  window._nearCurrentSort = sortType;
+  document.querySelectorAll('.near-sort-btn').forEach(b=>b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  const stores = window._nearStores || [];
+  const sorted = [...stores].sort((a,b)=>{
+    if(sortType==='dist') return a.dist-b.dist;
+    if(sortType==='lucky'){
+      const sa=a.lucky?.luckyScore||0, sb=b.lucky?.luckyScore||0;
+      return sb-sa || a.dist-b.dist;
+    }
+    if(sortType==='first'){
+      const fa=(a.lucky?.firstAutoCount||0)+(a.lucky?.firstManualCount||0);
+      const fb=(b.lucky?.firstAutoCount||0)+(b.lucky?.firstManualCount||0);
+      return fb-fa || a.dist-b.dist;
+    }
+    if(sortType==='recent'){
+      const ra=a.lucky?.recentWinRound||0, rb=b.lucky?.recentWinRound||0;
+      return rb-ra || a.dist-b.dist;
+    }
+    return a.dist-b.dist;
+  });
+  // 마커 초기화 후 재렌더
+  nearMarkers.forEach(m=>nearMap.removeLayer(m)); nearMarkers=[];
+  renderStores(sorted);
+}
+window.sortAndRender = sortAndRender;
+ 
  
 init();
 </script>
