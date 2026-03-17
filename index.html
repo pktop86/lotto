@@ -459,7 +459,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     <div class="sim-box" id="sim-box">
       <div class="sim-title">🤖 번호 시뮬레이션</div>
       <div class="sim-target" id="sim-target">
-        <span class="sim-target-empty">번호를 생성하면 시뮬레이션할 수 있습니다</span>
+        <span class="sim-target-empty">번호 생성 또는 행운 번호 로드 후 활성화됩니다</span>
       </div>
       <div class="sim-btns">
         <button class="sim-btn sim-btn-free" id="sim-btn-100" disabled>🎲 100회 (무료)</button>
@@ -1518,12 +1518,15 @@ function renderLuckyCard(data){
     b.textContent=n;
     ballsEl.appendChild(b);
   });
+  // 행운 번호를 시뮬레이션 대상으로 자동 설정
+  updateSimTarget(numbers);
   // 점수바 애니메이션
   setTimeout(()=>{
     const fill=document.getElementById('lucky-score-fill');
     if(fill)fill.style.width=luckyScore+'%';
   },300);
-  // 시뮬레이션 버튼
+  // 버튼 이벤트 - setTimeout으로 DOM 반영 후 등록
+  setTimeout(()=>{
   document.getElementById('lucky-sim-btn').addEventListener('click',()=>{
     // 번호추첨 탭으로 이동 후 결과에 행운 번호 표시
     document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
@@ -1555,6 +1558,7 @@ function renderLuckyCard(data){
       setTimeout(()=>banner&&banner.classList.remove('show'),3000);
     }catch(e){console.error(e);}
   });
+  }, 0); // setTimeout 닫기
 }
  
 async function loadTodayLucky(){
