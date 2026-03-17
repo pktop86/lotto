@@ -334,6 +334,42 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .challenge-num-btn{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:6px 2px;font-size:11px;font-weight:700;cursor:pointer;text-align:center;color:var(--muted);transition:all .15s}
 .challenge-num-btn.selected{background:var(--accent);color:#000;border-color:var(--accent)}
 .challenge-num-btn:disabled{opacity:.4;cursor:not-allowed}
+ 
+/* ── 내정보 탭 ── */
+.myinfo-section{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
+.myinfo-section-title{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--accent);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.myinfo-form-row{margin-bottom:14px}
+.myinfo-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block;font-weight:700}
+.myinfo-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:11px 14px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.myinfo-input:focus{border-color:var(--accent)}
+.myinfo-select{width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:11px 14px;color:var(--text);font-size:13px;font-family:inherit;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer}
+.myinfo-gender-row{display:flex;gap:8px}
+.myinfo-gender-btn{flex:1;background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:9px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;text-align:center}
+.myinfo-gender-btn.on{background:var(--accent);color:#000;border-color:var(--accent)}
+.myinfo-checkbox-row{display:flex;align-items:flex-start;gap:10px;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.2);border-radius:10px;padding:12px 14px;margin-bottom:14px;cursor:pointer}
+.myinfo-checkbox-row input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;margin-top:2px;cursor:pointer}
+.myinfo-checkbox-label{font-size:12px;color:var(--text);line-height:1.5;cursor:pointer}
+.myinfo-btn-row{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.myinfo-btn-save{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .2s}
+.myinfo-btn-save:hover{transform:translateY(-1px);box-shadow:0 4px 14px var(--glow)}
+.myinfo-btn-reset{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+/* 운세 카드 */
+.fortune-card{background:linear-gradient(135deg,rgba(176,96,255,.08),rgba(240,192,64,.06));border:1px solid rgba(176,96,255,.25);border-radius:16px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.fortune-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(176,96,255,.15),transparent);border-radius:50%;pointer-events:none}
+.fortune-card-title{font-size:13px;font-weight:900;color:#b060ff;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.fortune-today{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:14px;padding:12px;background:rgba(0,0,0,.2);border-radius:10px;border-left:3px solid #b060ff}
+.fortune-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.fortune-item{background:rgba(0,0,0,.2);border-radius:10px;padding:10px 12px}
+.fortune-item-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.fortune-item-val{font-size:14px;font-weight:900;color:var(--text)}
+.fortune-lucky-num{background:linear-gradient(135deg,rgba(176,96,255,.2),rgba(58,184,255,.15));border:1px solid rgba(176,96,255,.3);border-radius:12px;padding:14px;text-align:center;margin-bottom:14px}
+.fortune-lucky-num-val{font-family:"Black Han Sans",sans-serif;font-size:2.5rem;color:#b060ff;line-height:1;margin-bottom:4px}
+.fortune-lucky-num-label{font-size:10px;color:var(--muted)}
+.fortune-action{background:rgba(0,0,0,.2);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.fortune-action-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.fortune-action-text{font-size:12px;color:var(--text);line-height:1.6}
+.fortune-empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:12px}
+.fortune-empty-icon{font-size:36px;margin-bottom:10px;opacity:.4}
 </style>
 </head>
 <body>
@@ -351,6 +387,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   <div class="tabs">
     <button class="tab-btn on" data-tab="pick">🎲 번호추첨</button>
     <button class="tab-btn" data-tab="mynums">⭐ 내 번호</button>
+    <button class="tab-btn" data-tab="myinfo">🔮 내정보</button>
     <button class="tab-btn" data-tab="near">📍 내주변 판매점</button>
     <button class="tab-btn disabled" data-tab="prize" id="tab-prize-btn">🏆 당첨현황</button>
   </div>
@@ -369,6 +406,11 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
           <div>AI가 오늘의 행운 패턴 분석 중...</div>
         </div>
       </div>
+    </div>
+    <!-- 내 오늘의 운세 카드 (내정보 입력 시 표시) -->
+    <div class="fortune-card" id="fortune-pick-card" style="display:none">
+      <div class="fortune-card-title">🔮 내 오늘의 운세</div>
+      <div id="fortune-pick-content"></div>
     </div>
     <!-- 주간 챌린지 -->
     <div class="challenge-card" id="challenge-card">
@@ -543,6 +585,53 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       </div>
     </div>
   </div>
+  <!-- 내정보 탭 -->
+  <div class="tab-content" id="tab-myinfo">
+    <div class="myinfo-section">
+      <div class="myinfo-section-title">🔮 내 정보 입력</div>
+      <div class="myinfo-form-row">
+        <label class="myinfo-label">생년월일</label>
+        <input type="date" class="myinfo-input" id="myinfo-birth" max="2010-01-01">
+      </div>
+      <div class="myinfo-form-row">
+        <label class="myinfo-label">생시 (태어난 시간대)</label>
+        <select class="myinfo-select" id="myinfo-hour">
+          <option value="">선택 안 함</option>
+          <option value="0">23:00 ~ 01:00 (자시)</option>
+          <option value="1">01:00 ~ 03:00 (축시)</option>
+          <option value="2">03:00 ~ 05:00 (인시)</option>
+          <option value="3">05:00 ~ 07:00 (묘시)</option>
+          <option value="4">07:00 ~ 09:00 (진시)</option>
+          <option value="5">09:00 ~ 11:00 (사시)</option>
+          <option value="6">11:00 ~ 13:00 (오시)</option>
+          <option value="7">13:00 ~ 15:00 (미시)</option>
+          <option value="8">15:00 ~ 17:00 (신시)</option>
+          <option value="9">17:00 ~ 19:00 (유시)</option>
+          <option value="10">19:00 ~ 21:00 (술시)</option>
+          <option value="11">21:00 ~ 23:00 (해시)</option>
+        </select>
+      </div>
+      <div class="myinfo-form-row">
+        <label class="myinfo-label">성별 (선택사항)</label>
+        <div class="myinfo-gender-row">
+          <button class="myinfo-gender-btn" data-gender="male">남</button>
+          <button class="myinfo-gender-btn" data-gender="female">여</button>
+          <button class="myinfo-gender-btn on" data-gender="none">선택 안 함</button>
+        </div>
+      </div>
+      <label class="myinfo-checkbox-row" for="myinfo-lucky-reflect">
+        <input type="checkbox" id="myinfo-lucky-reflect">
+        <span class="myinfo-checkbox-label">✨ <strong>행운 숫자를 오늘의 행운 번호에 반영</strong><br>내 오행에서 계산된 행운 숫자 1개가 오늘의 행운 6개 번호 안에 포함됩니다.</span>
+      </label>
+      <div class="myinfo-btn-row">
+        <button class="myinfo-btn-save" id="myinfo-save-btn">💾 저장하기</button>
+        <button class="myinfo-btn-reset" id="myinfo-reset-btn">초기화</button>
+      </div>
+    </div>
+    <!-- 운세 카드 -->
+    <div id="myinfo-fortune-area"></div>
+  </div>
+ 
   <!-- 내주변 판매점 탭 -->
   <div class="tab-content" id="tab-near">
     <button class="loc-btn" id="loc-btn">
@@ -763,6 +852,7 @@ async function init(){
     renderPrizeHeader(); scheduleAutoUpdate(); startSaturdayChecker();
     setStatus('ok',`내장 통계 준비 완료 (261~${latestRound}회)`);
     loadTodayLucky(); // 오늘의 행운 로드
+    updateFortuneDisplay(); // 내정보 운세 표시
     onAuthReady(()=>initChallenge()); // 챌린지 초기화
  
     // Auth → 내 번호 로드
@@ -1297,6 +1387,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     if(tab==='prize'){renderPrizeHeader();loadPrizeTab(latestRound);}
     if(tab==='mynums'){loadMyNums();}
     if(tab==='near'){initNearTab();}
+    if(tab==='myinfo'){const i=loadMyInfo();applyMyInfoToForm(i);updateFortuneDisplay();}
   });
 });
  
@@ -2055,6 +2146,351 @@ function updateChallengeGenNums(nums){
   if(btn&&!challengeMyEntry) btn.disabled=false;
 }
  
+ 
+// ── 내정보 & 오행 운세 ──
+ 
+// 오행 데이터
+const OHAENG_DATA = {
+  목: {
+    colors:['초록','청록','연두'], colorHex:['#40d080','#20b8a0','#80e040'],
+    times:['05:00~07:00','07:00~09:00'],
+    fortune:['새로운 시작을 두려워하지 않는 날입니다. 작은 도전이 좋은 흐름을 만듭니다.',
+      '창의적인 아이디어가 떠오르기 좋은 날입니다. 메모하는 습관이 도움됩니다.',
+      '성장과 발전의 에너지가 강한 날입니다. 배움에 투자하는 것이 좋습니다.',
+      '유연한 사고가 오늘의 열쇠입니다. 고집보다는 수용이 더 좋은 결과를 냅니다.',
+      '활력이 넘치는 날입니다. 몸을 움직이는 활동이 운을 높여줍니다.'],
+    actions:['가벼운 산책이나 스트레칭을 해보세요.','새로운 것을 하나 배워보는 것이 좋습니다.',
+      '창의적인 취미 활동에 시간을 투자해보세요.','식물에 물을 주거나 자연과 가까이하는 것이 좋습니다.',
+      '긍정적인 계획을 세워보는 것이 흐름을 돕습니다.'],
+    deeds:['주변 사람에게 응원의 말 한마디를 건네보세요.','쓰지 않는 물건을 정리해 나눔해보세요.',
+      '오래 연락 못했던 지인에게 먼저 안부를 전해보세요.','좋은 글귀나 정보를 공유해보세요.',
+      '작은 화분 하나를 선물해보세요.'],
+    nums:[1,2,3,11,12,13,21,22,23,31,32,33,41,42,43]
+  },
+  화: {
+    colors:['빨강','오렌지','핑크'], colorHex:['#ff5050','#e05c20','#ff80b0'],
+    times:['09:00~11:00','11:00~13:00'],
+    fortune:['열정이 빛나는 날입니다. 하고 싶었던 일을 과감히 시작해보세요.',
+      '적극적인 표현이 좋은 결과를 만드는 날입니다.',
+      '에너지가 넘치는 하루입니다. 중요한 일을 오전에 처리하면 좋습니다.',
+      '따뜻한 마음이 주변을 밝히는 날입니다. 먼저 웃어보세요.',
+      '자신감 있게 행동하면 좋은 흐름이 따라옵니다.'],
+    actions:['밝고 따뜻한 색상의 옷을 입어보세요.','좋아하는 음악을 들으며 하루를 시작해보세요.',
+      '오늘만큼은 조금 더 적극적으로 표현해보세요.','따뜻한 음료를 마시며 여유를 가져보세요.',
+      '주변을 밝게 만드는 행동 하나를 해보세요.'],
+    deeds:['누군가에게 따뜻한 음료를 사줘보세요.','칭찬이나 감사 메시지를 보내보세요.',
+      '봉사 활동 정보를 찾아보는 것도 좋습니다.','응원이 필요한 사람 곁에 있어주세요.',
+      '밝은 표정으로 먼저 인사해보세요.'],
+    nums:[4,5,6,14,15,16,24,25,26,34,35,36,44,45]
+  },
+  토: {
+    colors:['노랑','골드','베이지'], colorHex:['#f0c040','#c8a000','#d4b896'],
+    times:['13:00~15:00','07:00~09:00'],
+    fortune:['안정적인 흐름이 이어지는 날입니다. 무리하지 않는 것이 좋습니다.',
+      '신중한 판단이 좋은 결과를 만드는 날입니다. 급하게 결정하지 마세요.',
+      '현실적인 계획을 세우기 좋은 날입니다. 기초를 다지는 것이 중요합니다.',
+      '주변의 도움이 빛을 발하는 날입니다. 혼자보다 함께가 좋습니다.',
+      '차분함 속에서 좋은 흐름이 만들어집니다. 서두르지 않아도 됩니다.'],
+    actions:['정리정돈으로 하루를 시작해보세요.','천천히 식사를 즐기며 여유를 가져보세요.',
+      '오늘 할 일을 미리 정리해두면 흐름이 좋습니다.','안정적인 루틴을 지켜보세요.',
+      '과거보다는 현재에 집중하는 것이 좋습니다.'],
+    deeds:['주변을 청소하거나 공간을 정리해보세요.','음식을 나누거나 먹거리로 감사를 표현해보세요.',
+      '진심 어린 경청으로 누군가의 이야기를 들어주세요.','주변의 작은 도움에 감사를 표현해보세요.',
+      '오늘 하루 불평 없이 지내보세요.'],
+    nums:[2,7,12,17,22,27,32,37,42,5,10,15,20,25,30,35,40,45]
+  },
+  금: {
+    colors:['흰색','실버','골드'], colorHex:['#d0d8e8','#a0a8b8','#f0c040'],
+    times:['15:00~17:00','17:00~19:00'],
+    fortune:['결단력이 빛나는 날입니다. 미뤄왔던 결정을 내려보세요.',
+      '원칙을 지키는 것이 신뢰를 높이는 날입니다.',
+      '집중력이 높아지는 날입니다. 중요한 업무나 공부에 집중해보세요.',
+      '불필요한 것을 정리하면 좋은 기운이 들어오는 날입니다.',
+      '명확한 소통이 오해를 줄여주는 날입니다.'],
+    actions:['불필요한 물건이나 습관을 정리해보세요.','명확하게 표현하는 연습을 해보세요.',
+      '집중이 필요한 작업을 오늘 처리해보세요.','깔끔한 환경을 만들어보세요.',
+      '오늘은 약속을 꼭 지켜보세요.'],
+    deeds:['정직하게 행동하는 것 자체가 선행입니다.','분실물을 발견하면 꼭 신고해주세요.',
+      '약자를 위한 배려를 실천해보세요.','작은 약속도 소중히 지켜보세요.',
+      '공정하게 판단하고 행동해보세요.'],
+    nums:[4,9,14,19,24,29,34,39,44,6,11,16,21,26,31,36,41]
+  },
+  수: {
+    colors:['파랑','네이비','블랙'], colorHex:['#3ab8ff','#1a40a0','#2a2a3a'],
+    times:['21:00~23:00','23:00~01:00'],
+    fortune:['직관이 강해지는 날입니다. 느낌을 믿어보세요.',
+      '깊은 생각과 성찰이 빛을 발하는 날입니다.',
+      '흐름을 읽는 능력이 높아지는 날입니다. 서두르지 않아도 됩니다.',
+      '내면의 소리에 귀 기울이면 좋은 방향이 보입니다.',
+      '유연하게 상황에 적응하는 것이 좋은 결과를 만듭니다.'],
+    actions:['명상이나 조용한 시간을 가져보세요.','일기를 쓰거나 생각을 정리해보세요.',
+      '물을 충분히 마시며 몸의 흐름을 돌봐주세요.','좋아하는 책을 읽어보세요.',
+      '직관을 믿고 작은 결정을 내려보세요.'],
+    deeds:['누군가의 고민을 조용히 들어주세요.','물이나 음료를 나눠보세요.',
+      '익명으로 작은 선물이나 도움을 줘보세요.','오늘 하루 SNS 대신 직접 소통해보세요.',
+      '나 자신을 돌보는 것도 선행입니다.'],
+    nums:[1,6,11,16,21,26,31,36,41,3,8,13,18,23,28,33,38,43]
+  }
+};
+ 
+// 천간 오행 (갑을=목, 병정=화, 무기=토, 경신=금, 임계=수)
+const YEAR_OHAENG = [
+  '금','수','목','목','화','화','토','토','금','금' // 0년대 끝자리 기준
+];
+ 
+function getYearOhaeng(year){
+  // 갑자년 기준 60갑자 계산
+  const base = (year - 4) % 10;
+  const idx = ((base % 10) + 10) % 10;
+  return YEAR_OHAENG[idx];
+}
+ 
+function getMonthOhaeng(month){
+  // 월별 오행 (인월=목 2월~)
+  const map = ['수','목','목','목','화','화','토','금','금','금','수','수'];
+  return map[month - 1];
+}
+ 
+function getHourOhaeng(hourIdx){
+  // 12지 시간별 오행
+  const map = ['수','토','목','목','토','화','화','토','금','금','토','수'];
+  return map[hourIdx] || '토';
+}
+ 
+function getTodayOhaeng(){
+  const kst = new Date(new Date().getTime() + 9*3600000);
+  const day = kst.getDay(); // 0=일,1=월...
+  const map = ['토','목','화','토','금','수','수'];
+  return map[day];
+}
+ 
+function getPersonalOhaeng(birth, hourIdx){
+  const d = new Date(birth);
+  const y = getYearOhaeng(d.getFullYear());
+  const m = getMonthOhaeng(d.getMonth() + 1);
+  const h = hourIdx !== '' ? getHourOhaeng(parseInt(hourIdx)) : null;
+  // 연+월 조합, 생시 있으면 추가 가중
+  const ohaengs = [y, m];
+  if(h) ohaengs.push(h);
+  // 빈도 계산
+  const cnt = {};
+  ohaengs.forEach(o => cnt[o] = (cnt[o]||0) + 1);
+  return Object.entries(cnt).sort((a,b) => b[1]-a[1])[0][0];
+}
+ 
+function getRelation(personal, today){
+  // 오행 상생/상극 관계
+  const sungsaeng = {목:'화',화:'토',토:'금',금:'수',수:'목'};
+  const sangguk = {목:'토',화:'금',토:'수',금:'목',수:'화'};
+  if(today === personal) return 'same';
+  if(sungsaeng[personal] === today) return 'good'; // 내가 생해주는
+  if(sungsaeng[today] === personal) return 'support'; // 도움받는
+  if(sangguk[personal] === today) return 'weak';
+  if(sangguk[today] === personal) return 'caution';
+  return 'neutral';
+}
+ 
+function seededPick(arr, seed){
+  const s = Math.abs(Math.sin(seed) * 10000);
+  return arr[Math.floor(s % arr.length)];
+}
+ 
+function generatePersonalFortune(birth, hourIdx, gender){
+  const dateKey = getTodayKey();
+  const dateSeed = dateKey.replace(/-/g,'').split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const birthSeed = birth.replace(/-/g,'').split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const seed = dateSeed + birthSeed;
+ 
+  const personalOhaeng = getPersonalOhaeng(birth, hourIdx);
+  const todayOhaeng = getTodayOhaeng();
+  const relation = getRelation(personalOhaeng, todayOhaeng);
+  const data = OHAENG_DATA[personalOhaeng];
+  const todayData = OHAENG_DATA[todayOhaeng];
+ 
+  // 운세 문구 선택
+  const fortuneArr = relation === 'support' || relation === 'same'
+    ? data.fortune
+    : [...data.fortune, ...todayData.fortune];
+  const fortuneText = seededPick(fortuneArr, seed);
+  const action = seededPick(data.actions, seed + 1);
+  const deed = seededPick(data.deeds, seed + 2);
+ 
+  // 행운 컬러
+  const colorIdx = Math.floor(Math.abs(Math.sin(seed+3)*100)) % data.colors.length;
+  const luckyColor = data.colors[colorIdx];
+  const luckyColorHex = data.colorHex[colorIdx];
+ 
+  // 행운 시간
+  const luckyTime = seededPick(data.times, seed + 4);
+ 
+  // 행운 숫자 (1~45 중 1개, 오행 가중치)
+  const numPool = [...data.nums, ...todayData.nums];
+  const luckyNum = seededPick([...new Set(numPool)], seed + 5);
+ 
+  return {
+    personalOhaeng, todayOhaeng, relation,
+    fortuneText, action, deed,
+    luckyColor, luckyColorHex, luckyTime,
+    luckyNum
+  };
+}
+ 
+function renderFortune(fortune, containerId){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  const relationMap = {
+    same:'오늘은 내 에너지와 하루의 흐름이 같은 방향입니다.',
+    good:'오늘 내 에너지가 하루의 흐름을 이끌어가는 날입니다.',
+    support:'오늘 하루의 흐름이 나를 도와주는 날입니다.',
+    weak:'오늘은 에너지가 다소 분산될 수 있습니다. 차분히 집중해보세요.',
+    caution:'오늘은 무리하지 않는 것이 좋습니다.',
+    neutral:'평온한 하루입니다. 꾸준함이 좋은 결과를 만듭니다.'
+  };
+  el.innerHTML = `
+    <div class="fortune-today">${fortune.fortuneText}</div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:12px;padding:0 2px">${relationMap[fortune.relation]||''} (내 오행: ${fortune.personalOhaeng} · 오늘 오행: ${fortune.todayOhaeng})</div>
+    <div class="fortune-lucky-num">
+      <div class="fortune-lucky-num-val" style="color:${fortune.luckyColorHex}">${fortune.luckyNum}</div>
+      <div class="fortune-lucky-num-label">오늘의 행운 숫자</div>
+    </div>
+    <div class="fortune-grid">
+      <div class="fortune-item">
+        <div class="fortune-item-label">행운 컬러</div>
+        <div class="fortune-item-val" style="color:${fortune.luckyColorHex}">● ${fortune.luckyColor}</div>
+      </div>
+      <div class="fortune-item">
+        <div class="fortune-item-label">행운 시간</div>
+        <div class="fortune-item-val" style="font-size:12px">${fortune.luckyTime}</div>
+      </div>
+    </div>
+    <div class="fortune-action">
+      <div class="fortune-action-label">⬆️ 운을 올리는 행동</div>
+      <div class="fortune-action-text">${fortune.action}</div>
+    </div>
+    <div class="fortune-action">
+      <div class="fortune-action-label">🌱 오늘의 작은 선행</div>
+      <div class="fortune-action-text">${fortune.deed}</div>
+    </div>
+  `;
+}
+ 
+// localStorage 키
+const MYINFO_KEY = 'lotto_myinfo';
+ 
+function loadMyInfo(){
+  try{
+    const s = localStorage.getItem(MYINFO_KEY);
+    return s ? JSON.parse(s) : null;
+  }catch(e){ return null; }
+}
+ 
+function saveMyInfo(data){
+  try{ localStorage.setItem(MYINFO_KEY, JSON.stringify(data)); }catch(e){}
+}
+ 
+function applyMyInfoToForm(info){
+  if(!info) return;
+  if(info.birth) document.getElementById('myinfo-birth').value = info.birth;
+  if(info.hourIdx !== undefined){
+    document.getElementById('myinfo-hour').value = info.hourIdx;
+  }
+  // 성별
+  document.querySelectorAll('.myinfo-gender-btn').forEach(b => {
+    b.classList.toggle('on', b.dataset.gender === (info.gender||'none'));
+  });
+  document.getElementById('myinfo-lucky-reflect').checked = !!info.luckyReflect;
+}
+ 
+function getCurrentGender(){
+  const on = document.querySelector('.myinfo-gender-btn.on');
+  return on ? on.dataset.gender : 'none';
+}
+ 
+function updateFortuneDisplay(){
+  const info = loadMyInfo();
+  if(!info || !info.birth){
+    document.getElementById('fortune-pick-card').style.display = 'none';
+    document.getElementById('myinfo-fortune-area').innerHTML = `
+      <div class="fortune-card" style="opacity:.6">
+        <div class="fortune-card-title">🔮 내 오늘의 운세</div>
+        <div class="fortune-empty"><div class="fortune-empty-icon">🔮</div>생년월일을 입력하고 저장하면<br>오늘의 운세가 표시됩니다.</div>
+      </div>`;
+    return;
+  }
+  const fortune = generatePersonalFortune(info.birth, info.hourIdx||'', info.gender||'none');
+  // 번호추첨 탭 카드
+  const pickCard = document.getElementById('fortune-pick-card');
+  pickCard.style.display = 'block';
+  renderFortune(fortune, 'fortune-pick-content');
+  // 내정보 탭 카드
+  document.getElementById('myinfo-fortune-area').innerHTML = `
+    <div class="fortune-card">
+      <div class="fortune-card-title">🔮 내 오늘의 운세</div>
+      <div id="myinfo-fortune-content"></div>
+    </div>`;
+  renderFortune(fortune, 'myinfo-fortune-content');
+  // 행운 숫자 오늘의 행운에 반영
+  if(info.luckyReflect){
+    window._personalLuckyNum = fortune.luckyNum;
+  } else {
+    window._personalLuckyNum = null;
+  }
+}
+ 
+// 오늘의 행운 번호에 개인 행운 숫자 반영
+const _origGenerateLuckyData = generateLuckyData;
+function generateLuckyData(dateKey){
+  const data = _origGenerateLuckyData(dateKey);
+  if(window._personalLuckyNum){
+    const n = window._personalLuckyNum;
+    if(!data.numbers.includes(n)){
+      data.numbers[5] = n; // 마지막 번호 교체
+      data.numbers.sort((a,b)=>a-b);
+    }
+  }
+  return data;
+}
+ 
+// 성별 버튼 이벤트
+document.querySelectorAll('.myinfo-gender-btn').forEach(btn => {
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.myinfo-gender-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+  });
+});
+ 
+// 저장 버튼
+document.getElementById('myinfo-save-btn').addEventListener('click', ()=>{
+  const birth = document.getElementById('myinfo-birth').value;
+  if(!birth){ alert('생년월일을 입력해주세요.'); return; }
+  const info = {
+    birth,
+    hourIdx: document.getElementById('myinfo-hour').value,
+    gender: getCurrentGender(),
+    luckyReflect: document.getElementById('myinfo-lucky-reflect').checked
+  };
+  saveMyInfo(info);
+  updateFortuneDisplay();
+  // 오늘의 행운 재로드 (행운 숫자 반영)
+  loadTodayLucky();
+  alert('✅ 저장됐습니다! 오늘의 행운 번호에 반영됩니다.');
+});
+ 
+// 초기화 버튼
+document.getElementById('myinfo-reset-btn').addEventListener('click', ()=>{
+  if(!confirm('내 정보를 초기화하겠습니까?')) return;
+  localStorage.removeItem(MYINFO_KEY);
+  document.getElementById('myinfo-birth').value = '';
+  document.getElementById('myinfo-hour').value = '';
+  document.querySelectorAll('.myinfo-gender-btn').forEach(b => b.classList.toggle('on', b.dataset.gender==='none'));
+  document.getElementById('myinfo-lucky-reflect').checked = false;
+  window._personalLuckyNum = null;
+  document.getElementById('fortune-pick-card').style.display = 'none';
+  document.getElementById('myinfo-fortune-area').innerHTML = '';
+  loadTodayLucky();
+});
+ 
+// 탭 전환 시 내정보 탭 진입
  
 init();
 </script>
