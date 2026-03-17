@@ -1725,7 +1725,21 @@ document.querySelectorAll('.seg-btn').forEach(btn=>{
 let nearMap=null, nearMarkers=[], nearRadius=500, myLat=0, myLng=0;
 const KAKAO_JS_KEY = '발급필요'; // 카카오 JS 앱키 (developers.kakao.com)
  
-function initNearTab(){
+function getNearRadiusLabel(r){
+  if(r >= 1000){
+    return (r / 1000) + 'km';
+  }
+  return r + 'm';
+}
+
+function updateNearTop10ButtonText(){
+  const btn = document.getElementById('near-top10-open-btn');
+  if(!btn) return;
+  const label = getNearRadiusLabel(nearRadius);
+  btn.textContent = `🏆 내 ${label} 주변 명당 TOP10 보기`;
+}
+ 
+ function initNearTab(){
   if(nearMap){ setTimeout(()=>nearMap.invalidateSize(),100); }
 }
  function getNearRadiusLabel(r){
@@ -1750,10 +1764,11 @@ function startNearSearch(){
   }
   navigator.geolocation.getCurrentPosition(pos=>{
     myLat=pos.coords.latitude; myLng=pos.coords.longitude;
-    btn.style.display='none';
-    document.getElementById('near-filter').style.display='flex';
-    document.getElementById('map-loading').style.display='none';
-    loadLeaflet();
+btn.style.display='none';
+document.getElementById('near-filter').style.display='flex';
+document.getElementById('map-loading').style.display='none';
+updateNearTop10ButtonText();
+loadLeaflet();
   }, err=>{
     btn.disabled=false;
     btn.innerHTML='📍 내 위치로 주변 판매점 찾기';
@@ -1932,6 +1947,9 @@ function filterDist(el,r){
   nearRadius=r;
   document.querySelectorAll('.near-chip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
+
+  updateNearTop10ButtonText();
+
   if(nearMap&&myLat) searchStores();
 }
  
@@ -3091,12 +3109,21 @@ function formatNearTop10List(stores){
 function openNearTop10Modal(){
   const modal = document.getElementById('near-top10-modal');
   const listEl = document.getElementById('near-top10-modal-list');
+  const titleEl = modal?.querySelector('.modal-title');
+  const descEl = modal?.querySelector('.modal-desc');
+
   if(!modal || !listEl) return;
+
+  const label = getNearRadiusLabel(nearRadius);
+
+  if(titleEl) titleEl.textContent = `내 ${label} 주변 명당 TOP10`;
+  if(descEl){
+    descEl.innerHTML = `현재 반경 <strong style="color:var(--accent)">${label}</strong> 내 판매점 중 <strong style="color:var(--accent)">명당점수 기준 TOP10</strong>입니다.`;
+  }
 
   listEl.innerHTML = formatNearTop10List(window._nearTop10Stores || []);
   modal.classList.add('show');
 }
-
 function closeNearTop10Modal(){
   const modal = document.getElementById('near-top10-modal');
   if(modal) modal.classList.remove('show');
@@ -3140,10 +3167,6 @@ document.getElementById('near-top10-modal')?.addEventListener('click', (e)=>{
 }
 
  function renderNearTop10(stores){
-  const box = document.getElementById('near-top10-box');
-  const list = document.getElementById('near-top10-list');
-  if(!box || !list) return;
-
   const ranked = [...stores]
     .filter(s => s.lucky)
     .sort((a,b)=>{
@@ -3153,11 +3176,15 @@ document.getElementById('near-top10-modal')?.addEventListener('click', (e)=>{
     })
     .slice(0,10);
 
-  if(!ranked.length){
-    box.style.display = 'none';
-    list.innerHTML = '';
-    return;
+  window._nearTop10Stores = ranked;
+
+  const openWrap = document.getElementById('near-top10-open-wrap');
+  if(openWrap){
+    openWrap.style.display = ranked.length ? 'block' : 'none';
   }
+
+  updateNearTop10ButtonText();
+}
 
   list.innerHTML = ranked.map((s,i)=>{
     const rankCls = i===0 ? 'r1' : i===1 ? 'r2' : i===2 ? 'r3' : '';
