@@ -3173,29 +3173,7 @@ function formatNearTop10List(stores){
   }).join('');
 }
 
-function openNearTop10Modal(){
-  const modal = document.getElementById('near-top10-modal');
-  const listEl = document.getElementById('near-top10-modal-list');
-  const titleEl = modal?.querySelector('.modal-title');
-  const descEl = modal?.querySelector('.modal-desc');
-
-  if(!modal || !listEl) return;
-
-  const label = getNearRadiusLabel(nearRadius);
-
-  if(titleEl) titleEl.textContent = `내 ${label} 주변 명당 TOP10`;
-  if(descEl){
-    descEl.innerHTML = `현재 반경 <strong style="color:var(--accent)">${label}</strong> 내 판매점 중 <strong style="color:var(--accent)">명당점수 기준 TOP10</strong>입니다.`;
-  }
-
-  listEl.innerHTML = formatNearTop10List(window._nearTop10Stores || []);
-  modal.classList.add('show');
-}
-function closeNearTop10Modal(){
-  const modal = document.getElementById('near-top10-modal');
-  if(modal) modal.classList.remove('show');
-}
- document.getElementById('near-top10-open-btn')?.addEventListener('click', openNearTop10Modal);
+document.getElementById('near-top10-open-btn')?.addEventListener('click', openNearTop10Modal);
 document.getElementById('near-top10-close-btn')?.addEventListener('click', closeNearTop10Modal);
 document.getElementById('near-top10-modal')?.addEventListener('click', (e)=>{
   if(e.target === document.getElementById('near-top10-modal')) closeNearTop10Modal();
@@ -3376,5 +3354,14 @@ window.sortAndRender = sortAndRender;
  
 init();
 </script>
+ <div class="modal-overlay" id="near-top10-modal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-icon">🏆</div>
+    <div class="modal-title">내 주변 명당 TOP10</div>
+    <div class="modal-desc">반경 내 판매점 중 명당점수 기준 TOP10입니다.</div>
+    <div id="near-top10-modal-list" class="near-top10-modal-list"></div>
+    <button class="modal-btn modal-btn-primary" id="near-top10-close-btn">닫기</button>
+  </div>
+</div>
 </body>
 </html>
