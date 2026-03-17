@@ -1955,15 +1955,14 @@ async function fetchKakaoStores(){
 }
 
 function getLuckyBadgeHtml(lucky){
-  if(!lucky){
+  if(!lucky || !hasLuckyData(lucky)){
     return '<span class="lucky-badge lucky-badge-none">명당 데이터 없음</span>';
   }
 
   const score = lucky.luckyScore || 0;
+  const cls = score >= 80 ? 'lucky-badge-gold' : score >= 50 ? 'lucky-badge-orange' : 'lucky-badge-blue';
   const first = (lucky.firstAutoCount || 0) + (lucky.firstManualCount || 0);
   const second = lucky.secondCount || 0;
-  const recent = lucky.recentWinRound || 0;
-  const cls = score >= 80 ? 'lucky-badge-gold' : score >= 50 ? 'lucky-badge-orange' : 'lucky-badge-blue';
   const barColor = score >= 80 ? 'var(--accent)' : score >= 50 ? '#e05c20' : 'var(--accent3)';
 
   return `
@@ -1975,8 +1974,8 @@ function getLuckyBadgeHtml(lucky){
         </span>
       </span>
       <div class="lucky-meta">
-        <span class="sub">🥇 1등 ${first}회 · 🥈 2등 ${second}회</span><br>
-        <span class="muted">${recent ? `⚡ 최근 당첨 ${recent}회` : '최근 당첨 데이터 없음'}</span>
+        <span class="sub">🥇 1등 ${first}회 · 🥈 2등 ${second}회</span>
+        ${lucky.recentWinRound ? `<br><span class="muted">최근 당첨 ${lucky.recentWinRound}회</span>` : ''}
       </div>
     </div>
   `;
@@ -2144,14 +2143,11 @@ function closeNearTop10Modal(){
 
 function renderNearTop10(stores){
   const ranked = [...stores]
+    .filter(s => s.lucky && hasLuckyData(s.lucky))
     .sort((a,b)=>{
       const sa = a.lucky?.luckyScore || 0;
       const sb = b.lucky?.luckyScore || 0;
-      const fa = (a.lucky?.firstAutoCount || 0) + (a.lucky?.firstManualCount || 0);
-      const fb = (b.lucky?.firstAutoCount || 0) + (b.lucky?.firstManualCount || 0);
-      const ra = a.lucky?.recentWinRound || 0;
-      const rb = b.lucky?.recentWinRound || 0;
-      return sb - sa || fb - fa || rb - ra || a.dist - b.dist;
+      return sb - sa || a.dist - b.dist;
     })
     .slice(0,10);
 
@@ -2159,7 +2155,7 @@ function renderNearTop10(stores){
 
   const openWrap = document.getElementById('near-top10-open-wrap');
   if(openWrap){
-    openWrap.style.display = stores.length ? 'block' : 'none';
+    openWrap.style.display = ranked.length ? 'block' : 'none';
   }
 
   updateNearTop10ButtonText();
@@ -3359,6 +3355,15 @@ async function loadLuckyStats(){
 }
  
 // 이름+주소 점수 기반 매칭
+function hasLuckyData(stat){
+  if(!stat) return false;
+  const first = (stat.firstAutoCount || 0) + (stat.firstManualCount || 0);
+  const second = stat.secondCount || 0;
+  const recent = stat.recentWinRound || 0;
+  const score = stat.luckyScore || 0;
+  return first > 0 || second > 0 || recent > 0 || score > 0;
+}
+ 
 function findLuckyMatch(name, addr, luckyList){
   if(!Array.isArray(luckyList)||!name) return null;
   const nameN = normText(name);
@@ -3392,7 +3397,9 @@ function findLuckyMatch(name, addr, luckyList){
     }
     if(score>bestScore){ bestScore=score; best=stat; }
   }
-  return bestScore>=45 ? best : null;
+  if(bestScore < 45) return null;
+if(!hasLuckyData(best)) return null;
+return best;
 }
  
 // 정렬 + 재렌더
