@@ -256,6 +256,47 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.7}}
 .lucky-challenge-banner{background:rgba(58,184,255,.08);border:1px solid rgba(58,184,255,.2);border-radius:8px;padding:8px 12px;font-size:10px;color:var(--accent3);text-align:center;margin-top:8px;display:none}
 .lucky-challenge-banner.show{display:block}
+ 
+/* ── 번호 시뮬레이션 ── */
+.sim-box{background:var(--panel);border:1px solid rgba(58,184,255,.2);border-radius:14px;padding:16px;margin-top:14px}
+.sim-title{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--accent3);text-transform:uppercase;margin-bottom:12px}
+.sim-target{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;min-height:38px;align-items:center}
+.sim-target-empty{font-size:12px;color:var(--muted)}
+.sim-btns{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.sim-btn{flex:1;min-width:80px;border:none;border-radius:9px;padding:10px 6px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;text-align:center}
+.sim-btn-free{background:var(--accent);color:#000}
+.sim-btn-free:hover{transform:translateY(-1px);box-shadow:0 4px 12px var(--glow)}
+.sim-btn-ad{background:var(--card);color:var(--muted);border:1px solid var(--border)}
+.sim-btn-ad:hover{color:var(--text);border-color:var(--accent3)}
+.sim-btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.sim-running{text-align:center;padding:16px;color:var(--accent3);font-size:12px}
+.sim-running-anim{font-size:24px;animation:simSpin 1s linear infinite;display:inline-block;margin-bottom:6px}
+@keyframes simSpin{to{transform:rotate(360deg)}}
+.sim-progress{width:100%;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:8px}
+.sim-progress-bar{height:100%;background:var(--accent3);border-radius:2px;transition:width .1s linear}
+.sim-results{margin-top:4px}
+.sim-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+.sim-table th{background:var(--card);color:var(--muted);font-weight:700;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);font-size:10px}
+.sim-table td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.sim-table tr:last-child td{border-bottom:none}
+.sim-rank{font-weight:900;font-size:13px}
+.sim-rank.r1{color:var(--accent)}
+.sim-rank.r2{color:var(--accent3)}
+.sim-rank.r3{color:var(--green)}
+.sim-rank.r4,.sim-rank.r5{color:var(--text)}
+.sim-rank.r0{color:var(--muted)}
+.sim-count{font-weight:700;color:var(--text)}
+.sim-pct{color:var(--muted);font-size:10px}
+.sim-bar-wrap{flex:1;background:rgba(255,255,255,.06);border-radius:3px;height:8px;overflow:hidden;min-width:60px}
+.sim-bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.sim-bar-r1{background:var(--accent)}
+.sim-bar-r2{background:var(--accent3)}
+.sim-bar-r3{background:var(--green)}
+.sim-bar-r4,.sim-bar-r5{background:var(--muted)}
+.sim-bar-r0{background:rgba(255,255,255,.1)}
+.sim-summary{background:var(--card);border-radius:10px;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
+.sim-sum-val{font-family:"Black Han Sans",sans-serif;font-size:1.1rem;color:var(--accent3);line-height:1;margin-bottom:3px}
+.sim-sum-label{font-size:9px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -338,6 +379,20 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <div class="ad-notice"><span class="icon">💡</span><div><strong>무료 5줄</strong> 이후 또는 <strong>10줄</strong> 선택 시 짧은 광고 시청 후 번호가 출력됩니다.</div></div>
       <button class="gen-btn" id="gen-btn" disabled>🎲 번호 추첨하기</button>
       <div id="results"></div>
+ 
+    <!-- 번호 시뮬레이션 -->
+    <div class="sim-box" id="sim-box">
+      <div class="sim-title">🤖 번호 시뮬레이션</div>
+      <div class="sim-target" id="sim-target">
+        <span class="sim-target-empty">번호를 생성하면 시뮬레이션할 수 있습니다</span>
+      </div>
+      <div class="sim-btns">
+        <button class="sim-btn sim-btn-free" id="sim-btn-100" disabled>🎲 100회 (무료)</button>
+        <button class="sim-btn sim-btn-ad" id="sim-btn-1000" disabled>📺 1000회</button>
+        <button class="sim-btn sim-btn-ad" id="sim-btn-10000" disabled>📺 10000회</button>
+      </div>
+      <div id="sim-output"></div>
+    </div>
     </div>
     <div class="section-box">
       <div class="sec-title">번호별 상세 통계</div>
@@ -807,6 +862,7 @@ async function doGenerate(count){
   allNums.forEach((nums,i)=>resultsEl.appendChild(renderResult(nums,i)));
   if(count<10){usedFree+=count; saveUsedFree(usedFree); updateFreeCounter();}
   genBtn.disabled=false; genBtn.textContent='🎲 번호 추첨하기';
+  if(allNums.length>0) updateSimTarget(allNums[0]); // 첫 번째 줄을 시뮬레이션 대상으로
   setTimeout(()=>resultsEl.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
   // Firebase 저장 (auth 준비 후)
   const doSave = async () => {
@@ -1460,8 +1516,149 @@ document.getElementById('lucky-refresh-btn').addEventListener('click',()=>{
 });
  
  
+// ── 번호 시뮬레이션 ──
+let simNums = []; // 현재 시뮬레이션 대상 번호
+let simRunning = false;
+ 
+function simRandNums(){
+  const pool=Array.from({length:45},(_,i)=>i+1);
+  const nums=[];
+  while(nums.length<6){
+    const i=Math.floor(Math.random()*pool.length);
+    nums.push(pool.splice(i,1)[0]);
+  }
+  nums.sort((a,b)=>a-b);
+  const bonus=pool[Math.floor(Math.random()*pool.length)];
+  return{nums,bonus};
+}
+ 
+function simCheckPrize(userNums,winNums,bonus){
+  const h=userNums.filter(n=>winNums.includes(n)).length;
+  const bh=userNums.includes(bonus);
+  if(h===6)return 1;
+  if(h===5&&bh)return 2;
+  if(h===5)return 3;
+  if(h===4)return 4;
+  if(h===3)return 5;
+  return 0;
+}
+ 
+async function runSimulation(count){
+  if(simRunning||!simNums.length)return;
+  simRunning=true;
+  const btns=['sim-btn-100','sim-btn-1000','sim-btn-10000'];
+  btns.forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true;});
+  
+  const out=document.getElementById('sim-output');
+  out.innerHTML=`<div class="sim-running"><div class="sim-running-anim">⚙️</div><div>AI 시뮬레이션 실행중... (0/${count})</div><div class="sim-progress"><div class="sim-progress-bar" id="sim-prog" style="width:0%"></div></div></div>`;
+ 
+  const results={0:0,1:0,2:0,3:0,4:0,5:0};
+  const CHUNK=500;
+  let done=0;
+ 
+  await new Promise(resolve=>{
+    function runChunk(){
+      const end=Math.min(done+CHUNK,count);
+      for(let i=done;i<end;i++){
+        const{nums,bonus}=simRandNums();
+        const prize=simCheckPrize(simNums,nums,bonus);
+        results[prize]++;
+      }
+      done=end;
+      const pct=(done/count*100).toFixed(0);
+      const prog=document.getElementById('sim-prog');
+      if(prog)prog.style.width=pct+'%';
+      const runEl=out.querySelector('.sim-running div:nth-child(2)');
+      if(runEl)runEl.textContent=`AI 시뮬레이션 실행중... (${done.toLocaleString()}/${count.toLocaleString()})`;
+      if(done<count) requestAnimationFrame(runChunk);
+      else resolve();
+    }
+    requestAnimationFrame(runChunk);
+  });
+ 
+  renderSimResults(results,count);
+  simRunning=false;
+  btns.forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=false;});
+}
+ 
+function renderSimResults(results,total){
+  const out=document.getElementById('sim-output');
+  const ranks=[
+    {r:1,label:'🥇 1등',cls:'r1',bar:'sim-bar-r1'},
+    {r:2,label:'🥈 2등',cls:'r2',bar:'sim-bar-r2'},
+    {r:3,label:'🥉 3등',cls:'r3',bar:'sim-bar-r3'},
+    {r:4,label:'4등',cls:'r4',bar:'sim-bar-r4'},
+    {r:5,label:'5등',cls:'r5',bar:'sim-bar-r5'},
+    {r:0,label:'꽝',cls:'r0',bar:'sim-bar-r0'},
+  ];
+  const winners=Object.entries(results).filter(([k])=>k!=='0').reduce((a,[,v])=>a+v,0);
+  const maxCount=Math.max(...Object.values(results));
+ 
+  let tableHtml=`<table class="sim-table"><thead><tr><th>등수</th><th>횟수</th><th>확률</th><th style="min-width:80px">그래프</th></tr></thead><tbody>`;
+  ranks.forEach(({r,label,cls,bar})=>{
+    const c=results[r]||0;
+    const pct=total>0?(c/total*100):0;
+    const barW=maxCount>0?(c/maxCount*100):0;
+    tableHtml+=`<tr>
+      <td><span class="sim-rank ${cls}">${label}</span></td>
+      <td><span class="sim-count">${c.toLocaleString()}</span></td>
+      <td><span class="sim-pct">${pct.toFixed(4)}%</span></td>
+      <td><div class="sim-bar-wrap"><div class="sim-bar-fill ${bar}" style="width:0%" data-w="${barW}"></div></div></td>
+    </tr>`;
+  });
+  tableHtml+=`</tbody></table>`;
+ 
+  const rate=(winners/total*100).toFixed(3);
+  const avg1=results[1]>0?Math.round(total/results[1]):0;
+ 
+  out.innerHTML=`
+    <div class="sim-results">
+      ${tableHtml}
+      <div class="sim-summary">
+        <div><div class="sim-sum-val">${total.toLocaleString()}</div><div class="sim-sum-label">총 시뮬레이션</div></div>
+        <div><div class="sim-sum-val">${winners.toLocaleString()}</div><div class="sim-sum-label">당첨 횟수</div></div>
+        <div><div class="sim-sum-val">${rate}%</div><div class="sim-sum-label">당첨률</div></div>
+      </div>
+      ${results[1]>0?`<div style="text-align:center;margin-top:10px;font-size:11px;color:var(--accent)">🎉 1등 당첨! 평균 ${avg1.toLocaleString()}회에 1번</div>`:''}
+    </div>`;
+  // 막대 애니메이션
+  setTimeout(()=>{
+    out.querySelectorAll('.sim-bar-fill').forEach(el=>{
+      el.style.width=el.dataset.w+'%';
+    });
+  },100);
+}
+ 
+function updateSimTarget(nums){
+  simNums=[...nums];
+  const target=document.getElementById('sim-target');
+  if(!target)return;
+  target.innerHTML=nums.map(n=>`<div class="ball ${ballCls(n)}" style="width:30px;height:30px;font-size:11px">${n}</div>`).join('');
+  ['sim-btn-100','sim-btn-1000','sim-btn-10000'].forEach(id=>{
+    const b=document.getElementById(id);if(b)b.disabled=false;
+  });
+}
+ 
+// 시뮬레이션 버튼 이벤트
+document.getElementById('sim-btn-100').addEventListener('click',()=>runSimulation(100));
+document.getElementById('sim-btn-1000').addEventListener('click',()=>{
+  if(simNums.length===0)return;
+  showAdModal('sim-1000');
+});
+document.getElementById('sim-btn-10000').addEventListener('click',()=>{
+  if(simNums.length===0)return;
+  showAdModal('sim-10000');
+});
+ 
+// 광고 모달 confirm 확장 (시뮬레이션 지원)
+const _origConfirm = confirmBtn.onclick;
+confirmBtn.addEventListener('click',()=>{
+  if(pendingCount==='sim-1000'){ hideAdModal(); runSimulation(1000); }
+  else if(pendingCount==='sim-10000'){ hideAdModal(); runSimulation(10000); }
+});
+ 
+ 
 init();
 </script>
 </body>
 </html>
- 
