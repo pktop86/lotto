@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>🎰 로또엔진 로또번호 생성기</title>
+<meta name="description" content="로또 회차 데이터를 바탕으로 참고용 번호, 결과 기록, 주변 판매점 정보를 확인할 수 있는 번호도구입니다. 본 서비스는 참고용이며 결과를 보장하지 않습니다.">
+<title>🎰 로또엔진 참고번호도구</title>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9933896132600937" crossorigin="anonymous"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Black+Han+Sans&display=swap');
@@ -223,7 +224,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .modal-btn-secondary{background:var(--card);color:var(--muted);border:1px solid var(--border);margin-top:8px;font-size:12px}
 @media(max-width:400px){.stats-row{grid-template-columns:repeat(2,1fr)}.prize-cards{grid-template-columns:repeat(3,1fr)}.algo-rules{grid-template-columns:1fr}.ball{width:30px;height:30px;font-size:11px}}
  
-/* ── 오늘의 행운 카드 ── */
+/* ── 오늘의 숫자 카드 카드 ── */
 .lucky-card{background:linear-gradient(135deg,rgba(240,192,64,.12),rgba(224,92,32,.08));border:1px solid rgba(240,192,64,.35);border-radius:16px;padding:18px 16px;margin-bottom:16px;position:relative;overflow:hidden}
 .lucky-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 60%,rgba(240,192,64,.06));pointer-events:none}
 .lucky-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
@@ -298,7 +299,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .sim-sum-val{font-family:"Black Han Sans",sans-serif;font-size:1.1rem;color:var(--accent3);line-height:1;margin-bottom:3px}
 .sim-sum-label{font-size:9px;color:var(--muted)}
  
-/* ── 주간 챌린지 ── */
+/* ── 주간 번호 참여 ── */
 .challenge-card{background:linear-gradient(135deg,rgba(176,96,255,.1),rgba(58,184,255,.08));border:1px solid rgba(176,96,255,.3);border-radius:16px;padding:16px;margin-bottom:14px}
 .challenge-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .challenge-title{font-size:13px;font-weight:900;color:#b060ff;display:flex;align-items:center;gap:6px}
@@ -412,7 +413,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 .my-item-sim-btn{background:rgba(58,184,255,.12);border:1px solid rgba(58,184,255,.25);color:var(--accent3);border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s}
 .my-item-sim-btn:hover{background:rgba(58,184,255,.25)}
  
-/* ── 명당 시스템 ── */
+/* ── 참고점수 시스템 ── */
 .near-sort-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;padding:0 2px}
 .near-sort-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
 .near-sort-btn.on{background:var(--accent);color:#000;border-color:var(--accent)}
@@ -454,7 +455,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   color:#ffb347;
 }
 
-/* ── 내 주변 명당 TOP10 ── */
+/* ── 내 주변 로또명당 TOP10 ── */
 .near-top10-box{
   background:linear-gradient(135deg,rgba(240,192,64,.10),rgba(224,92,32,.06));
   border:1px solid rgba(240,192,64,.22);
@@ -530,7 +531,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   margin-top:2px;
 }
 
-/* ── 명당 배지 개선 ── */
+/* ── 참고점수 배지 개선 ── */
 .lucky-badge-wrap{
   display:flex;
   flex-direction:column;
@@ -654,37 +655,37 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   </div>
   <header>
     <div class="badge">📊 261회 ~ 최신회차 실시간 통계</div>
-    <h1>로또엔진<br>로또번호 생성기</h1>
+    <h1>로또엔진<br>번호도구</h1>
     <p class="credit">제작자: Clyde Park (P.K.H)</p>
-    <p class="subtitle">실제 당첨 통계 × 스마트 알고리즘 × Firebase 당첨 추적</p>
+    <p class="subtitle">회차 데이터 기반 참고용 번호 도구 · 결과 기록 기능 포함</p>
   </header>
   <div class="tabs">
     <button class="tab-btn on" data-tab="pick">🎲 번호추첨</button>
     <button class="tab-btn" data-tab="mynums">⭐ 내 번호</button>
-    <button class="tab-btn" data-tab="myinfo">🔮 오늘의 운세</button>
+    <button class="tab-btn" data-tab="myinfo">🔮 오늘의 흐름</button>
     <button class="tab-btn" data-tab="near">📍 내주변 판매점</button>
     <button class="tab-btn disabled" data-tab="prize" id="tab-prize-btn">🏆 당첨현황</button>
   </div>
  
   <!-- 번호추첨 탭 -->
   <div class="tab-content on" id="tab-pick">
-    <!-- 오늘의 행운 카드 -->
+    <!-- 오늘의 숫자 카드 카드 -->
     <div class="lucky-card" id="lucky-card">
       <div class="lucky-card-header">
-        <div class="lucky-card-title">🍀 오늘의 행운</div>
+        <div class="lucky-card-title">🍀 오늘의 숫자 카드</div>
         <button class="lucky-refresh" id="lucky-refresh-btn" title="매일 00:00 갱신 · 오늘은 모두 같은 번호">🔄</button>
       </div>
       <div id="lucky-content">
         <div class="lucky-analyzing">
           <div class="lucky-analyzing-icon">🔮</div>
-          <div>AI가 오늘의 행운 패턴 분석 중...</div>
+          <div>오늘의 숫자 카드를 불러오는 중...</div>
         </div>
       </div>
     </div>
-    <!-- 주간 챌린지 -->
+    <!-- 주간 번호 참여 -->
     <div class="challenge-card" id="challenge-card">
       <div class="challenge-header">
-        <div class="challenge-title">🏆 주간 챌린지</div>
+        <div class="challenge-title">🏆 주간 번호 참여</div>
         <div style="display:flex;align-items:center;gap:6px">
           <span class="challenge-status-badge status-open" id="challenge-status-badge">● 참여 중</span>
           <div class="challenge-round-badge" id="challenge-round-badge">— 회차</div>
@@ -728,7 +729,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <!-- 참여 버튼 -->
       <div class="challenge-btns" id="challenge-btns">
         <button class="challenge-btn challenge-btn-main" id="challenge-btn-gen" disabled>🎲 생성 번호로 참여</button>
-        <button class="challenge-btn challenge-btn-lucky" id="challenge-btn-lucky">🍀 행운 번호로 참여</button>
+        <button class="challenge-btn challenge-btn-lucky" id="challenge-btn-lucky">🍀 오늘의 숫자로 참여</button>
         <button class="challenge-btn challenge-btn-custom" id="challenge-btn-custom-toggle">✏️ 직접 번호 선택</button>
       </div>
       <div class="challenge-custom-input" id="challenge-custom-input">
@@ -765,16 +766,16 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <div class="sch-icon">🔄</div>
       <div>
         <div class="sch-title">매주 일요일 새벽 1시 자동 업데이트</div>
-        <div class="sch-desc">토요일 밤 추첨 후 최신 당첨번호 자동 수집 → 통계·가중치 즉시 반영<br>다음 업데이트: <span id="next-update">계산 중...</span></div>
+        <div class="sch-desc">토요일 밤 추첨 후 최신 결과번호 자동 수집 → 통계·가중치 즉시 반영<br>다음 업데이트: <span id="next-update">계산 중...</span></div>
       </div>
     </div>
     <div class="algo-panel">
-      <div class="sec-title">스마트 알고리즘 4가지</div>
+      <div class="sec-title">번호 구성 기준 4가지</div>
       <div class="algo-rules">
-        <div class="rule-card"><div class="rule-title">① 고저·홀짝 균형</div><div class="rule-desc">1~22(저):23~45(고) 균형. 홀짝 균형. 전체 당첨의 ~80% 패턴.</div></div>
-        <div class="rule-card"><div class="rule-title">② 연번·끝수 분석</div><div class="rule-desc">연속번호 1쌍 이상 포함. 끝자리 합계 20~35 범위 최적화.</div></div>
-        <div class="rule-card"><div class="rule-title">③ 미출현수 포함</div><div class="rule-desc">최근 8회차 미출현 번호 1~2개 포함. 통계적 균형 복귀 반영.</div></div>
-        <div class="rule-card"><div class="rule-title">④ 이월수 전략</div><div class="rule-desc">직전 당첨번호 재출현 ~10~15%. 이월수 포함/배제 확률적 결정.</div></div>
+        <div class="rule-card"><div class="rule-title">① 고저·홀짝 균형</div><div class="rule-desc">1~22(저):23~45(고) 균형. 홀짝 균형. 자주 보이는 분포 예시를 참고합니다.</div></div>
+        <div class="rule-card"><div class="rule-title">② 연번·끝수 분석</div><div class="rule-desc">연속번호 1쌍 이상 포함. 끝자리 분포를 참고해 균형 있게 구성합니다.</div></div>
+        <div class="rule-card"><div class="rule-title">③ 미출현수 포함</div><div class="rule-desc">최근 8회차 미출현 번호 1~2개 포함. 최근 미출현 번호 흐름을 참고합니다.</div></div>
+        <div class="rule-card"><div class="rule-title">④ 이월수 전략</div><div class="rule-desc">직전 회차 번호 흐름을 참고해 포함 여부를 조정합니다.</div></div>
       </div>
     </div>
     <div class="section-box">
@@ -793,7 +794,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
           <button class="seg-btn" data-n="10">10줄</button>
         </div>
       </div>
-      <div class="ad-notice"><span class="icon">💡</span><div><strong>무료 5줄</strong> 이후 또는 <strong>10줄</strong> 선택 시 짧은 광고 시청 후 번호가 출력됩니다.</div></div>
+      <div class="ad-notice"><span class="icon">💡</span><div><strong>무료 5회</strong> 이후 또는 <strong>10줄</strong> 선택 시 짧은 광고 시청 후 결과가 표시됩니다.</div></div>
       <button class="gen-btn" id="gen-btn" disabled>🎲 번호 추첨하기</button>
       <div id="results"></div>
  
@@ -802,7 +803,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       <div class="sim-title">🤖 번호 시뮬레이션</div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <div class="sim-target" id="sim-target" style="flex:1">
-          <span class="sim-target-empty">번호 생성 또는 행운 번호 로드 후 활성화됩니다</span>
+          <span class="sim-target-empty">번호 생성 또는 오늘의 숫자 카드 로드 후 활성화됩니다</span>
         </div>
         <button id="sim-save-to-mynums" style="display:none;background:rgba(64,208,128,.15);color:var(--green);border:1px solid rgba(64,208,128,.3);border-radius:8px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">⭐ 내 번호에 저장</button>
       </div>
@@ -863,7 +864,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     </div>
     <div id="prize-content" style="display:none">
       <div class="prize-header">
-        <div class="prize-round" id="ph-round">— 회차 당첨번호</div>
+        <div class="prize-round" id="ph-round">— 회차 결과번호</div>
         <div class="prize-winning-balls" id="ph-balls"></div>
         <div id="ph-bonus" style="font-size:11px;color:var(--muted)"></div>
         <div class="prize-date" id="ph-date"></div>
@@ -879,7 +880,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
         <div class="sum-item"><div class="sum-val" id="sum-total">0</div><div class="sum-label">총 추첨줄</div></div>
         <div class="sum-item"><div class="sum-val" id="sum-users">0</div><div class="sum-label">참여자</div></div>
         <div class="sum-item"><div class="sum-val" id="sum-winners">0</div><div class="sum-label">당첨자</div></div>
-        <div class="sum-item"><div class="sum-val" id="sum-rate">0%</div><div class="sum-label">당첨률</div></div>
+        <div class="sum-item"><div class="sum-val" id="sum-rate">0%</div><div class="sum-label">일치 비율</div></div>
       </div>
       <div style="margin-bottom:12px" id="round-chips"></div>
       <div class="history-section">
@@ -924,7 +925,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
       </div>
       <label class="myinfo-checkbox-row" for="myinfo-lucky-reflect">
         <input type="checkbox" id="myinfo-lucky-reflect">
-        <span class="myinfo-checkbox-label">✨ <strong>행운 숫자를 오늘의 행운 번호에 반영</strong><br>내 오행에서 계산된 행운 숫자 1개가 오늘의 행운 6개 번호 안에 포함됩니다.</span>
+        <span class="myinfo-checkbox-label">✨ <strong>참고 숫자를 오늘의 숫자 카드에 반영</strong><br>내 정보 기반 참고 숫자 1개가 오늘의 숫자 카드 6개 번호 안에 포함됩니다.</span>
       </label>
       <div class="myinfo-btn-row">
         <button class="myinfo-btn-save" id="myinfo-save-btn">💾 저장하기</button>
@@ -957,22 +958,34 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 
 <div id="near-top10-open-wrap" style="display:none;margin-bottom:10px">
   <button id="near-top10-open-btn" class="near-top10-open-btn">
-    🏆 내 500m 주변 명당 TOP10 보기
+    🏆 내 500m 주변 로또명당 TOP10 보기
   </button>
 </div>
 
 <div id="near-sort-row" class="near-sort-row" style="display:none">
   <button class="near-sort-btn on" data-sort="dist" onclick="sortAndRender('dist',this)">📍 가까운순</button>
-  <button class="near-sort-btn" data-sort="lucky" onclick="sortAndRender('lucky',this)">🏆 명당점수순</button>
+  <button class="near-sort-btn" data-sort="lucky" onclick="sortAndRender('lucky',this)">🏆 참고점수순</button>
   <button class="near-sort-btn" data-sort="first" onclick="sortAndRender('first',this)">🥇 1등횟수순</button>
-  <button class="near-sort-btn" data-sort="recent" onclick="sortAndRender('recent',this)">⚡ 최근당첨회차순</button>
+  <button class="near-sort-btn" data-sort="recent" onclick="sortAndRender('recent',this)">⚡ 최근기록순</button>
 </div>
 
 <div id="near-sort-help" class="near-sort-help" style="display:none"></div>
 <div id="near-list"></div>
  
+  <div class="section-box" style="margin-top:16px">
+    <div class="sec-title">서비스 안내 및 유의사항</div>
+    <div style="font-size:12px;line-height:1.8;color:var(--muted)">
+      이 서비스는 회차 데이터와 사용 기록을 바탕으로 <strong style="color:#fff">참고용 번호와 기록 정보</strong>를 보여주는 도구입니다.<br>
+      표시되는 번호, 통계, 판매점 정보는 <strong style="color:#fff">재미·참고 목적</strong>이며 결과를 보장하지 않습니다.<br>
+      구매, 참여, 이용 판단은 사용자 본인의 책임으로 진행해 주세요.
+    </div>
+  </div>
+
   <footer style="text-align:center;padding:24px 0 8px;font-size:11px;color:#505870">
     <a href="privacy.html" style="color:#505870;text-decoration:none">개인정보처리방침</a>
+    &nbsp;·&nbsp; <a href="terms.html" style="color:#505870;text-decoration:none">이용약관</a>
+    &nbsp;·&nbsp; <a href="contact.html" style="color:#505870;text-decoration:none">문의하기</a>
+    &nbsp;·&nbsp; <a href="disclaimer.html" style="color:#505870;text-decoration:none">서비스안내</a>
     &nbsp;·&nbsp; © 2026 로또엔진 (Clyde Park)
   </footer>
 </div>
@@ -981,7 +994,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 <div class="modal-overlay" id="ad-modal">
   <div class="modal">
     <div class="modal-icon">📺</div>
-    <div class="modal-title">광고 시청 후 번호 받기</div>
+    <div class="modal-title">광고 시청 후 계속하기</div>
     <div class="modal-desc" id="modal-desc"></div>
     <div class="modal-ad-area">
       <ins class="adsbygoogle" style="display:block;width:100%;min-height:100px" data-ad-client="ca-pub-9933896132600937" data-ad-slot="auto" data-ad-format="rectangle" data-full-width-responsive="true"></ins>
@@ -989,7 +1002,7 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     </div>
     <div class="timer-bar-bg"><div class="timer-bar" id="timer-bar" style="width:100%"></div></div>
     <div class="timer-text" id="timer-text">5초 후 활성화...</div>
-    <button class="modal-btn modal-btn-primary" id="modal-confirm-btn" disabled style="margin-top:12px">✅ 광고 시청 완료 — 번호 받기</button>
+    <button class="modal-btn modal-btn-primary" id="modal-confirm-btn" disabled style="margin-top:12px">✅ 광고 시청 완료 — 계속하기</button>
     <button class="modal-btn modal-btn-secondary" id="modal-cancel-btn">취소</button>
   </div>
 </div>
@@ -1005,12 +1018,12 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   </div>
 </div>
 
-<!-- 내 주변 명당 TOP10 모달 -->
+<!-- 내 주변 로또명당 TOP10 모달 -->
 <div class="modal-overlay" id="near-top10-modal">
   <div class="modal" style="max-width:380px">
     <div class="modal-icon">🏆</div>
-    <div class="modal-title">내 주변 명당 TOP10</div>
-    <div class="modal-desc">반경 내 판매점 중 명당점수 기준 TOP10입니다.</div>
+    <div class="modal-title">내 주변 로또명당 TOP10</div>
+    <div class="modal-desc">반경 내 판매점 중 참고점수 기준 TOP10입니다.</div>
 
     <div id="near-top10-modal-list" class="near-top10-modal-list"></div>
 
@@ -1182,7 +1195,7 @@ async function init(){
     renderPrizeHeader(); scheduleAutoUpdate(); startSaturdayChecker();
     setStatus('ok',`내장 통계 준비 완료 (261~${latestRound}회)`);
     setPrizeTabUnlocked(false); // 초기 잠금 상태 명시
-    loadTodayLucky(); // 오늘의 행운 로드
+    loadTodayLucky(); // 오늘의 숫자 카드 로드
   // 생년월일 max 동적 설정 (현재 날짜 - 14년)
   const birthEl=document.getElementById('myinfo-birth');
   if(birthEl){
@@ -1367,7 +1380,7 @@ function makeTags(nums){
   t.push({cls:(lds(nums)>=20&&lds(nums)<=35)?'ok':'warn',text:`끝수합 ${lds(nums)}`});
   const ac=nums.filter(n=>getAbsent().includes(n)).length; if(ac>0)t.push({cls:'info',text:`미출현 ${ac}개`});
   const cc=nums.filter(n=>getPrev().includes(n)).length; if(cc>0)t.push({cls:'info',text:`이월수 ${cc}개`});
-  if(latestWinNums.length===6){const p=checkPrize(nums,latestWinNums,latestBonusNum);if(p>0)t.push({cls:PCLS[p],text:PLABELS[p]+' 당첨!'});}
+  if(latestWinNums.length===6){const p=checkPrize(nums,latestWinNums,latestBonusNum);if(p>0)t.push({cls:PCLS[p],text:PLABELS[p]+' 일치 확인'});}
   return t;
 }
  
@@ -1550,7 +1563,7 @@ function renderMyNums(docs){
       let best=0; items.forEach(d=>{const p=checkPrize(d.nums||[],wn,bn);if(p>0&&(best===0||p<best))best=p;});
       if(best>0&&best<=2){
         const b=document.createElement('div'); b.className='win-banner';
-        b.innerHTML=`<div class="win-banner-icon">${best===1?'🥇':'🥈'}</div><div class="win-banner-text">${PLABELS[best]} 당첨!</div><div class="win-banner-sub">이번 회차에서 당첨이 발생했습니다</div>`;
+        b.innerHTML=`<div class="win-banner-icon">${best===1?'🥇':'🥈'}</div><div class="win-banner-text">${PLABELS[best]} 일치 확인</div><div class="win-banner-sub">이번 회차에서 높은 일치 결과가 확인됐습니다</div>`;
         sec.appendChild(b);
       }
     }
@@ -1575,7 +1588,7 @@ function renderMyNums(docs){
  
     if(isLatest&&!showResult){
       const p=document.createElement('div'); p.className='result-pending';
-      p.innerHTML='<div class="result-pending-icon">⏳</div><div class="result-pending-text">이번 회차 당첨 결과는<br><span class="result-pending-time">토요일 밤 10시 이후</span><br>자동으로 표시됩니다</div>';
+      p.innerHTML='<div class="result-pending-icon">⏳</div><div class="result-pending-text">이번 회차 결과는<br><span class="result-pending-time">토요일 밤 10시 이후</span><br>자동으로 표시됩니다</div>';
       sec.appendChild(p);
     }
  
@@ -1613,7 +1626,7 @@ function renderMyNums(docs){
       if(showResult){
         const tags=document.createElement('div'); tags.className='my-item-tags';
         if(p>0)tags.innerHTML+=`<span class="tag ${PCLS[p]}">${PLABELS[p]}</span>`;
-        else tags.innerHTML+='<span class="tag warn">미당첨</span>';
+        else tags.innerHTML+='<span class="tag warn">일치 없음</span>';
         const hc=(d.nums||[]).filter(n=>wn.includes(n)).length;
         if(hc>0)tags.innerHTML+=`<span class="tag info">${hc}개 일치</span>`;
         item.appendChild(tags);
@@ -1680,7 +1693,7 @@ document.getElementById('btn-deselect-all').addEventListener('click',()=>{
 // ── 당첨현황 ──
 function renderPrizeHeader(){
   const last=recentHist.length?recentHist[recentHist.length-1]:null;
-  document.getElementById('ph-round').textContent=(last?last.round:latestRound)+'회차 당첨번호';
+  document.getElementById('ph-round').textContent=(last?last.round:latestRound)+'회차 결과번호';
   const bEl=document.getElementById('ph-balls'); bEl.innerHTML='';
   if(last&&last.nums.length===6) last.nums.forEach(n=>{const b=document.createElement('div');b.className='ball '+ballCls(n);b.textContent=n;bEl.appendChild(b);});
   if(last&&last.bonus)document.getElementById('ph-bonus').textContent='보너스 +'+last.bonus;
@@ -1748,7 +1761,7 @@ function setPrizeTabUnlocked(isUnlocked){
 function checkPrizeUnlock(){
   if(!db) return;
   try{
-    // prize 필드 무시 — 실제 당첨번호로 재계산
+    // prize 필드 무시 — 실제 결과번호로 재계산
     const q=query(collection(db,'picks'),where('round','==',latestRound));
     if(unsubPrize) unsubPrize();
     unsubPrize=onSnapshot(q, snap=>{
@@ -1796,7 +1809,7 @@ function getNearRadiusLabel(r){
 function updateNearTop10ButtonText(){
   const btn = document.getElementById('near-top10-open-btn');
   if(!btn) return;
-  btn.textContent = `🏆 내 ${getNearRadiusLabel(nearRadius)} 주변 명당 TOP10 보기`;
+  btn.textContent = `🏆 내 ${getNearRadiusLabel(nearRadius)} 주변 로또명당 TOP10 보기`;
 }
 
 function initNearTab(){
@@ -1955,7 +1968,7 @@ async function fetchKakaoStores(){
 function getLuckyBadgeHtml(lucky){
 
   if(!lucky){
-    return `<span class="lucky-badge lucky-badge-none">명당 데이터 없음</span>`;
+    return `<span class="lucky-badge lucky-badge-none">참고 데이터 확인 전</span>`;
   }
 
   const score = lucky.luckyScore || 0;
@@ -1990,7 +2003,7 @@ function getLuckyBadgeHtml(lucky){
         🥇 1등 ${first}회 · 🥈 2등 ${second}회
         <br>
         <span class="muted">
-          ${recent ? `최근 당첨 ${recent}회` : '최근 당첨 데이터 없음'}
+          ${recent ? `최근 기록 ${recent}회` : '최근 기록 데이터 없음'}
         </span>
       </div>
 
@@ -2010,6 +2023,7 @@ function renderStores(stores){
   const rLabel = nearRadius >= 1000 ? (nearRadius/1000)+'km' : nearRadius+'m';
 
   if(!stores.length){
+    document.getElementById('near-top10-open-wrap').style.display = 'none';
     document.getElementById('near-count').textContent = `반경 ${rLabel} 내 판매점 검색 완료`;
     document.getElementById('near-list').innerHTML = `
       <div class="near-empty">
@@ -2036,7 +2050,7 @@ function renderStores(stores){
 
     const first = (s.lucky?.firstAutoCount || 0) + (s.lucky?.firstManualCount || 0);
     const m = L.marker([s.lat,s.lng],{icon:ic}).addTo(nearMap)
-      .bindPopup(`<b>${s.name}</b><br>${s.addr||''}<br><span style="color:#e05c20;font-weight:700">${s.dist}m</span>${s.lucky ? `<br>🏆 명당 ${s.lucky.luckyScore}점 · 1등 ${first}회` : ''}`);
+      .bindPopup(`<b>${s.name}</b><br>${s.addr||''}<br><span style="color:#e05c20;font-weight:700">${s.dist}m</span>${s.lucky ? `<br>🏆 참고점수 ${s.lucky.luckyScore}점 · 1등 ${first}회` : ''}`);
     nearMarkers.push(m);
   });
 
@@ -2044,7 +2058,7 @@ function renderStores(stores){
   nearMap.fitBounds(pts, {padding:[30,30]});
 
   let html = `<div style="overflow-x:auto"><table class="near-table">
-    <thead><tr><th>#</th><th>판매점명 / 주소</th><th>거리</th><th>명당</th></tr></thead><tbody>`;
+    <thead><tr><th>#</th><th>판매점명 / 주소</th><th>거리</th><th>참고</th></tr></thead><tbody>`;
 
   stores.forEach((s,i)=>{
     const rankCls = i===0 ? '' : i===1 ? ' r2' : i===2 ? ' r3' : '';
@@ -2069,7 +2083,7 @@ function renderStores(stores){
 
 async function searchStores(){
   document.getElementById('near-count').textContent = '판매점 검색 중...';
-  document.getElementById('near-list').innerHTML = '<div class="near-empty" style="padding:20px">🔍 주변 판매점을 검색하고 있습니다...<div class="near-loading-lucky">🏆 명당 정보 로딩 중...</div></div>';
+  document.getElementById('near-list').innerHTML = '<div class="near-empty" style="padding:20px">🔍 주변 판매점을 검색하고 있습니다...<div class="near-loading-lucky">🏆 참고점수 정보 로딩 중...</div></div>';
 
   nearMarkers.forEach(m => nearMap.removeLayer(m));
   nearMarkers = [];
@@ -2089,6 +2103,7 @@ async function searchStores(){
     window._nearCurrentSort = 'dist';
 
     document.getElementById('near-sort-row').style.display = merged.length ? 'flex' : 'none';
+    document.getElementById('near-top10-open-wrap').style.display = merged.length ? 'block' : 'none';
 
     renderNearSortHelp('dist');
     renderNearTop10(merged);
@@ -2108,7 +2123,7 @@ function formatNearTop10List(stores){
       <div style="font-size:12px;color:var(--muted);
       text-align:center;padding:20px 8px">
 
-      표시할 명당 데이터가 없습니다.
+      표시할 참고점수 데이터가 없습니다.
 
       </div>`;
   }
@@ -2151,8 +2166,8 @@ function formatNearTop10List(stores){
             <br>
 
             <span class="muted">
-            ${recent ? `최근 당첨 ${recent}회`
-            : '최근 당첨 데이터 없음'}
+            ${recent ? `최근 기록 ${recent}회`
+            : '최근 기록 데이터 없음'}
             </span>
 
           </div>
@@ -2187,9 +2202,12 @@ function openNearTop10Modal(){
 
   const label = getNearRadiusLabel(nearRadius);
 
-  if(titleEl) titleEl.textContent = `내 ${label} 주변 명당 TOP10`;
+  if(titleEl) titleEl.textContent = `내 ${label} 주변 로또명당 TOP10`;
   if(descEl){
-    descEl.innerHTML = `현재 반경 <strong style="color:var(--accent)">${label}</strong> 내 판매점 중 <strong style="color:var(--accent)">명당점수 기준 TOP10</strong>입니다.`;
+    const hasLucky = (window._nearTop10Stores || []).some(s => s.lucky);
+    descEl.innerHTML = hasLucky
+      ? `현재 반경 <strong style="color:var(--accent)">${label}</strong> 내 판매점 중 <strong style="color:var(--accent)">참고점수 기준 TOP10</strong>입니다.`
+      : `현재 반경 <strong style="color:var(--accent)">${label}</strong> 내 판매점 중 연결된 참고 데이터가 적어 <strong style="color:var(--accent)">거리 기준 TOP10</strong>을 함께 표시합니다.`;
   }
 
   listEl.innerHTML = formatNearTop10List(window._nearTop10Stores || []);
@@ -2203,29 +2221,27 @@ function closeNearTop10Modal(){
 
 function renderNearTop10(stores){
 
-  const ranked = [...stores]
-
+  const scored = [...stores]
     .filter(s => s.lucky)
-
     .sort((a,b)=>{
-
       const sa = a.lucky?.luckyScore || 0;
       const sb = b.lucky?.luckyScore || 0;
+      const fa = (a.lucky?.firstAutoCount || 0) + (a.lucky?.firstManualCount || 0);
+      const fb = (b.lucky?.firstAutoCount || 0) + (b.lucky?.firstManualCount || 0);
+      const s2a = a.lucky?.secondCount || 0;
+      const s2b = b.lucky?.secondCount || 0;
+      const ra = a.lucky?.recentWinRound || 0;
+      const rb = b.lucky?.recentWinRound || 0;
+      return sb - sa || fb - fa || s2b - s2a || rb - ra || a.dist - b.dist;
+    });
 
-      return sb - sa || a.dist - b.dist;
-
-    })
-
-    .slice(0,10);
+  const ranked = scored.length ? scored.slice(0,10) : [...stores].sort((a,b)=>a.dist-b.dist).slice(0,10);
 
   window._nearTop10Stores = ranked;
 
-  const openWrap =
-    document.getElementById('near-top10-open-wrap');
-
+  const openWrap = document.getElementById('near-top10-open-wrap');
   if(openWrap){
-    openWrap.style.display =
-      ranked.length ? 'block' : 'none';
+    openWrap.style.display = stores.length ? 'block' : 'none';
   }
 
   updateNearTop10ButtonText();
@@ -2248,7 +2264,7 @@ document.querySelectorAll('.near-chip').forEach(btn=>{
     filterDist(btn, r);
   });
 });
-// ── 오늘의 행운 ──
+// ── 오늘의 숫자 카드 ──
 const LUCKY_COLORS = [
   {name:'골드',hex:'#f0c040'},
   {name:'루비',hex:'#ff5050'},
@@ -2297,7 +2313,7 @@ function generateLuckyNums(seed){
   return selected.sort((a,b)=>a-b);
 }
  
-// 공용 기본 오늘의 행운 생성 (개인화 미포함 - Firestore 저장용)
+// 공용 기본 오늘의 숫자 카드 생성 (개인화 미포함 - Firestore 저장용)
 function generateLuckyDataBase(dateKey){
   const seed=dateKey.replace(/-/g,'').split('').reduce((a,c)=>a+c.charCodeAt(0),0);
   const nums=generateLuckyNums(seed);
@@ -2329,7 +2345,7 @@ function applyPersonalLuckyNumber(data){
   }
   return result;
 }
-// 최종 오늘의 행운 데이터 (개인화 포함)
+// 최종 오늘의 숫자 카드 데이터 (개인화 포함)
 function generateLuckyData(dateKey){
   const base=generateLuckyDataBase(dateKey);
   return applyPersonalLuckyNumber(base);
@@ -2345,22 +2361,22 @@ function renderLuckyCard(data){
     <div class="lucky-info-row">
       <div class="lucky-info">
         <div class="lucky-info-val" id="lucky-score-val">${luckyScore}%</div>
-        <div class="lucky-info-label">행운지수</div>
+        <div class="lucky-info-label">참고지수</div>
       </div>
       <div class="lucky-info">
         <div class="lucky-info-val" style="color:${luckyColor.hex}">${luckyColor.name}</div>
-        <div class="lucky-info-label">행운 컬러</div>
+        <div class="lucky-info-label">추천 컬러</div>
       </div>
       <div class="lucky-info">
         <div class="lucky-info-val" style="font-size:11px">${luckyTimeRange}</div>
-        <div class="lucky-info-label">행운 시간</div>
+        <div class="lucky-info-label">추천 시간</div>
       </div>
     </div>
     <div class="lucky-btns">
       <button class="lucky-btn lucky-btn-sim" id="lucky-sim-btn">🎲 이 번호로 시뮬레이션</button>
       <button class="lucky-btn lucky-btn-challenge" id="lucky-challenge-btn">🏆 챌린지 참여</button>
     </div>
-    <div class="lucky-challenge-banner" id="lucky-challenge-banner">✅ 챌린지 참여 완료! 번호가 저장됐습니다.</div>
+    <div class="lucky-challenge-banner" id="lucky-challenge-banner">✅ 참여가 완료되었습니다. 번호가 저장됐습니다.</div>
   `;
   // 공 렌더
   const ballsEl=document.getElementById('lucky-balls');
@@ -2370,7 +2386,7 @@ function renderLuckyCard(data){
     b.textContent=n;
     ballsEl.appendChild(b);
   });
-  // 행운 번호를 시뮬레이션 대상으로 자동 설정
+  // 오늘의 숫자 카드를 시뮬레이션 대상으로 자동 설정
   updateSimTarget(numbers);
   // 점수바 애니메이션
   setTimeout(()=>{
@@ -2385,13 +2401,13 @@ function renderLuckyCard(data){
     document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('on'));
     document.querySelector('[data-tab="pick"]').classList.add('on');
     document.getElementById('tab-pick').classList.add('on');
-    // 결과란에 행운 번호 표시
+    // 결과란에 오늘의 숫자 카드 표시
     const resultsEl=document.getElementById('results');
     resultsEl.innerHTML='';
     const hitSet=new Set(latestWinNums);
     const row=document.createElement('div');
     row.className='r-row';
-    row.innerHTML=`<div class="r-top"><div class="r-num">🍀</div><div class="r-balls">${numbers.map(n=>`<div class="ball ${ballCls(n)}${hitSet.has(n)?' hit':''}">${n}</div>`).join('')}</div><div class="r-saved" style="color:var(--accent);font-size:10px">오늘의 행운</div></div>`;
+    row.innerHTML=`<div class="r-top"><div class="r-num">🍀</div><div class="r-balls">${numbers.map(n=>`<div class="ball ${ballCls(n)}${hitSet.has(n)?' hit':''}">${n}</div>`).join('')}</div><div class="r-saved" style="color:var(--accent);font-size:10px">오늘의 숫자 카드</div></div>`;
     resultsEl.appendChild(row);
     resultsEl.scrollIntoView({behavior:'smooth',block:'nearest'});
   });
@@ -2399,7 +2415,7 @@ function renderLuckyCard(data){
   document.getElementById('lucky-challenge-btn').addEventListener('click',async()=>{
     updateSimTarget(numbers);
     const luckyBalls=[...numbers];
-    if(luckyBalls.length!==6){alert('오늘의 행운 번호를 먼저 불러오세요.');return;}
+    if(luckyBalls.length!==6){alert('오늘의 숫자 카드 번호를 먼저 불러오세요.');return;}
     await joinChallenge(luckyBalls,'lucky');
   });
   }, 0); // setTimeout 닫기
@@ -2432,7 +2448,7 @@ async function loadTodayLucky(){
 // 새로고침 버튼 (날짜 바뀌면 재로드)
 document.getElementById('lucky-refresh-btn').addEventListener('click',()=>{
   const container=document.getElementById('lucky-content');
-  container.innerHTML='<div class="lucky-analyzing"><div class="lucky-analyzing-icon">🔮</div><div>AI가 오늘의 행운 패턴 분석 중...</div></div>';
+  container.innerHTML='<div class="lucky-analyzing"><div class="lucky-analyzing-icon">🔮</div><div>오늘의 숫자 카드를 불러오는 중...</div></div>';
   setTimeout(()=>loadTodayLucky(),600);
 });
  
@@ -2471,7 +2487,7 @@ async function runSimulation(count){
   btns.forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true;});
   
   const out=document.getElementById('sim-output');
-  out.innerHTML=`<div class="sim-running"><div class="sim-running-anim">⚙️</div><div>AI 시뮬레이션 실행중... (0/${count})</div><div class="sim-progress"><div class="sim-progress-bar" id="sim-prog" style="width:0%"></div></div></div>`;
+  out.innerHTML=`<div class="sim-running"><div class="sim-running-anim">⚙️</div><div>시뮬레이션 실행 중... (0/${count})</div><div class="sim-progress"><div class="sim-progress-bar" id="sim-prog" style="width:0%"></div></div></div>`;
  
   const results={0:0,1:0,2:0,3:0,4:0,5:0};
   const CHUNK=250;
@@ -2490,7 +2506,7 @@ async function runSimulation(count){
       const prog=document.getElementById('sim-prog');
       if(prog)prog.style.width=pct+'%';
       const runEl=out.querySelector('.sim-running div:nth-child(2)');
-      if(runEl)runEl.textContent=`AI 시뮬레이션 실행중... (${done.toLocaleString()}/${count.toLocaleString()})`;
+      if(runEl)runEl.textContent=`시뮬레이션 실행 중... (${done.toLocaleString()}/${count.toLocaleString()})`;
       if(done<count) requestAnimationFrame(runChunk);
       else resolve();
     }
@@ -2515,7 +2531,7 @@ function renderSimResults(results,total){
   const winners=Object.entries(results).filter(([k])=>k!=='0').reduce((a,[,v])=>a+v,0);
   const maxCount=Math.max(...Object.values(results));
  
-  let tableHtml=`<table class="sim-table"><thead><tr><th>등수</th><th>횟수</th><th>확률</th><th style="min-width:80px">그래프</th></tr></thead><tbody>`;
+  let tableHtml=`<table class="sim-table"><thead><tr><th>등수</th><th>횟수</th><th>비율</th><th style="min-width:80px">그래프</th></tr></thead><tbody>`;
   ranks.forEach(({r,label,cls,bar})=>{
     const c=results[r]||0;
     const pct=total>0?(c/total*100):0;
@@ -2537,10 +2553,10 @@ function renderSimResults(results,total){
       ${tableHtml}
       <div class="sim-summary">
         <div><div class="sim-sum-val">${total.toLocaleString()}</div><div class="sim-sum-label">총 시뮬레이션</div></div>
-        <div><div class="sim-sum-val">${winners.toLocaleString()}</div><div class="sim-sum-label">당첨 횟수</div></div>
-        <div><div class="sim-sum-val">${rate}%</div><div class="sim-sum-label">당첨률</div></div>
+        <div><div class="sim-sum-val">${winners.toLocaleString()}</div><div class="sim-sum-label">일치 횟수</div></div>
+        <div><div class="sim-sum-val">${rate}%</div><div class="sim-sum-label">일치 비율</div></div>
       </div>
-      ${results[1]>0?`<div style="text-align:center;margin-top:10px;font-size:11px;color:var(--accent)">🎉 1등 당첨! 평균 ${avg1.toLocaleString()}회에 1번</div>`:''}
+      ${results[1]>0?`<div style="text-align:center;margin-top:10px;font-size:11px;color:var(--accent)">🎉 1등 일치 확인 평균 ${avg1.toLocaleString()}회에 1번</div>`:''}
     </div>`;
   // 막대 애니메이션
   setTimeout(()=>{
@@ -2653,7 +2669,7 @@ document.getElementById('sim-btn-10000').addEventListener('click',()=>{
 // 시뮬레이션 광고 처리는 confirmBtn 통합 처리됨
  
  
-// ── 주간 챌린지 ──
+// ── 주간 번호 참여 ──
 let challengeGenNums = [];
 let challengeCustomNums = [];
 let challengeMyEntry = null;
@@ -2849,7 +2865,7 @@ async function loadChallengeHistory(){
       const myBalls=myNums.map(n=>`<div class="ball ${ballCls(n)}" style="width:22px;height:22px;font-size:9px">${n}</div>`).join('');
       return `<div class="challenge-hist-item">
         <div class="challenge-hist-round">${round}회차 · ${roundData.participantCount||0}명 참여</div>
-        <div class="challenge-hist-my" style="font-size:10px;color:var(--muted)">당첨번호: <span style="font-size:10px;color:var(--muted)">보너스 ${bonus}</span></div>
+        <div class="challenge-hist-my" style="font-size:10px;color:var(--muted)">결과번호: <span style="font-size:10px;color:var(--muted)">보너스 ${bonus}</span></div>
         <div class="challenge-hist-nums">${winBalls}</div>
         ${myEntry?`
           <div style="font-size:10px;color:var(--muted);margin-top:6px">내 번호</div>
@@ -2873,7 +2889,7 @@ async function joinChallenge(numbers, sourceType){
   if(!db||!currentUid){ alert('로그인 정보가 없습니다. 잠시 후 시도해주세요.'); return; }
   // 상태 확인 (마감 후 참여 방지)
   const status=getChallengeStatus();
-  if(status!=='open'){ alert('이번 회차 챌린지는 마감됐습니다.'); return; }
+  if(status!=='open'){ alert('이번 회차 참여는 마감됐습니다.'); return; }
  
   const roundId=String(latestRound);
   const entryRef=doc(db,'challenge_rounds',roundId,'entries',currentUid);
@@ -2901,7 +2917,7 @@ async function joinChallenge(numbers, sourceType){
     });
     challengeMyEntry={id:currentUid,uid:currentUid,numbers,sourceType,rank:0,resultLabel:'집계 대기'};
     renderMyEntry();
-    alert('✅ 챌린지 참여 완료!');
+    alert('✅ 참여가 완료되었습니다!');
   }catch(e){
     if(e.message==='already_joined'){ alert('이미 이번 회차에 참여하셨습니다.'); checkMyEntry(roundId); }
     else { console.error('joinChallenge error:',e); alert('참여 중 오류가 발생했습니다.'); }
@@ -3003,7 +3019,7 @@ document.getElementById('challenge-btn-gen').addEventListener('click',()=>{
 });
 document.getElementById('challenge-btn-lucky').addEventListener('click',()=>{
   const luckyBalls=[...document.querySelectorAll('#lucky-balls .lucky-ball')].map(b=>parseInt(b.textContent));
-  if(luckyBalls.length!==6){ alert('오늘의 행운 번호를 먼저 불러오세요.'); return; }
+  if(luckyBalls.length!==6){ alert('오늘의 숫자 카드 번호를 먼저 불러오세요.'); return; }
   joinChallenge(luckyBalls,'lucky');
 });
 document.getElementById('challenge-btn-custom-toggle').addEventListener('click',()=>{
@@ -3188,12 +3204,12 @@ function generatePersonalFortune(birth, hourIdx, gender){
   const action = seededPick(data.actions, seed + 1);
   const deed = seededPick(data.deeds, seed + 2);
  
-  // 행운 컬러
+  // 추천 컬러
   const colorIdx = Math.floor(Math.abs(Math.sin(seed+3)*100)) % data.colors.length;
   const luckyColor = data.colors[colorIdx];
   const luckyColorHex = data.colorHex[colorIdx];
  
-  // 행운 시간
+  // 추천 시간
   const luckyTime = seededPick(data.times, seed + 4);
  
   // 행운 숫자 (1~45 중 1개, 오행 가중치)
@@ -3224,15 +3240,15 @@ function renderFortune(fortune, containerId){
     <div style="font-size:10px;color:var(--muted);margin-bottom:12px;padding:0 2px">${relationMap[fortune.relation]||''} (내 오행: ${fortune.personalOhaeng} · 오늘 오행: ${fortune.todayOhaeng})</div>
     <div class="fortune-lucky-num">
       <div class="fortune-lucky-num-val" style="color:${fortune.luckyColorHex}">${fortune.luckyNum}</div>
-      <div class="fortune-lucky-num-label">오늘의 행운 숫자</div>
+      <div class="fortune-lucky-num-label">오늘의 숫자 카드 숫자</div>
     </div>
     <div class="fortune-grid">
       <div class="fortune-item">
-        <div class="fortune-item-label">행운 컬러</div>
+        <div class="fortune-item-label">추천 컬러</div>
         <div class="fortune-item-val" style="color:${fortune.luckyColorHex}">● ${fortune.luckyColor}</div>
       </div>
       <div class="fortune-item">
-        <div class="fortune-item-label">행운 시간</div>
+        <div class="fortune-item-label">추천 시간</div>
         <div class="fortune-item-val" style="font-size:12px">${fortune.luckyTime}</div>
       </div>
     </div>
@@ -3284,8 +3300,8 @@ function updateFortuneDisplay(){
   if(!info || !info.birth){
     document.getElementById('myinfo-fortune-area').innerHTML = `
       <div class="fortune-card" style="opacity:.6">
-        <div class="fortune-card-title">🔮 내 오늘의 운세</div>
-        <div class="fortune-empty"><div class="fortune-empty-icon">🔮</div>생년월일을 입력하고 저장하면<br>오늘의 운세가 표시됩니다.</div>
+        <div class="fortune-card-title">🔮 내 오늘의 흐름</div>
+        <div class="fortune-empty"><div class="fortune-empty-icon">🔮</div>생년월일을 입력하고 저장하면<br>오늘의 흐름이 표시됩니다.</div>
       </div>`;
     return;
   }
@@ -3293,11 +3309,11 @@ function updateFortuneDisplay(){
   // 내정보(오늘의 운세) 탭 카드
   document.getElementById('myinfo-fortune-area').innerHTML = `
     <div class="fortune-card">
-      <div class="fortune-card-title">🔮 내 오늘의 운세</div>
+      <div class="fortune-card-title">🔮 내 오늘의 흐름</div>
       <div id="myinfo-fortune-content"></div>
     </div>`;
   renderFortune(fortune, 'myinfo-fortune-content');
-  // 행운 숫자 오늘의 행운에 반영
+  // 행운 숫자 오늘의 숫자 카드에 반영
   if(info.luckyReflect){
     window._personalLuckyNum = fortune.luckyNum;
   } else {
@@ -3305,7 +3321,7 @@ function updateFortuneDisplay(){
   }
 }
  
-// 오늘의 행운 번호에 개인 행운 숫자 반영
+// 오늘의 숫자 카드 번호에 개인 행운 숫자 반영
 // generateLuckyData 3단 분리 완료 (위쪽에 정의)
  
 // 성별 버튼 이벤트
@@ -3328,9 +3344,9 @@ document.getElementById('myinfo-save-btn').addEventListener('click', ()=>{
   };
   saveMyInfo(info);
   updateFortuneDisplay();
-  // 오늘의 행운 재로드 (행운 숫자 반영)
+  // 오늘의 숫자 카드 재로드 (행운 숫자 반영)
   loadTodayLucky();
-  alert('✅ 저장됐습니다! 오늘의 행운 번호에 반영됩니다.');
+  alert('✅ 저장됐습니다! 오늘의 숫자 카드 번호에 반영됩니다.');
 });
  
 // 초기화 버튼
@@ -3348,7 +3364,7 @@ document.getElementById('myinfo-reset-btn').addEventListener('click', ()=>{
  
 // 탭 전환 시 내정보 탭 진입
  
-// ── 명당 시스템 ──
+// ── 참고점수 시스템 ──
 let _luckyStatsCache = null;
 let _luckyStatsCacheTime = 0;
 
@@ -3371,18 +3387,18 @@ let _luckyStatsCacheTime = 0;
     `;
   }else if(sortType === 'lucky'){
     html = `
-      <strong>🏆 명당점수순</strong><br>
-      <span class="accent">명당점수</span>는 <strong>1등 횟수 + 2등 횟수 + 최근 당첨 회차</strong>를 함께 반영한 종합 점수입니다.
+      <strong>🏆 참고점수순</strong><br>
+      <span class="accent">명당점수</span>는 <strong>1등 횟수 + 2등 횟수 + 최근 기록 회차</strong>를 함께 반영한 종합 점수입니다.
     `;
   }else if(sortType === 'first'){
     html = `
       <strong>🥇 1등횟수순</strong><br>
-      <span class="orange">1등 당첨 횟수만</span> 기준으로 정렬합니다. 2등 횟수나 최근 당첨 여부는 반영하지 않습니다.
+      <span class="orange">1등 일치 횟수만</span> 기준으로 정렬합니다. 2등 횟수나 최근 기록 여부는 반영하지 않습니다.
     `;
   }else if(sortType === 'recent'){
     html = `
-      <strong>⚡ 최근당첨회차순</strong><br>
-      가장 최근 <span class="blue">당첨된 회차 번호</span>가 큰 판매점이 위로 올라옵니다.
+      <strong>⚡ 최근기록순</strong><br>
+      가장 최근 <span class="blue">기록된 회차 번호</span>가 큰 판매점이 위로 올라옵니다.
     `;
   }
 
