@@ -593,6 +593,57 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
   color:rgba(255,255,255,.72);
   font-weight:600;
 }
+ /* ── TOP10 열기 버튼 ── */
+.near-top10-open-btn{
+  width:100%;
+  border:none;
+  border-radius:12px;
+  padding:13px 16px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#000;
+  font-size:13px;
+  font-weight:900;
+  font-family:inherit;
+  cursor:pointer;
+  box-shadow:0 6px 20px rgba(240,192,64,.18);
+  transition:all .18s ease;
+}
+.near-top10-open-btn:active{
+  transform:scale(.98);
+}
+
+/* ── TOP10 모달 내부 리스트 ── */
+.near-top10-modal-list{
+  max-height:52vh;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  text-align:left;
+  margin:14px 0 8px;
+}
+.near-top10-addr{
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.45;
+}
+.near-top10-meta{
+  font-size:10px;
+  color:#fff;
+  line-height:1.55;
+  font-weight:700;
+  margin-top:4px;
+}
+.near-top10-meta .muted{
+  color:rgba(255,255,255,.7);
+  font-weight:600;
+}
+.near-top10-dist{
+  color:var(--accent3);
+  font-size:10px;
+  margin-top:4px;
+  font-weight:700;
+}
 </style>
 </head>
 <body>
@@ -904,8 +955,12 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     </div>
    <div class="near-count" id="near-count"></div>
 
+<div class="near-count" id="near-count"></div>
+
 <div id="near-top10-open-wrap" style="display:none;margin-bottom:10px">
-  <button id="near-top10-open-btn" class="near-top10-open-btn">🏆 내 주변 명당 TOP10 보기</button>
+  <button id="near-top10-open-btn" class="near-top10-open-btn">
+    🏆 내 500m 주변 명당 TOP10 보기
+  </button>
 </div>
 
 <div id="near-sort-row" class="near-sort-row" style="display:none">
@@ -917,8 +972,6 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
 
 <div id="near-sort-help" class="near-sort-help" style="display:none"></div>
 <div id="near-list"></div>
-    <div id="near-list"></div>
-  </div>
  
   <footer style="text-align:center;padding:24px 0 8px;font-size:11px;color:#505870">
     <a href="privacy.html" style="color:#505870;text-decoration:none">개인정보처리방침</a>
@@ -951,6 +1004,19 @@ h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(1.5rem,5.5vw,2.4rem);
     <div class="modal-desc">정말 삭제하겠습니까?<br><div id="del-modal-nums" style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-top:12px"></div></div>
     <button class="modal-btn modal-btn-primary" id="del-confirm-btn" style="background:linear-gradient(135deg,var(--red),#c01010)">✅ 삭제</button>
     <button class="modal-btn modal-btn-secondary" id="del-cancel-btn" style="margin-top:8px">취소</button>
+  </div>
+</div>
+
+<!-- 내 주변 명당 TOP10 모달 -->
+<div class="modal-overlay" id="near-top10-modal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-icon">🏆</div>
+    <div class="modal-title">내 주변 명당 TOP10</div>
+    <div class="modal-desc">반경 내 판매점 중 명당점수 기준 TOP10입니다.</div>
+
+    <div id="near-top10-modal-list" class="near-top10-modal-list"></div>
+
+    <button class="modal-btn modal-btn-primary" id="near-top10-close-btn">닫기</button>
   </div>
 </div>
  
@@ -3085,6 +3151,7 @@ function formatNearTop10List(stores){
     const second = s.lucky?.secondCount || 0;
     const recent = s.lucky?.recentWinRound || 0;
     const dist = s.dist < 1000 ? `${s.dist}m` : `${(s.dist/1000).toFixed(1)}km`;
+    const score = s.lucky?.luckyScore || 0;
 
     return `
       <div class="near-top10-item">
@@ -3098,7 +3165,7 @@ function formatNearTop10List(stores){
           </div>
         </div>
         <div class="near-top10-side">
-          <div class="near-top10-score">🏆 ${s.lucky?.luckyScore || 0}점</div>
+          <div class="near-top10-score">🏆 ${score}점</div>
           <div class="near-top10-dist">${dist}</div>
         </div>
       </div>
@@ -3166,13 +3233,24 @@ document.getElementById('near-top10-modal')?.addEventListener('click', (e)=>{
   el.style.display = 'block';
 }
 
- function renderNearTop10(stores){
+function renderNearTop10(stores){
   const ranked = [...stores]
-    .filter(s => s.lucky)
     .sort((a,b)=>{
       const sa = a.lucky?.luckyScore || 0;
       const sb = b.lucky?.luckyScore || 0;
-      return sb - sa || a.dist - b.dist;
+
+      const fa = (a.lucky?.firstAutoCount || 0) + (a.lucky?.firstManualCount || 0);
+      const fb = (b.lucky?.firstAutoCount || 0) + (b.lucky?.firstManualCount || 0);
+
+      const ra = a.lucky?.recentWinRound || 0;
+      const rb = b.lucky?.recentWinRound || 0;
+
+      return (
+        sb - sa ||
+        fb - fa ||
+        rb - ra ||
+        a.dist - b.dist
+      );
     })
     .slice(0,10);
 
@@ -3180,37 +3258,13 @@ document.getElementById('near-top10-modal')?.addEventListener('click', (e)=>{
 
   const openWrap = document.getElementById('near-top10-open-wrap');
   if(openWrap){
-    openWrap.style.display = ranked.length ? 'block' : 'none';
+    openWrap.style.display = stores.length ? 'block' : 'none';
   }
 
   updateNearTop10ButtonText();
 }
 
-  list.innerHTML = ranked.map((s,i)=>{
-    const rankCls = i===0 ? 'r1' : i===1 ? 'r2' : i===2 ? 'r3' : '';
-    const first = (s.lucky?.firstAutoCount || 0) + (s.lucky?.firstManualCount || 0);
-    const second = s.lucky?.secondCount || 0;
-    const recent = s.lucky?.recentWinRound || 0;
-    const dist = s.dist < 1000 ? `${s.dist}m` : `${(s.dist/1000).toFixed(1)}km`;
-
-    return `
-      <div class="near-top10-item">
-        <div class="near-top10-rank ${rankCls}">${i+1}</div>
-        <div class="near-top10-main">
-          <div class="near-top10-name">${s.name}</div>
-          <div class="near-top10-sub">${s.addr || ''}</div>
-        </div>
-        <div class="near-top10-side">
-          <div class="near-top10-score">🏆 ${s.lucky?.luckyScore || 0}점</div>
-          <div class="near-top10-first">🥇 ${first}회 · 🥈 ${second}회</div>
-          <div class="near-top10-recent">${recent ? `최근 ${recent}회 · ${dist}` : dist}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  box.style.display = 'block';
-}
+ 
 
  
 // 텍스트 정규화 (공백·괄호·하이픈 제거)
